@@ -593,61 +593,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 
 <script>
 const GAS='https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
-const PRODUCTS=[
-  {id:1,cat:'洗顔・クレンジング',name:'モイストクレンジングプラス',variants:[{name:'250mL',price:5500},{name:'80mLミニ★',price:1980,neko:true}]},
-  {id:2,cat:'洗顔・クレンジング',name:'モイストクレンジング（まつエク対応）',variants:[{name:'300mL',price:4730},{name:'150mL',price:2750}]},
-  {id:3,cat:'洗顔・クレンジング',name:'モイスチャーソープ',variants:[{name:'80g',price:4070},{name:'10g',price:550}]},
-  {id:4,cat:'洗顔・クレンジング',name:'テクスマッサージジェル',price:3960},
-  {id:10,cat:'化粧水',name:'セルウォーター',variants:[{name:'200mL',price:1980},{name:'2本セット',price:3960}]},
-  {id:11,cat:'化粧水',name:'ピューローション 500mL',price:10780},
-  {id:12,cat:'化粧水',name:'ピューローションオメガ',variants:[{name:'150mL',price:4290},{name:'300mL',price:7480}]},
-  {id:13,cat:'化粧水',name:'エルローション 300mL',price:8800},
-  {id:20,cat:'美容液・クリーム',name:'シャイニーブラン',variants:[{name:'30mL',price:6600},{name:'50mL',price:9900},{name:'100mL',price:18700}]},
-  {id:21,cat:'美容液・クリーム',name:'リンプル',variants:[{name:'30mL',price:9680},{name:'50mL',price:13200},{name:'100mL',price:24200}]},
-  {id:22,cat:'美容液・クリーム',name:'マルチプルセラム プレミアム',price:11000},
-  {id:23,cat:'美容液・クリーム',name:'ジュネセルセルム',variants:[{name:'5mL',price:5830},{name:'アタッチメント',price:220}]},
-  {id:24,cat:'美容液・クリーム',name:'キャナルビジュー',price:11000},
-  {id:25,cat:'美容液・クリーム',name:'リンクルNAクリーム',price:11000},
-  {id:26,cat:'美容液・クリーム',name:'インフィニータEXゲルプラス',price:15125},
-  {id:27,cat:'美容液・クリーム',name:'フィルミン',price:2750,neko:true},
-  {id:28,cat:'美容液・クリーム',name:'ハイエストゲル',price:7480},
-  {id:30,cat:'フェイスマスク',name:'プラチナフェイスマスク',variants:[{name:'1枚',price:495,neko:true},{name:'5枚',price:2420},{name:'10枚',price:4730},{name:'15枚',price:6930},{name:'20枚',price:9020},{name:'25枚',price:11000},{name:'30枚',price:12870}]},
-  {id:40,cat:'ボディ・ヘアケア',name:'ボディーローション',variants:[{name:'150mL',price:2530},{name:'2本セット',price:5060}]},
-  {id:41,cat:'ボディ・ヘアケア',name:'サプルプラス（シャンプー）',price:4169,cp:true},
-  {id:42,cat:'ボディ・ヘアケア',name:'ノーブルプラス（トリートメント）',price:4169,cp:true},
-  {id:43,cat:'ボディ・ヘアケア',name:'スカルプガードEX',price:4208,cp:true},
-  {id:44,cat:'ボディ・ヘアケア',name:'シルク100%ヘアケアクロス',price:4400},
-  {id:50,cat:'UV・ベースメイク',name:'UVデイクリーム＆ベース',variants:[{name:'30g SPF45',price:5720},{name:'SP(45g)さっぱり',price:7150}]},
-  {id:51,cat:'UV・ベースメイク',name:'カラーUV＆ベース',variants:[{name:'イエロー系BG 30g',price:5830},{name:'ピンク系BG 45g',price:7700}]},
-  {id:52,cat:'UV・ベースメイク',name:'マジカルシーラー',price:3630,neko:true},
-  {id:60,cat:'ファンデ・パウダー',name:'トランスルーセントパウダー',variants:[{name:'20gセット',price:5170},{name:'5gセット',price:2200}]},
-  {id:61,cat:'ファンデ・パウダー',name:'TLPレフィル',neko:true,variants:[{name:'ベージュ',price:3520},{name:'ホワイト',price:3520}]},
-  {id:62,cat:'ファンデ・パウダー',name:'プレストファンデーション',variants:[{name:'ナチュラルオークル',price:5280},{name:'ライトベージュ',price:5280}]},
-  {id:63,cat:'ファンデ・パウダー',name:'マイクロフィニッシングパウダー',neko:true,variants:[{name:'セット',price:5060},{name:'レフィル',price:3520}]},
-  {id:70,cat:'チーク・リップ',name:'シルキーブラッシュ',neko:true,variants:[{name:'本品',price:3740},{name:'レフィル',price:2750}]},
-  {id:71,cat:'チーク・リップ',name:'モイスチャーリップ',neko:true,variants:[{name:'ピンクBG',price:4180},{name:'リッチRD',price:4180}]},
-  {id:72,cat:'チーク・リップ',name:'リップビジューC',price:1980,neko:true},
-  {id:80,cat:'アイメイク',name:'アイシャドウベース（クリアピンク）',price:1870,neko:true},
-  {id:81,cat:'アイメイク',name:'ノーステインライナー',price:2860,neko:true},
-  {id:82,cat:'アイメイク',name:'ピュアアイラッシュ',price:2890,neko:true},
-  {id:83,cat:'アイメイク',name:'美眉ビューティペンシル',price:2420,neko:true},
-  {id:90,cat:'サプリメント',name:'ミキズコラーゲン',variants:[{name:'単品',price:5940},{name:'4袋セット',price:21384}]},
-  {id:91,cat:'サプリメント',name:'黄金のコラーゲン',variants:[{name:'単品',price:5940},{name:'4袋セット',price:21384}]},
-  {id:92,cat:'サプリメント',name:'白肌星Mg',variants:[{name:'90粒',price:5400},{name:'4個セット',price:19440}]},
-  {id:93,cat:'サプリメント',name:'アスカラダイジェスト',variants:[{name:'単品',price:3780},{name:'2個',price:7560},{name:'4袋',price:13690}]},
-  {id:94,cat:'サプリメント',name:'デルリズム',price:7020,cp:true},
-  {id:95,cat:'サプリメント',name:'デルミライト',variants:[{name:'30包',price:10800},{name:'2週間分',price:5400},{name:'4類(120包)',price:38880}]},
-  {id:96,cat:'サプリメント',name:'デルミパウダー',price:12960},
-  {id:100,cat:'セット・トライアル',name:'トライアルセット(9種)',price:990,neko:true},
-  {id:101,cat:'セット・トライアル',name:'はじめてのエポラーシェセット',price:11000},
-  {id:102,cat:'セット・トライアル',name:'こだわりの基本セット（5種）',price:17380},
-  {id:103,cat:'セット・トライアル',name:'夏肌セット（エル300+ハイエスト）',price:13000},
-  {id:110,cat:'その他・雑貨',name:'ネックビューティスリム',variants:[{name:'1枚',price:1430},{name:'2枚',price:2640},{name:'4枚',price:5060}]},
-  {id:111,cat:'その他・雑貨',name:'マグネシウム歯磨きペースト',price:1650},
-  {id:112,cat:'その他・雑貨',name:'潤ボーロ',variants:[{name:'1箱',price:1760},{name:'2箱',price:3520},{name:'3箱（送料無料）',price:5280}]},
-  {id:113,cat:'その他・雑貨',name:'エレヴィア',variants:[{name:'ブラック',price:14300},{name:'グレーBG',price:14300}]},
-];
-
+let PRODUCTS = []; // スプレッドシートから動的に読み込み
 // STATE
 let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:''};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
@@ -1072,11 +1018,57 @@ function togAcc(h){
 
 // SETTINGS FROM SERVER
 async function loadSettingsFromServer(){
+  // 設定と商品を並行取得
   try{
-    const res=await fetch(GAS+'?action=settings&t='+Date.now());
-    SETTINGS=await res.json();
-  }catch(e){SETTINGS=null;}
+    const [settingsRes, productsRes] = await Promise.all([
+      fetch(GAS+'?action=settings&t='+Date.now()),
+      fetch(GAS+'?action=products&t='+Date.now())
+    ]);
+    SETTINGS = await settingsRes.json();
+    const rawProducts = await productsRes.json();
+    if(Array.isArray(rawProducts) && rawProducts.length > 0){
+      PRODUCTS = convertProducts(rawProducts);
+    }
+  }catch(e){
+    console.warn('GAS読み込みエラー:', e);
+    SETTINGS=null;
+  }
   applySettings();
+}
+
+// GASからの商品データをアプリ用フォーマットに変換
+function convertProducts(raw){
+  // 同じ商品名でまとめてvariantsに
+  const map = {};
+  raw.forEach(r => {
+    const key = r.cat + '|' + r.name;
+    if(!map[key]){
+      map[key] = {
+        id:   r.id,
+        cat:  r.cat,
+        name: r.name,
+        neko: r.neko,
+        cp:   r.cp,
+        variants: []
+      };
+    }
+    if(r.spec){
+      map[key].variants.push({name: r.spec, price: r.price, neko: r.neko});
+    } else {
+      map[key].price = r.price;
+    }
+  });
+  return Object.values(map).map(p => {
+    if(p.variants.length === 0){
+      delete p.variants;
+    } else if(p.variants.length === 1 && !p.price){
+      // 規格が1種類しかない場合はvariantsなしで
+      p.price = p.variants[0].price;
+      p.neko = p.variants[0].neko || p.neko;
+      delete p.variants;
+    }
+    return p;
+  });
 }
 function applySettings(){
   if(!SETTINGS)return;
