@@ -1038,8 +1038,8 @@ async function loadSettingsFromServer(){
 
 // GASからの商品データをアプリ用フォーマットに変換
 function convertProducts(raw){
-  // 同じ商品名でまとめてvariantsに
   const map = {};
+  const order = [];
   raw.forEach(r => {
     const key = r.cat + '|' + r.name;
     if(!map[key]){
@@ -1049,23 +1049,29 @@ function convertProducts(raw){
         name: r.name,
         neko: r.neko,
         cp:   r.cp,
-        variants: []
+        variants: [],
+        price: null
       };
+      order.push(key);
     }
-    if(r.spec){
-      map[key].variants.push({name: r.spec, price: r.price, neko: r.neko});
+    if(r.spec && r.spec !== ''){
+      map[key].variants.push({name: r.spec, price: Number(r.price), neko: r.neko});
     } else {
-      map[key].price = r.price;
+      map[key].price = Number(r.price);
     }
+    // ネコポスはどれか1つでもtrueならtrue
+    if(r.neko) map[key].neko = true;
+    // CPも同様
+    if(r.cp) map[key].cp = true;
   });
-  return Object.values(map).map(p => {
+  return order.map(key => {
+    const p = map[key];
     if(p.variants.length === 0){
+      // 規格なし → price直接
       delete p.variants;
-    } else if(p.variants.length === 1 && !p.price){
-      // 規格が1種類しかない場合はvariantsなしで
-      p.price = p.variants[0].price;
-      p.neko = p.variants[0].neko || p.neko;
-      delete p.variants;
+    } else if(p.price === null){
+      // 規格のみ → variants使用
+      delete p.price;
     }
     return p;
   });
