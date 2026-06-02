@@ -941,11 +941,9 @@ function onAddr(){
 // VALIDATION
 function validate(){
   const cartOk=cart.length>0,payOk=!!st.pay,timeOk=!!st.time;
-  const cardOk=st.pay!=='card'||(!!document.getElementById('i-cno').value&&!!document.getElementById('i-cexp').value);
-  const allOk=cartOk&&payOk&&timeOk&&cardOk;
+  const allOk=cartOk&&payOk&&timeOk;
   const checks=[
     {label:'商品',ok:cartOk},{label:'支払方法',ok:payOk},{label:'時間帯',ok:timeOk},
-    ...(st.pay==='card'?[{label:'カード番号',ok:!!document.getElementById('i-cno').value},{label:'有効期限',ok:!!document.getElementById('i-cexp').value}]:[]),
   ];
   document.getElementById('vbar-items').innerHTML=checks.map(c=>'<div class="vi '+(c.ok?'ok':'ng')+'">'+(c.ok?'✓':'!')+' '+c.label+'</div>').join('');
   document.getElementById('confirm-btn').disabled=!allOk;
