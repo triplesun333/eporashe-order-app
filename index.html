@@ -1002,7 +1002,10 @@ function submitOrder(){
     subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
     coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
   };
-  fetch(GAS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save_order',order})}).catch(e=>console.warn('GAS保存エラー',e));
+  // GASにGETパラメータで送信（CORSを回避）
+  const orderData = encodeURIComponent(JSON.stringify({action:'save_order',order}));
+  fetch(GAS + '?method=post&data=' + orderData, {mode:'no-cors'})
+    .catch(e=>console.warn('GAS保存エラー',e));
   const h=JSON.parse(localStorage.getItem('epro_orders')||'[]');
   h.unshift(order);localStorage.setItem('epro_orders',JSON.stringify(h));
   closeConfirm();newOrder();showPg('history');
