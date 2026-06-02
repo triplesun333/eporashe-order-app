@@ -1018,20 +1018,23 @@ function togAcc(h){
 
 // SETTINGS FROM SERVER
 async function loadSettingsFromServer(){
-  // 設定と商品を並行取得
+  // 設定を取得
   try{
-    const [settingsRes, productsRes] = await Promise.all([
-      fetch(GAS+'?action=settings&t='+Date.now()),
-      fetch(GAS+'?action=products&t='+Date.now())
-    ]);
-    SETTINGS = await settingsRes.json();
-    const rawProducts = await productsRes.json();
+    const res = await fetch(GAS+'?action=settings&t='+Date.now());
+    SETTINGS = await res.json();
+  }catch(e){
+    console.warn('設定読み込みエラー:', e);
+    SETTINGS = null;
+  }
+  // 商品を取得
+  try{
+    const res2 = await fetch(GAS+'?action=products&t='+Date.now());
+    const rawProducts = await res2.json();
     if(Array.isArray(rawProducts) && rawProducts.length > 0){
       PRODUCTS = convertProducts(rawProducts);
     }
   }catch(e){
-    console.warn('GAS読み込みエラー:', e);
-    SETTINGS=null;
+    console.warn('商品読み込みエラー:', e);
   }
   applySettings();
 }
@@ -1092,8 +1095,9 @@ function applySettings(){
 
 // INIT
 document.addEventListener('DOMContentLoaded',async()=>{
-  initProds();
+  // まずGASから設定・商品を取得してからリストを描画
   await loadSettingsFromServer();
+  initProds();  // 商品取得後に描画
   window.cpCheck=()=>{
     const zone=document.getElementById('cp-zone');zone.innerHTML='';
     st.cpDisc=0;st.cpLabel='';
