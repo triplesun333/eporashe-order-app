@@ -332,6 +332,34 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
       </div>
     </div>
 
+    <!-- Excelインポート -->
+    <div class="card">
+      <div class="card-head">📥 Excelでキャンペーンを一括インポート</div>
+      <div class="card-body">
+        <div style="background:var(--navy-l);border:1.5px solid var(--navy);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;font-size:12px;line-height:1.9;">
+          <b>📋 Excel様式（1行1キャンペーン）</b><br>
+          A列: タイプ　B列: キャンペーン名　C列: 期間　D列: 商品キーワード（カンマ区切り）<br>
+          E列: 数量　F列: 通常価格　G列: 割引後価格　H列: 割引率(%)　I列: クーポンコード<br>
+          J列: 最低金額　K列: 景品名　L列: 景品開始金額　M列: 景品増加金額<br><br>
+          <b>タイプ一覧：</b>
+          A=数量割引 / B=段階割引 / C=コードクーポン / D=金額プレゼント / E=累進プレゼント / F=セット価格
+        </div>
+        <div style="margin-bottom:10px;">
+          <button class="btn btn-outline" onclick="downloadTemplate()" style="margin-right:8px;">📥 様式をダウンロード</button>
+          <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid var(--ok);border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:800;color:var(--ok);background:var(--ok-l);">
+            📂 Excelファイルを選択してインポート
+            <input type="file" accept=".xlsx,.xls,.csv" onchange="importExcel(this)" style="display:none;">
+          </label>
+        </div>
+        <div id="import-preview" style="display:none;">
+          <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:8px;">インポートプレビュー</div>
+          <div id="import-table"></div>
+          <button class="btn btn-save" style="margin-top:10px;" onclick="applyImport()">✅ このキャンペーンを適用する</button>
+        </div>
+        <div id="import-msg"></div>
+      </div>
+    </div>
+
     <!-- ノベルティ -->
     <div class="card">
       <div class="card-head">🎁 同梱サンプル・ノベルティ</div>
@@ -379,11 +407,134 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
 let sessionPw = '';
 
 // ====== LOGIN ======
+// ========== Excelインポート ==========
+let importedCampaigns = [];
+
+function downloadTemplate() {
+  const wb = XLSX.utils.book_new();
+  const headers = ['タイプ','キャンペーン名','期間','商品キーワード','数量','通常価格','割引後価格','割引率(%)','クーポンコード','最低金額','景品名','景品開始金額','景品増加金額'];
+  const examples = [
+    ['A','美髪革命CP','6/12〜6/30','サプルプラス',2,8338,6800,18,'','','','',''],
+    ['A','美髪革命CP','6/12〜6/30','ノーブルプラス',2,8338,6800,18,'','','','',''],
+    ['B','夏の腸活CP','6/5〜6/19','デルリズム',1,7020,6318,10,'','','','',''],
+    ['B','夏の腸活CP','6/5〜6/19','デルリズム',2,14040,11232,20,'','','','',''],
+    ['B','夏の腸活CP','6/5〜6/19','デルリズム',3,21060,15795,25,'','','','',''],
+    ['C','年度末感謝祭','3/13〜3/31','','',0,0,10,'ks2026',10000,'','',''],
+    ['D','保冷バッグCP','6/1〜6/30','','',0,0,0,'',16500,'保冷バッグ','',''],
+    ['E','ロイヤルブランCP','12/26〜1/4','','',0,0,0,'',20000,'ロイヤルブラン',20000,10000],
+    ['F','夏肌セット','5/22〜8/31','エルローション,ハイエストゲル',1,16280,13000,20,'','','','',''],
+  ];
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
+  ws['!cols'] = headers.map(() => ({wch: 16}));
+  XLSX.utils.book_append_sheet(wb, ws, 'キャンペーン');
+  XLSX.writeFile(wb, 'campaign_template.xlsx');
+}
+
+function importExcel(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'binary'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if (rows.length < 2) { showImportMsg('データがありません', 'err'); return; }
+
+      // ヘッダー行をスキップしてキャンペーンに変換
+      const dataRows = rows.slice(1).filter(r => r[0] && r[1]);
+      importedCampaigns = convertRowsToCampaigns(dataRows);
+
+      // プレビュー表示
+      showImportPreview(importedCampaigns);
+    } catch(e) {
+      showImportMsg('ファイルの読み込みに失敗しました: ' + e.message, 'err');
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+function convertRowsToCampaigns(rows) {
+  const campMap = {};
+  rows.forEach(r => {
+    const type    = (r[0]||'').toString().trim().toUpperCase();
+    const name    = (r[1]||'').toString().trim();
+    const period  = (r[2]||'').toString().trim();
+    const kw      = (r[3]||'').toString().trim();
+    const qty     = Number(r[4]) || 1;
+    const orig    = Number(r[5]) || 0;
+    const disc    = Number(r[6]) || 0;
+    const pct     = Number(r[7]) || 0;
+    const code    = (r[8]||'').toString().trim();
+    const minAmt  = Number(r[9]) || 0;
+    const gift    = (r[10]||'').toString().trim();
+    const giftStart = Number(r[11]) || 0;
+    const giftStep  = Number(r[12]) || 0;
+
+    const key = name + '|' + period;
+    if (!campMap[key]) {
+      campMap[key] = {
+        name, period,
+        products: kw,
+        type, code, minAmt, gift, giftStart, giftStep,
+        rules: []
+      };
+    }
+    if (type === 'A' || type === 'B' || type === 'F') {
+      campMap[key].rules.push({
+        desc: kw + (qty > 1 ? '×' + qty + '本' : ''),
+        orig_price: orig, disc_price: disc, pct, product_keywords: kw, qty
+      });
+    }
+  });
+  return Object.values(campMap);
+}
+
+function showImportPreview(campaigns) {
+  const div = document.getElementById('import-preview');
+  const tbl = document.getElementById('import-table');
+  div.style.display = 'block';
+  tbl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px;">'
+    + '<tr style="background:var(--navy);color:#fff;"><th style="padding:5px 8px;text-align:left;">タイプ</th><th style="padding:5px 8px;text-align:left;">キャンペーン名</th><th style="padding:5px 8px;text-align:left;">期間</th><th style="padding:5px 8px;text-align:left;">ルール数</th></tr>'
+    + campaigns.map(c => '<tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 8px;">'+c.type+'</td><td style="padding:5px 8px;font-weight:700;">'+c.name+'</td><td style="padding:5px 8px;">'+c.period+'</td><td style="padding:5px 8px;">'+c.rules.length+'件</td></tr>').join('')
+    + '</table>';
+  showImportMsg(campaigns.length + '件のキャンペーンを読み込みました', 'ok');
+}
+
+function applyImport() {
+  // インポートしたキャンペーンをフォームに反映（最大3件）
+  importedCampaigns.slice(0, 3).forEach((cp, i) => {
+    const n = i + 1;
+    set('cp'+n+'_name',    cp.name);
+    set('cp'+n+'_period',  cp.period);
+    set('cp'+n+'_products',cp.products);
+    ['a','b','c'].forEach((r, ri) => {
+      const rule = cp.rules[ri] || {};
+      set('cp'+n+'_r'+r+'_desc', rule.desc || '');
+      set('cp'+n+'_r'+r+'_orig', rule.orig_price || '');
+      set('cp'+n+'_r'+r+'_disc', rule.disc_price || '');
+      set('cp'+n+'_r'+r+'_pct',  rule.pct || '');
+      set('cp'+n+'_r'+r+'_kw',   rule.product_keywords || '');
+      set('cp'+n+'_r'+r+'_qty',  rule.qty || '');
+    });
+  });
+  document.getElementById('import-preview').style.display = 'none';
+  showImportMsg('✅ フォームに反映しました！内容を確認して「保存する」を押してください。', 'ok');
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function showImportMsg(msg, type) {
+  const el = document.getElementById('import-msg');
+  el.innerHTML = '<div style="padding:8px 12px;border-radius:var(--rs);font-size:12px;font-weight:700;margin-top:8px;background:'+(type==='ok'?'var(--ok-l)':'var(--red-l)')+';color:'+(type==='ok'?'var(--ok)':'var(--red)')+';">'+msg+'</div>';
+}
+
+// ========== ログイン ==========
 function doLogin() {
   const pw = document.getElementById('pw-input').value;
   // まずAPIにGETして設定読み込み（パスワード確認はPOSTで行う）
