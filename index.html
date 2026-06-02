@@ -1040,13 +1040,28 @@ async function renderHist(){
     const itemsStr=typeof o.items==='string'?o.items:(Array.isArray(o.items)?o.items.map(i=>i.name+'×'+i.qty).join(' / '):'');
     const d=document.createElement('div');d.className='hi';
     const grand=Number(o.grand)||Number(o.subtotal)||0;
-    d.innerHTML='<div class="hi-top"><div><div class="hi-date">'+o.date+'</div><div class="hi-name">'+(o.name||'（名前なし）')+'様</div></div><div class="hi-amt">¥'+grand.toLocaleString()+'</div></div><div class="hi-prd">'+itemsStr+'</div><div class="hi-info">📞 '+(o.phone||'—')+'　💳 '+(pN[o.pay]||o.pay||'—')+'　🕐 '+(o.time||'—')+(o.addr?' 📍 '+o.addr:'')+'</div>';
+    d.innerHTML='<div class="hi-top"><div><div class="hi-date">'+fmtDate(o.date)+'</div><div class="hi-name">'+(o.name||'（名前なし）')+'様</div></div><div class="hi-amt">¥'+grand.toLocaleString()+'</div></div><div class="hi-prd">'+itemsStr+'</div><div class="hi-info">📞 '+(o.phone||'—')+'　💳 '+(pN[o.pay]||o.pay||'—')+'　🕐 '+(o.time||'—')+(o.addr?' 📍 '+o.addr:'')+'</div>';
     el.appendChild(d);
   });
 }
 function clearHist(){if(confirm('受注履歴をすべて削除しますか？')){localStorage.removeItem('epro_orders');renderHist();}}
 
 // SCRIPT ACCORDION
+function fmtDate(d){
+  if(!d) return '—';
+  // ISO形式（2026-06-02T06:00:00.000Z）を日本時間に変換
+  try {
+    const dt = new Date(d);
+    if(!isNaN(dt)){
+      return dt.getFullYear()+'/'
+        +String(dt.getMonth()+1).padStart(2,'0')+'/'
+        +String(dt.getDate()).padStart(2,'0')+' '
+        +String(dt.getHours()).padStart(2,'0')+':'
+        +String(dt.getMinutes()).padStart(2,'0');
+    }
+  } catch(e){}
+  return d;
+}
 function togSA(h){h.nextElementSibling.classList.toggle('on');}
 function togAcc(h){
   const body = h.nextElementSibling;
