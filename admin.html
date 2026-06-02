@@ -3,1115 +3,570 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>エポラーシェ 受注アプリ</title>
+<title>エポラーシェ 管理画面</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800&family=Shippori+Mincho:wght@500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800&display=swap');
 :root{
-  --bg:#edeae4;--wh:#fff;--sf:#f7f4ef;
-  --bd:#ddd8d0;--bd2:#c5bdb4;
-  --nv:#1a3a5c;--nv2:#2e5f8a;--nvl:#e8f0f8;--nvp:#f0f5fb;
-  --gd:#b8832a;--gdl:#fef6e4;
-  --ok:#1e6b45;--okl:#e4f5ec;
-  --wn:#92500a;--wnl:#fef4e4;
-  --rd:#b91c1c;--rdl:#fef2f2;
-  --cp:#6d28d9;--cpl:#f3eeff;
-  --tx:#1a1410;--tx2:#4a3f35;--tx3:#8a7d72;--tx4:#bab0a8;
-  --sh:0 1px 4px rgba(0,0,0,.07);--sh2:0 4px 16px rgba(0,0,0,.12);
+  --navy:#1a3a5c;--navy2:#2e5f8a;--navy-l:#e8f0f8;
+  --gold:#b8832a;--gold-l:#fef6e4;
+  --ok:#1e6b45;--ok-l:#e4f5ec;
+  --red:#b91c1c;--red-l:#fef2f2;
+  --warn:#92500a;--warn-l:#fef4e4;
+  --bg:#edeae4;--white:#fff;--surface:#f7f4ef;
+  --border:#ddd8d0;--border2:#c5bdb4;
+  --text:#1a1410;--text2:#4a3f35;--text3:#8a7d72;
   --r:10px;--rs:6px;
+  --sh:0 2px 10px rgba(0,0,0,.09);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{height:100%;overflow:hidden;}
-body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;}
+body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:360px;box-shadow:var(--sh);text-align:center;}
+.login-logo{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--text3);margin-bottom:24px;}
+.login-box input{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:.18s;}
+.login-box input:focus{border-color:var(--navy);}
+.login-btn{width:100%;padding:11px;border:none;border-radius:var(--rs);background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:.18s;}
+.login-btn:hover{background:var(--navy2);}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;font-weight:700;display:none;}
 
 /* HEADER */
-.hd{height:44px;background:var(--nv);display:flex;align-items:center;padding:0 12px;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.3);z-index:300;position:relative;}
-.hd-logo{font-family:'Shippori Mincho',serif;font-size:14px;color:#fff;letter-spacing:.06em;white-space:nowrap;}
+.hd{background:var(--navy);height:50px;display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.hd-logo{color:#fff;font-size:15px;font-weight:800;letter-spacing:.05em;}
 .hd-logo span{color:#f0c87a;}
 .hd-sp{flex:1;}
-.hd-btn{padding:4px 11px;border-radius:14px;border:1.5px solid rgba(255,255,255,.35);background:transparent;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;}
-.hd-btn:hover{background:rgba(255,255,255,.15);}
-.hd-btn.on{background:var(--gd);border-color:var(--gd);}
-.hd-new{background:var(--gd);border-color:var(--gd);}
+.hd-info{color:rgba(255,255,255,.7);font-size:11px;}
+.hd-logout{padding:5px 14px;border-radius:14px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
+.hd-logout:hover{background:rgba(255,255,255,.15);}
 
-/* LAYOUT */
-#pg-order{display:flex;flex-direction:column;height:calc(100vh - 44px);}
-#pg-history,#pg-scripts{display:none;height:calc(100vh - 44px);overflow-y:auto;padding:16px;}
-#pg-history.on,#pg-scripts.on{display:block;}
-.cols{display:flex;flex:1;overflow:hidden;}
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:24px 16px;}
+.page-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.page-sub{font-size:11px;color:var(--text3);margin-bottom:20px;}
 
-/* LEFT: 商品選択専用 */
-.col-l{width:52%;border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow:hidden;}
-.col-l-scroll{flex:1;overflow-y:auto;padding:10px 12px;scroll-behavior:smooth;}
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh);}
+.card-head{background:var(--navy);color:#fff;padding:10px 16px;font-size:12px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:8px;}
+.card-body{padding:16px;}
 
-/* RIGHT: 操作・確認パネル */
-.col-r{width:48%;display:flex;flex-direction:column;overflow:hidden;background:var(--sf);}
-.col-r-scroll{flex:1;overflow-y:auto;padding:10px 12px;scroll-behavior:smooth;}
+/* FORM */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.fgrid-full{grid-column:1/-1;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:10px;font-weight:800;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{padding:8px 10px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;outline:none;background:#fff;transition:.18s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,58,92,.1);}
+.fg .hint{font-size:10px;color:var(--text3);}
 
-/* スクロールバー */
-::-webkit-scrollbar{width:5px;}
-::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
+/* CAMPAIGN BLOCK */
+.cp-block{border:2px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:12px;background:var(--surface);}
+.cp-block-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.rule-block{background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;}
+.rule-title{font-size:10px;font-weight:800;color:var(--text3);margin-bottom:7px;letter-spacing:.05em;}
 
-/* 顧客メモ（コンパクト） */
-.cust-compact{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);padding:8px 10px;margin-bottom:8px;box-shadow:var(--sh);}
-.cust-row{display:flex;gap:6px;margin-bottom:5px;align-items:flex-end;}
-.cust-row:last-child{margin-bottom:0;}
-.fg{flex:1;}
-.fg label{display:block;font-size:9px;font-weight:800;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:2px;}
-.fg input,.fg select{width:100%;padding:5px 8px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:12px;background:#fff;color:var(--tx);outline:none;transition:border-color .15s;}
-.fg input:focus,.fg select:focus{border-color:var(--nv);}
-.fg .hint{font-size:9px;color:var(--tx3);margin-top:1px;}
-.zip-btn{padding:5px 8px;border:1.5px solid var(--nv);border-radius:var(--rs);background:var(--nv);color:#fff;font-family:inherit;font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;height:28px;}
+/* SAVE BAR */
+.save-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:100;}
+.save-info{font-size:11px;color:var(--text3);}
+.save-info span{color:var(--ok);font-weight:700;}
+.btn{padding:10px 22px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;transition:.18s;}
+.btn-save{background:var(--ok);color:#fff;box-shadow:0 3px 10px rgba(30,107,69,.25);}
+.btn-save:hover{background:#175a38;transform:translateY(-1px);}
+.btn-save:disabled{opacity:.5;cursor:default;transform:none;}
+.btn-outline{background:#fff;border:2px solid var(--border2);color:var(--text2);}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
 
-/* 商品リスト */
-.prod-head{display:flex;gap:6px;align-items:center;margin-bottom:6px;}
-.prod-search{flex:1;padding:6px 10px;border:1.5px solid var(--bd);border-radius:16px;font-family:inherit;font-size:12px;outline:none;transition:border-color .15s;}
-.prod-search:focus{border-color:var(--nv);}
-.prod-cnt{background:var(--gd);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;white-space:nowrap;}
-.cats{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;}
-.cb{padding:2px 8px;border:1.5px solid var(--bd2);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:10px;font-weight:700;color:var(--tx2);transition:.12s;white-space:nowrap;}
-.cb.on{background:var(--nv);color:#fff;border-color:var(--nv);}
-.plist{border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden;max-height:calc(100vh - 340px);overflow-y:auto;}
-.pi{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid var(--bd);cursor:pointer;gap:6px;transition:background .1s;}
-.pi:last-child{border-bottom:none;}
-.pi:hover{background:var(--nvp);}
-.pi.cp{border-left:3px solid var(--cp);}
-.pi-name{flex:1;font-size:12px;}
-.pi-p{font-size:11px;font-weight:700;color:var(--gd);white-space:nowrap;}
-.tag{display:inline-flex;align-items:center;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;}
-.tn{background:#fff0d4;color:#8a5000;}
-.tc{background:var(--cpl);color:var(--cp);}
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:999;transform:translateY(-20px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-ok{background:var(--ok);color:#fff;}
+.toast-err{background:var(--red);color:#fff;}
 
-/* 右パネル各セクション */
-.r-sec{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:8px;overflow:hidden;box-shadow:var(--sh);}
-.r-sec-head{padding:7px 11px;font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.05em;text-transform:uppercase;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:5px;}
-.r-sec-body{padding:10px 12px;}
+/* PW SECTION */
+.pw-inline{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.pw-inline .fg{flex:1;min-width:150px;}
+.pw-inline .btn{height:38px;padding:0 16px;font-size:12px;}
 
-/* サンプル帯 */
-.sample-bar{background:linear-gradient(135deg,#b8832a,#d4a853);border-radius:var(--r);padding:8px 12px;margin-bottom:8px;color:#fff;display:flex;align-items:center;gap:8px;}
-.sample-bar .sb-icon{font-size:18px;flex-shrink:0;}
-.sample-bar .sb-label{font-size:9px;opacity:.8;font-weight:700;}
-.sample-bar .sb-this{font-size:12px;font-weight:800;}
-.sample-bar .sb-next{font-size:10px;opacity:.75;}
+/* DIVIDER */
+.sep{height:1px;background:var(--border);margin:14px 0;}
 
-/* 商品明細（右） */
-.r-item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:6px;}
-.r-item-name{font-size:11px;color:rgba(255,255,255,.85);flex:1;line-height:1.3;}
-.r-item-qty{font-size:10px;color:rgba(255,255,255,.55);margin-left:3px;}
-.r-item-price{font-size:12px;font-weight:800;color:#f0c87a;white-space:nowrap;}
-.r-empty{color:rgba(255,255,255,.4);font-size:11px;text-align:center;padding:10px 0;}
-
-/* 合計ボックス */
-.total-box{background:var(--nv);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;}
-.trow{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;color:rgba(255,255,255,.75);}
-.trow.disc{color:#86efac;}
-.tdiv{border-top:1px solid rgba(255,255,255,.18);margin:7px 0;}
-.tgrand{display:flex;justify-content:space-between;align-items:baseline;}
-.tgl{font-size:11px;color:rgba(255,255,255,.75);}
-.tgv{font-size:24px;font-weight:800;color:#fff;}
-.tgv.checking{font-size:16px;color:rgba(255,255,255,.6);}
-
-/* 送料通知 */
-.ship-notice{padding:7px 11px;border-radius:var(--rs);font-size:11px;font-weight:700;margin-bottom:8px;text-align:center;border:1.5px solid;}
-.sn-ok{background:var(--okl);border-color:var(--ok);color:var(--ok);}
-.sn-warn{background:var(--wnl);border-color:#f59e0b;color:var(--wn);}
-
-/* CP提案 */
-.cp-msg{padding:7px 10px;border-radius:var(--rs);font-size:11px;margin-bottom:5px;border:1.5px solid;line-height:1.6;}
-.cp-ok{background:var(--okl);border-color:var(--ok);color:var(--ok);font-weight:700;}
-.cp-hint{background:var(--wnl);border-color:#f59e0b;color:var(--wn);}
-.cp-info{background:var(--cpl);border-color:var(--cp);color:var(--cp);}
-
-/* クーポン */
-.cpn-btns{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
-.cpn-tag{display:flex;flex-direction:column;align-items:flex-start;padding:6px 10px;border:2px solid var(--bd2);border-radius:var(--rs);background:#fff;cursor:pointer;font-family:inherit;text-align:left;transition:.13s;gap:1px;}
-.cpn-tag:hover{border-color:var(--nv);background:var(--nvp);}
-.cpn-tag.on{border-color:var(--ok);background:var(--okl);}
-.cpn-tag-bd{border-color:#e879a0!important;}
-.cpn-tag-bd .cpn-tag-name{color:#b5006a;}
-.cpn-tag-bd:hover{background:#fff0f6!important;}
-.cpn-tag-bd.on{background:#fff0f6!important;border-color:#b5006a!important;}
-.cpn-tag-name{font-size:11px;font-weight:800;color:var(--tx2);}
-.cpn-tag.on .cpn-tag-name{color:var(--ok);}
-.cpn-tag-code{font-size:9px;color:var(--tx3);font-family:monospace;}
-.cpn-tag-disc{font-size:9px;font-weight:800;color:var(--gd);}
-.cpn-tag.on .cpn-tag-disc{color:var(--ok);}
-.cpn-hint{font-size:10px;color:var(--tx3);}
-
-/* お届け日 */
-.del-card{background:var(--okl);border:2px solid var(--ok);border-radius:var(--rs);padding:8px 11px;display:none;}
-.del-h{font-size:9px;font-weight:800;color:var(--ok);margin-bottom:2px;}
-.del-d{font-size:16px;font-weight:800;color:var(--ok);}
-.del-n{font-size:10px;color:#2d7a50;margin-top:2px;}
-
-/* 支払方法 */
-.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-.po{padding:8px 6px;border:2px solid var(--bd);border-radius:var(--rs);cursor:pointer;text-align:center;transition:.13s;background:#fff;}
-.po:hover{border-color:var(--nv2);background:var(--nvp);}
-.po.on{border-color:var(--nv);background:var(--nvl);}
-.po .poi{font-size:16px;display:block;margin-bottom:2px;}
-.po .pol{font-size:10px;font-weight:800;color:var(--tx2);}
-.po.on .pol{color:var(--nv);}
-.po .pon{font-size:9px;color:var(--tx3);}
-
-/* カード/後払い詳細 */
-.pay-detail{margin-top:8px;padding:8px 10px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);display:none;}
-.pay-detail.on{display:block;}
-.ope-mini{background:var(--nvp);border-left:3px solid var(--nv);padding:7px 9px;font-size:10px;line-height:1.8;color:#1a2e42;margin-bottom:7px;border-radius:0 4px 4px 0;}
-.ope-mini em{color:var(--nv);font-style:normal;font-weight:800;}
-.ope-mini .note{color:var(--tx3);font-size:9px;}
-
-/* 時間帯 */
-.time-grid{display:flex;flex-wrap:wrap;gap:4px;}
-.to{padding:5px 10px;border:2px solid var(--bd);border-radius:14px;cursor:pointer;font-size:10px;font-weight:700;background:#fff;color:var(--tx2);transition:.13s;white-space:nowrap;}
-.to:hover{border-color:var(--nv);background:var(--nvp);color:var(--nv);}
-.to.on{border-color:var(--nv);background:var(--nv);color:#fff;}
-
-/* ツールチップ */
-.tip-wrap{position:relative;display:inline-flex;align-items:center;}
-.tip-icon{width:16px;height:16px;border-radius:50%;background:var(--tx3);color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
-.tip-box{display:none;position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;font-size:10px;line-height:1.7;padding:8px 10px;border-radius:6px;width:260px;z-index:200;white-space:pre-wrap;box-shadow:var(--sh2);}
-.tip-box::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tx);}
-.tip-wrap:hover .tip-box{display:block;}
-
-/* バリデーションバー */
-.vbar{height:36px;background:var(--wh);border-top:1px solid var(--bd);display:flex;align-items:center;padding:0 12px;gap:5px;flex-shrink:0;}
-.vi{display:flex;align-items:center;gap:3px;padding:2px 7px;border-radius:9px;font-size:10px;font-weight:800;white-space:nowrap;}
-.vi.ok{background:var(--okl);color:var(--ok);}
-.vi.ng{background:var(--rdl);color:var(--rd);}
-.vsp{flex:1;}
-.confirm-btn{padding:7px 18px;border-radius:16px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;background:var(--ok);color:#fff;box-shadow:0 3px 8px rgba(30,107,69,.25);transition:.15s;}
-.confirm-btn:hover{background:#175a38;transform:translateY(-1px);}
-.confirm-btn:disabled{opacity:.4;cursor:default;transform:none;}
-
-/* 確認オーバーレイ */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;overflow-y:auto;padding:16px;}
-.ov.on{display:block;}
-.ov-sheet{background:#fff;max-width:720px;margin:0 auto;border-radius:var(--r);box-shadow:0 8px 40px rgba(0,0,0,.25);overflow:hidden;}
-.ov-head{background:var(--nv);color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
-.ov-title{font-family:'Shippori Mincho',serif;font-size:17px;letter-spacing:.08em;}
-.ov-body{padding:16px 18px;}
-.ov-actions{padding:10px 18px;border-top:1px solid var(--bd);display:flex;gap:8px;justify-content:flex-end;background:var(--sf);}
-.btn{padding:8px 18px;border-radius:16px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;transition:.15s;}
-.btn-ok{background:var(--ok);color:#fff;box-shadow:0 3px 8px rgba(30,107,69,.25);}
-.btn-ok:hover{background:#175a38;}
-.btn-pr{background:var(--nv);color:#fff;}
-.btn-pr:hover{background:var(--nv2);}
-.btn-bk{background:#fff;border:2px solid var(--bd2);color:var(--tx2);}
-.btn-bk:hover{border-color:var(--nv);color:var(--nv);}
-.mx{width:26px;height:26px;border-radius:50%;border:none;background:rgba(255,255,255,.2);cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;}
-.mx:hover{background:rgba(255,255,255,.35);}
-
-/* 受注票 */
-.rcpt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.rb{border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden;}
-.rb-h{background:var(--nv);color:#fff;padding:5px 10px;font-size:10px;font-weight:800;}
-.rb-b{padding:8px 10px;}
-.rr{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid var(--bd);font-size:12px;}
-.rr:last-child{border-bottom:none;}
-.rrl{color:var(--tx3);font-size:10px;font-weight:700;min-width:60px;padding-top:1px;}
-.rrv{flex:1;}
-.itbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
-.itbl th{background:var(--nv);color:#fff;padding:5px 8px;text-align:left;font-size:10px;font-weight:700;}
-.itbl td{padding:6px 8px;border-bottom:1px solid var(--bd);}
-.r-total{background:var(--nv);color:#fff;border-radius:var(--rs);padding:10px 14px;margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between;}
-.rt-l{font-size:12px;opacity:.8;}
-.rt-v{font-size:26px;font-weight:800;}
-.rcpt-ope{background:var(--nvp);border-left:3px solid var(--nv);padding:8px 11px;border-radius:0 var(--rs) var(--rs) 0;font-size:11px;line-height:1.8;color:var(--nv);margin-bottom:10px;}
-
-/* モーダル（バリアント選択） */
-.mod-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:center;justify-content:center;}
-.mod-ov.on{display:flex;}
-.mod{background:#fff;border-radius:var(--r);box-shadow:var(--sh2);width:320px;max-height:75vh;display:flex;flex-direction:column;overflow:hidden;animation:mi .16s ease;}
-@keyframes mi{from{transform:scale(.94);opacity:0;}}
-.mod-h{padding:11px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
-.mod-t{font-size:13px;font-weight:800;}
-.mod-x{width:24px;height:24px;border-radius:50%;border:none;background:var(--bg);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--tx3);}
-.mod-x:hover{background:var(--rdl);color:var(--rd);}
-.mod-b{overflow-y:auto;padding:8px;}
-.vb{display:flex;align-items:center;justify-content:space-between;width:100%;padding:9px 11px;margin-bottom:5px;border:2px solid var(--bd);border-radius:var(--rs);background:#fff;cursor:pointer;font-family:inherit;transition:.13s;}
-.vb:hover{border-color:var(--nv);background:var(--nvp);}
-.vbn{font-size:12px;font-weight:700;}
-.vbp{font-size:13px;font-weight:800;color:var(--gd);}
-
-/* 送料表 */
-.stbl{width:100%;border-collapse:collapse;font-size:10px;}
-.stbl th{background:var(--nv);color:#fff;padding:4px 6px;text-align:center;font-weight:700;}
-.stbl td{padding:4px 6px;border:1px solid var(--bd);text-align:center;}
-.ok-cell{color:var(--ok);font-weight:800;}
-
-/* 履歴 */
-.hi{background:#fff;border:1px solid var(--bd);border-radius:var(--r);padding:11px 13px;margin-bottom:8px;cursor:pointer;transition:.13s;box-shadow:var(--sh);}
-.hi:hover{box-shadow:var(--sh2);border-color:var(--nv);}
-.hi-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
-.hi-name{font-size:13px;font-weight:800;}
-.hi-date{font-size:10px;color:var(--tx3);}
-.hi-amt{font-size:15px;font-weight:800;color:var(--nv);}
-.hi-prd{font-size:11px;color:var(--tx2);margin-bottom:3px;}
-.hi-info{font-size:10px;color:var(--tx3);}
-
-/* スクリプト */
-.sa{background:#fff;border:1px solid var(--bd);border-radius:var(--r);margin-bottom:7px;overflow:hidden;box-shadow:var(--sh);}
-.sa-h{padding:10px 13px;cursor:pointer;font-size:12px;font-weight:800;display:flex;justify-content:space-between;align-items:center;user-select:none;}
-.sa-h:hover{background:var(--sf);}
-.sa-b{padding:0 13px 10px;display:none;font-size:11px;line-height:1.9;color:var(--tx2);}
-.sa-b.on{display:block;}
-.sl-ope{color:var(--nv);font-weight:700;}
-.sl-warn{background:var(--wnl);border-left:3px solid #f59e0b;padding:5px 8px;border-radius:0 4px 4px 0;color:var(--wn);margin:4px 0;}
-.sl-err{background:var(--rdl);border-left:3px solid var(--rd);padding:5px 8px;border-radius:0 4px 4px 0;color:var(--rd);margin:4px 0;}
-
-@media print{
-  body > *:not(.ov){display:none!important;}
-  .ov{display:block!important;position:static!important;background:none!important;padding:0!important;overflow:visible!important;}
-  .ov-sheet{box-shadow:none!important;}
-  .ov-actions,.ov-head .mx{display:none!important;}
-}
+/* Preview badge */
+.prev-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;background:var(--gold-l);color:var(--gold);border:1px solid var(--gold);margin-left:8px;}
 </style>
 </head>
 <body>
 
-<header class="hd">
-  <div class="hd-logo"><span>✦</span> エポラーシェ 受注アプリ</div>
-  <div class="hd-sp"></div>
-  <button class="hd-btn on" id="btn-order" onclick="showPg('order')">📞 受注</button>
-  <button class="hd-btn" id="btn-history" onclick="showPg('history')">📋 履歴</button>
-  <button class="hd-btn" id="btn-scripts" onclick="showPg('scripts')">💬 スクリプト</button>
-  <button class="hd-btn hd-new" onclick="newOrder()">＋ 新規</button>
-</header>
+<!-- ====== LOGIN ====== -->
+<div class="login-wrap" id="login-pg">
+  <div class="login-box">
+    <div class="login-logo">⚙️ エポラーシェ</div>
+    <div class="login-sub">管理画面 — スタッフ専用</div>
+    <input type="password" id="pw-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">ログイン</button>
+    <div class="login-err" id="login-err">❌ パスワードが違います</div>
+  </div>
+</div>
 
-<!-- ORDER PAGE -->
-<div id="pg-order">
-  <div class="cols">
+<!-- ====== ADMIN ====== -->
+<div id="admin-pg" style="display:none;">
+  <header class="hd">
+    <div class="hd-logo"><span>✦</span> エポラーシェ 管理画面</div>
+    <div class="hd-sp"></div>
+    <div class="hd-info" id="hd-updated"></div>
+    <button class="hd-logout" onclick="doLogout()">ログアウト</button>
+  </header>
 
-    <!-- ═══ LEFT: 顧客情報 + 商品選択 ═══ -->
-    <div class="col-l">
-      <div class="col-l-scroll">
+  <div class="main">
+    <div class="page-title">📅 今月の設定</div>
+    <div class="page-sub">変更後は必ず「保存する」ボタンを押してください。全スタッフのアプリに即時反映されます。</div>
 
-        <!-- 開口一番 -->
-        <div style="background:var(--nvp);border-left:3px solid var(--nv);border-radius:0 var(--rs) var(--rs) 0;padding:7px 11px;margin-bottom:8px;font-size:11px;color:#1a2e42;line-height:1.6;">
-          <span style="font-size:9px;font-weight:800;color:var(--nv);letter-spacing:.06em;display:block;margin-bottom:3px;">📞 開口一番</span>
-          お電話ありがとうございます。無添加化粧品エポラーシェ、<strong style="color:var(--nv);">〇〇</strong>でございます。
-        </div>
-        <!-- 顧客メモ（コンパクト） -->
-        <div class="cust-compact">
-          <div class="cust-row">
-            <div class="fg">
-              <label>電話番号</label>
-              <input id="i-phone" type="text" placeholder="03-1234-5678" oninput="validate()" autocomplete="off">
-            </div>
-            <div class="fg">
-              <label>お名前</label>
-              <input id="i-name" type="text" placeholder="田中 花子" oninput="validate()" autocomplete="off">
-            </div>
-            <div class="fg" style="max-width:100px;">
-              <label>チャネル</label>
-              <select id="i-ch">
-                <option value="tel">📞 電話</option>
-                <option value="fc">📟 FC</option>
-                <option value="ec">🌐 EC</option>
-                <option value="shop">🏪 店舗</option>
-              </select>
-            </div>
-          </div>
-          <div class="cust-row">
-            <div class="fg" style="max-width:90px;">
-              <label>郵便番号</label>
-              <input id="i-zip" type="text" placeholder="1600003" maxlength="8"
-                oninput="onZipInput(this)" onkeydown="if(event.key==='Enter')fetchZip()">
-              <div class="hint">7桁でEnter</div>
-            </div>
-            <div style="padding-bottom:3px;"><button class="zip-btn" onclick="fetchZip()">住所検索</button></div>
-            <div class="fg">
-              <label>住所</label>
-              <input id="i-addr" type="text" placeholder="自動入力 or 直接入力" oninput="onAddr()" autocomplete="off">
-              <div class="hint" id="zip-status"></div>
-            </div>
-            <div class="fg" style="max-width:110px;">
-              <label>生年月日</label>
-              <input id="i-bday" type="date">
-            </div>
-          </div>
-          <div class="cust-row">
-            <div class="fg">
-              <label>備考</label>
-              <input id="i-note" type="text" placeholder="申し送り等">
-            </div>
+    <!-- 月ラベル -->
+    <div class="card">
+      <div class="card-head">📅 対象月</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>対象月（表示用）</label>
+            <input type="text" id="month_label" placeholder="例: 7月">
+            <div class="hint">アプリのキャンペーン表示に使います</div>
           </div>
         </div>
-
-        <!-- 商品選択 -->
-        <div class="prod-head">
-          <input class="prod-search" id="p-srch" type="text" placeholder="🔍 商品名検索…" oninput="filterP()">
-          <span class="prod-cnt" id="prod-cnt">0点</span>
-        </div>
-        <div class="cats" id="cat-wrap"></div>
-        <div class="plist" id="prod-list"></div>
-
-      </div>
-      <!-- バリデーションバー -->
-      <div class="vbar">
-        <div id="vbar-items"></div>
-        <div class="vsp"></div>
-        <button class="confirm-btn" id="confirm-btn" onclick="openConfirm()" disabled>受注票を確認 →</button>
       </div>
     </div>
 
-    <!-- ═══ RIGHT: 操作・確認パネル ═══ -->
-    <div class="col-r">
-      <div class="col-r-scroll">
-
-        <!-- ① 今月のサンプル -->
-        <div class="sample-bar">
-          <span class="sb-icon">🎁</span>
-          <div>
-            <div class="sb-label">今月の同梱サンプル</div>
-            <div class="sb-this" id="novelty-this">サプルノーブルパウチ 2包</div>
-            <div class="sb-next">来月: <span id="novelty-next">黄金のコラーゲン 2包</span></div>
+    <!-- BD クーポン -->
+    <div class="card">
+      <div class="card-head">🎂 バースデークーポン</div>
+      <div class="card-body">
+        <div style="background:#fff0f6;border:2px solid #e879a0;border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7a004a;line-height:1.8;">
+          💡 BDクーポンは割引ではなく<strong>プレゼント</strong>です。オペレーターへ「お誕生日おめでとうございます」のメッセージが表示されます。
+        </div>
+        <div class="fgrid">
+          <div class="fg">
+            <label>クーポン番号</label>
+            <input type="text" id="bd_code" placeholder="例: HB6767">
+          </div>
+          <div class="fg">
+            <label>クーポン名（表示名）</label>
+            <input type="text" id="bd_label" placeholder="例: BDクーポン">
+          </div>
+          <div class="fg">
+            <label>最低購入金額（円）</label>
+            <input type="number" id="bd_min" placeholder="5400">
+          </div>
+          <div class="fg">
+            <label>プレゼント内容</label>
+            <input type="text" id="bd_gift" placeholder="例: ミニコスメセットプレゼント">
           </div>
         </div>
-
-        <!-- ② 商品明細 + クーポン + 合計 -->
-        <div class="total-box">
-          <div id="r-items-list">
-            <div class="r-empty">← 商品を選択してください</div>
-          </div>
-          <div class="tdiv" id="total-divider" style="display:none;"></div>
-          <!-- クーポン -->
-          <div id="cpn-area" style="display:none;margin-bottom:8px;">
-            <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.6);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px;">クーポン</div>
-            <div class="cpn-btns">
-              <button class="cpn-tag" id="cpntag-mc" onclick="toggleCpn('mc')">
-                <span class="cpn-tag-name" id="mc-name">毎月クーポン</span>
-                <span class="cpn-tag-code" id="mc-code">epr333</span>
-                <span class="cpn-tag-disc" id="mc-disc">△500円</span>
-              </button>
-              <button class="cpn-tag cpn-tag-bd" id="cpntag-bd" onclick="toggleCpn('bd')">
-                <span class="cpn-tag-name">🎂 BDクーポン</span>
-                <span class="cpn-tag-code" id="bd-code">HB6767</span>
-                <span class="cpn-tag-disc">🎁 ミニコスメプレゼント</span>
-              </button>
-            </div>
-            <div class="cpn-hint" id="cpn-hint"></div>
-          </div>
-          <!-- 小計〜合計 -->
-          <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
-          <div class="trow disc" id="t-cp-row" style="display:none;"><span id="t-cp-l">CPキャンペーン割引</span><span id="t-cp-v">-¥0</span></div>
-          <div class="trow disc" id="t-cpn-row" style="display:none;"><span id="t-cpn-l">クーポン</span><span id="t-cpn-v">-¥0</span></div>
-          <div class="trow" id="t-ship-row"><span id="t-ship-l">送料・手数料</span><span id="t-ship-v">—</span></div>
-          <div class="tdiv"></div>
-          <div class="tgrand"><span class="tgl">お支払い合計</span><span class="tgv checking" id="t-grand">—</span></div>
-        </div>
-
-        <!-- 送料通知 / CP提案 -->
-        <div id="ship-notice"></div>
-        <div id="cp-zone"></div>
-
-        <!-- ③ 支払方法 -->
-        <div class="r-sec">
-          <div class="r-sec-head">
-            💳 支払方法
-            <span style="color:var(--rd);font-weight:800;">*</span>
-            <div class="tip-wrap" style="margin-left:4px;">
-              <div class="tip-icon">?</div>
-              <div class="tip-box">代引き: 7,700円以上で手数料込み無料
-クレジット: 7,700円以上で送料無料
-後払い: 手数料200円・審査あり・上限5万円
-前振り: 振込手数料はお客様負担</div>
-            </div>
-          </div>
-          <div class="r-sec-body">
-            <div class="pay-grid">
-              <div class="po" onclick="selPay('cod')" data-p="cod"><span class="poi">💴</span><div class="pol">代金引換</div><div class="pon">7,700円〜手数料込無料</div></div>
-              <div class="po" onclick="selPay('pre')" data-p="pre"><span class="poi">🏦</span><div class="pol">前振り（振込）</div><div class="pon">振込手数料お客様負担</div></div>
-              <div class="po" onclick="selPay('post')" data-p="post"><span class="poi">🧾</span><div class="pol">後払い</div><div class="pon">手数料200円 / 審査あり</div></div>
-              <div class="po" onclick="selPay('card')" data-p="card"><span class="poi">💳</span><div class="pol">クレジット</div><div class="pon">VISA/Master/JCB/AMEX</div></div>
-            </div>
-            <div class="pay-detail" id="card-d">
-              <div class="ope-mini">
-                <em>カード番号</em>→復唱　<em>有効期限</em>→復唱　<em>セキュリティコード</em>→復唱　<em>支払回数</em><br>
-                「これから決済を致します。保留音が流れますがこのままお待ちください。」<br>
-                <span class="note">AMEX: 4-6-5桁(15桁)・セキュリティコードは表面4桁</span>
-              </div>
-              <div style="display:flex;gap:6px;margin-bottom:6px;">
-                <div class="fg"><label>カード番号</label><input id="i-cno" type="text" placeholder="0000-0000-0000-0000" oninput="validate()"></div>
-                <div class="fg"><label>有効期限</label><input id="i-cexp" type="text" placeholder="MM/YY" oninput="validate()"></div>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <div class="fg"><label>セキュリティ</label><input id="i-csec" type="text" placeholder="裏面3桁"></div>
-                <div class="fg"><label>支払回数</label><select id="i-cins"><option>1回払い</option><option>3回払い</option><option>6回払い</option><option>10回払い</option><option>12回払い</option><option>24回払い</option></select></div>
-              </div>
-              <div style="background:var(--rdl);border-left:3px solid var(--rd);padding:5px 8px;font-size:10px;color:var(--rd);margin-top:6px;border-radius:0 4px 4px 0;">⚠ 決済エラー時: カード番号・有効期限を再確認し再度決済</div>
-            </div>
-            <div class="pay-detail" id="post-d">
-              <div class="ope-mini">
-                手数料<em>200円</em>かかります。ヤマトクレジットファイナンス社よりお葉書でご請求書をお送りします。<br>
-                「審査通過後の発送となるため、お届け日指定を承れませんがよろしいでしょうか？」<br>
-                <span class="note">上限50,000円 / 審査NG → ナビダイヤル 0570-666-775（10〜19時）</span>
-              </div>
-            </div>
-            <div class="pay-detail" id="cod-d">
-              <div class="ope-mini" id="cod-script">
-                <span id="cod-txt">合計金額によって送料・手数料が変わります。</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ④ お届け時間帯 -->
-        <div class="r-sec">
-          <div class="r-sec-head">
-            🕐 お届け時間帯
-            <span style="color:var(--rd);font-weight:800;">*</span>
-            <div class="tip-wrap" style="margin-left:4px;">
-              <div class="tip-icon">?</div>
-              <div class="tip-box">AM＝9時前後〜12時前後
-細かな時間指定は受けられません
-後払いの場合は時間指定不可</div>
-            </div>
-          </div>
-          <div class="r-sec-body">
-            <div class="time-grid">
-              <div class="to" onclick="selTime('am')" data-t="am">AM（午前中）</div>
-              <div class="to" onclick="selTime('14-16')" data-t="14-16">14〜16時</div>
-              <div class="to" onclick="selTime('16-18')" data-t="16-18">16〜18時</div>
-              <div class="to" onclick="selTime('18-20')" data-t="18-20">18〜20時</div>
-              <div class="to" onclick="selTime('19-21')" data-t="19-21">19〜21時</div>
-              <div class="to" onclick="selTime('box')" data-t="box">宅配BOX</div>
-              <div class="to" onclick="selTime('none')" data-t="none">指定なし</div>
-              <div class="to" onclick="selTime('teiki')" data-t="teiki">定期</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ⑤ お届け予定日 -->
-        <div class="del-card" id="del-card" style="margin-bottom:8px;">
-          <div class="del-h">📦 最短お届け予定</div>
-          <div class="del-d" id="del-date">—</div>
-          <div class="del-n" id="del-note"></div>
-        </div>
-
-        <!-- ⑥ スクリプト・送料表（ホバーで開く） -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">💬 お届けスクリプト</div>
-            <div class="tip-box" style="width:300px;left:0;transform:none;">【〜16時受付】
-最短のお届けは明日の午前中となりますが、ご希望のお日にちやお時間帯のご指定などございますか？
-
-【16時〜受付】
-本日の発送が終了しておりまして、明日の発送・最短は明後日の午前中となりますが…
-
-【ご案内後・上級トーク】
-普段お使い頂いている商品の使い方などでもご不明点やお困りのことなどはございませんか？</div>
-          </div>
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">💴 送料早見</div>
-            <div class="tip-box" style="width:280px;left:0;transform:none;">          ～7,699円   7,700円～
-代引き    ¥1,100      ¥440
-クレジット  ¥660       無料
-後払い    ¥860        ¥200
-振込     ¥660+振込費  振込費のみ</div>
-          </div>
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">🗾 地域別最短日</div>
-            <div class="tip-box" style="width:280px;left:0;transform:none;">📌 締切16時。以降は翌日発送。
-
-翌々日: 北海道・九州・沖縄
-翌々日: 青森・秋田・和歌山・鳥取
-      岡山・島根・広島・山口
-      香川・徳島・愛媛・高知
-※高知の一部は18時以降</div>
-          </div>
-        </div>
-
       </div>
     </div>
-  </div>
-</div>
 
-<!-- HISTORY PAGE -->
-<div id="pg-history">
-  <div style="max-width:800px;margin:0 auto;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <h2 style="font-size:15px;font-weight:800;">受注履歴</h2>
-      <button class="btn btn-bk" style="font-size:11px;padding:5px 12px;" onclick="clearHist()">🗑 全削除</button>
+    <!-- 毎月クーポン -->
+    <div class="card">
+      <div class="card-head">🏷 毎月クーポン</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>クーポン番号</label>
+            <input type="text" id="mc_code" placeholder="例: epr333">
+          </div>
+          <div class="fg">
+            <label>クーポン名（表示名）</label>
+            <input type="text" id="mc_label" placeholder="例: 毎月クーポン">
+          </div>
+          <div class="fg">
+            <label>割引金額（円）</label>
+            <input type="number" id="mc_disc" placeholder="500">
+          </div>
+        </div>
+      </div>
     </div>
-    <div id="hist-list"></div>
-  </div>
-</div>
 
-<!-- SCRIPTS PAGE -->
-<div id="pg-scripts">
-  <div style="max-width:760px;margin:0 auto;">
-    <h2 style="font-size:15px;font-weight:800;margin-bottom:12px;">対応スクリプト集</h2>
-    <div class="sa"><div class="sa-h" onclick="togSA(this)">📞 基本フロー <span>▼</span></div><div class="sa-b on">
-      <div><span class="sl-ope">オペ：</span>お電話ありがとうございます。無添加化粧品エポラーシェ、〇〇でございます。</div>
-      <div><span class="sl-ope">オペ：</span>ありがとうございます。お調べ致しますので少々お待ちください。[スマイルで検索]</div>
-      <div><span class="sl-ope">オペ：</span>お待たせ致しました。〇〇県〇〇市にお住まいの〇〇様でございますね。</div>
-      <div style="color:var(--tx3);font-size:10px;">※見つからない場合→他にお心当たりの番号は？→お名前でご確認→住所の確認はお客様に</div>
-      <div><span class="sl-ope">オペ：</span>それでは〇〇様、ご注文商品をお伺い致します。</div>
-    </div></div>
-    <div class="sa"><div class="sa-h" onclick="togSA(this)">💳 クレジットカード <span>▼</span></div><div class="sa-b">
-      <div><span class="sl-ope">オペ：</span>お手元にクレジットカードのご準備をお願いいたします。</div>
-      <div><span class="sl-ope">オペ：</span>VISA・Master・JCB・AMEXがご利用いただけますが、どちらのカードでございますか？</div>
-      <div><span class="sl-ope">オペ：</span>カード番号を左からお読みください[復唱]→有効期限[復唱]→セキュリティコード[復唱]→お支払回数</div>
-      <div><span class="sl-ope">オペ：</span>それではこれから決済を致します。保留音が流れますがこのままお待ちください。[端末で決済]</div>
-      <div class="sl-err">⚠ 決済エラー時: カード番号・有効期限を再確認し再度決済してください。</div>
-    </div></div>
-    <div class="sa"><div class="sa-h" onclick="togSA(this)">💴 代金引換 <span>▼</span></div><div class="sa-b">
-      <div>①7,700円以上: <b>送料・代引き手数料は無料</b>でございます。</div>
-      <div>②7,700円未満: 送料代引き手数料がかかりますが今回は1点でよろしいでしょうか？</div>
-      <div class="sl-warn">2本になりますと手数料が無料になります、等とご案内するとよいです</div>
-    </div></div>
-    <div class="sa"><div class="sa-h" onclick="togSA(this)">🧾 コンビニ後払い <span>▼</span></div><div class="sa-b">
-      <div><span class="sl-ope">オペ：</span>手数料200円がかかります。ヤマトクレジットファイナンス社よりお葉書でご請求書をお送りします。</div>
-      <div><span class="sl-ope">オペ：</span>審査通過後の発送となるため、お届け日指定を承れませんがよろしいでしょうか？</div>
-      <div class="sl-warn">上限50,000円 / 翌日以降発送</div>
-      <div class="sl-err">審査NG時: ヤマトクレジットナビダイヤル 0570-666-775（10〜19時）へご案内</div>
-    </div></div>
-    <div class="sa"><div class="sa-h" onclick="togSA(this)">📦 お届け案内 <span>▼</span></div><div class="sa-b">
-      <div>【〜16時】最短は明日の午前中となりますが、ご希望のお日にちやお時間帯のご指定などございますか？</div>
-      <div>【16時〜】本日発送終了。明日の発送となります。最短は明後日の午前中となりますが…</div>
-      <div class="sl-warn">→ 上級トーク！普段お使いの商品でご不明点はありませんか？</div>
-    </div></div>
-  </div>
-</div>
+    <!-- キャンペーン1 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 1</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>キャンペーン名</label>
+            <input type="text" id="cp1_name" placeholder="例: 美髪革命CP">
+          </div>
+          <div class="fg">
+            <label>期間</label>
+            <input type="text" id="cp1_period" placeholder="例: 7/1〜7/31">
+          </div>
+          <div class="fg fgrid-full">
+            <label>対象商品名（カンマ区切り）</label>
+            <input type="text" id="cp1_products" placeholder="例: サプルプラス, ノーブルプラス">
+            <div class="hint">アプリの商品リストで「CP」マークが付く商品名を入力します</div>
+          </div>
+        </div>
 
-<!-- バリアント選択モーダル -->
-<div class="mod-ov" id="mod-ov" onclick="closeMod(event)">
-  <div class="mod">
-    <div class="mod-h"><div class="mod-t" id="mod-t">規格選択</div><button class="mod-x" onclick="closeMod()">✕</button></div>
-    <div class="mod-b" id="mod-b"></div>
-  </div>
-</div>
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;letter-spacing:.05em;">割引ルール（最大3パターン）</div>
 
-<!-- 受注票確認オーバーレイ -->
-<div class="ov" id="ov-confirm">
-  <div class="ov-sheet">
-    <div class="ov-head">
-      <div class="ov-title">受　注　票</div>
-      <button class="mx" onclick="closeConfirm()">✕</button>
+        <!-- Rule A -->
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_ra_desc" placeholder="例: サプル×2本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_ra_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_ra_disc" placeholder="6800"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_ra_pct" placeholder="18"></div>
+            <div class="fg"><label>キーワード（商品名の一部）</label><input type="text" id="cp1_ra_kw" placeholder="例: サプルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_ra_qty" placeholder="2"></div>
+          </div>
+        </div>
+
+        <!-- Rule B -->
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_rb_desc" placeholder="例: ノーブル×2本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rb_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rb_disc" placeholder="6800"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rb_pct" placeholder="18"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp1_rb_kw" placeholder="例: ノーブルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rb_qty" placeholder="2"></div>
+          </div>
+        </div>
+
+        <!-- Rule C -->
+        <div class="rule-block">
+          <div class="rule-title">パターン C（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_rc_desc" placeholder="例: サプル＋ノーブル各1本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rc_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rc_disc" placeholder="7050"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rc_pct" placeholder="15"></div>
+            <div class="fg"><label>キーワード（カンマ区切り）</label><input type="text" id="cp1_rc_kw" placeholder="例: サプルプラス,ノーブルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rc_qty" placeholder="1"></div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="ov-body" id="ov-body"></div>
-    <div class="ov-actions">
-      <button class="btn btn-bk" onclick="closeConfirm()">← 戻る</button>
-      <button class="btn btn-pr" onclick="window.print()">🖨 印刷</button>
-      <button class="btn btn-ok" onclick="submitOrder()">✅ 受注確定・保存</button>
+
+    <!-- キャンペーン2 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 2（任意）</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp2_name" placeholder="例: 腸活CP"></div>
+          <div class="fg"><label>期間</label><input type="text" id="cp2_period" placeholder="例: 7/1〜7/15"></div>
+          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp2_products"></div>
+        </div>
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_ra_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_ra_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_ra_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_ra_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_ra_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_ra_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_rb_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rb_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rb_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rb_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rb_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_rb_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン C（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_rc_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rc_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rc_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rc_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rc_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_rc_qty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンペーン3 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 3（任意）</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp3_name"></div>
+          <div class="fg"><label>期間</label><input type="text" id="cp3_period"></div>
+          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp3_products"></div>
+        </div>
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp3_ra_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_ra_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_ra_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_ra_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp3_ra_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp3_ra_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp3_rb_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_rb_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_rb_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_rb_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp3_rb_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp3_rb_qty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ノベルティ -->
+    <div class="card">
+      <div class="card-head">🎁 同梱サンプル・ノベルティ</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>今月のサンプル</label>
+            <input type="text" id="novelty_this" placeholder="例: サプルノーブルパウチ 2包">
+          </div>
+          <div class="fg">
+            <label>来月のサンプル</label>
+            <input type="text" id="novelty_next" placeholder="例: 黄金のコラーゲン 2包">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- パスワード変更 -->
+    <div class="card">
+      <div class="card-head">🔐 パスワード変更</div>
+      <div class="card-body">
+        <div class="pw-inline">
+          <div class="fg"><label>現在のパスワード</label><input type="password" id="pw_current" placeholder="現在のパスワード"></div>
+          <div class="fg"><label>新しいパスワード</label><input type="password" id="pw_new" placeholder="新しいパスワード"></div>
+          <div class="fg"><label>確認</label><input type="password" id="pw_confirm" placeholder="もう一度入力"></div>
+          <button class="btn btn-outline" onclick="changePw()">変更する</button>
+        </div>
+        <div id="pw-msg" style="margin-top:8px;font-size:11px;font-weight:700;display:none;"></div>
+      </div>
+    </div>
+
+    <div style="height:80px;"></div>
+  </div>
+
+  <!-- SAVE BAR -->
+  <div class="save-bar">
+    <div class="save-info">最終保存: <span id="last-saved">未保存</span></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="loadSettings()">↩ 再読み込み</button>
+      <button class="btn btn-save" id="save-btn" onclick="saveSettings()">💾 保存する（全員に反映）</button>
     </div>
   </div>
 </div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-const GAS='https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
-const PRODUCTS=[
-  {id:1,cat:'洗顔・クレンジング',name:'モイストクレンジングプラス',variants:[{name:'250mL',price:5500},{name:'80mLミニ★',price:1980,neko:true}]},
-  {id:2,cat:'洗顔・クレンジング',name:'モイストクレンジング（まつエク対応）',variants:[{name:'300mL',price:4730},{name:'150mL',price:2750}]},
-  {id:3,cat:'洗顔・クレンジング',name:'モイスチャーソープ',variants:[{name:'80g',price:4070},{name:'10g',price:550}]},
-  {id:4,cat:'洗顔・クレンジング',name:'テクスマッサージジェル',price:3960},
-  {id:10,cat:'化粧水',name:'セルウォーター',variants:[{name:'200mL',price:1980},{name:'2本セット',price:3960}]},
-  {id:11,cat:'化粧水',name:'ピューローション 500mL',price:10780},
-  {id:12,cat:'化粧水',name:'ピューローションオメガ',variants:[{name:'150mL',price:4290},{name:'300mL',price:7480}]},
-  {id:13,cat:'化粧水',name:'エルローション 300mL',price:8800},
-  {id:20,cat:'美容液・クリーム',name:'シャイニーブラン',variants:[{name:'30mL',price:6600},{name:'50mL',price:9900},{name:'100mL',price:18700}]},
-  {id:21,cat:'美容液・クリーム',name:'リンプル',variants:[{name:'30mL',price:9680},{name:'50mL',price:13200},{name:'100mL',price:24200}]},
-  {id:22,cat:'美容液・クリーム',name:'マルチプルセラム プレミアム',price:11000},
-  {id:23,cat:'美容液・クリーム',name:'ジュネセルセルム',variants:[{name:'5mL',price:5830},{name:'アタッチメント',price:220}]},
-  {id:24,cat:'美容液・クリーム',name:'キャナルビジュー',price:11000},
-  {id:25,cat:'美容液・クリーム',name:'リンクルNAクリーム',price:11000},
-  {id:26,cat:'美容液・クリーム',name:'インフィニータEXゲルプラス',price:15125},
-  {id:27,cat:'美容液・クリーム',name:'フィルミン',price:2750,neko:true},
-  {id:28,cat:'美容液・クリーム',name:'ハイエストゲル',price:7480},
-  {id:30,cat:'フェイスマスク',name:'プラチナフェイスマスク',variants:[{name:'1枚',price:495,neko:true},{name:'5枚',price:2420},{name:'10枚',price:4730},{name:'15枚',price:6930},{name:'20枚',price:9020},{name:'25枚',price:11000},{name:'30枚',price:12870}]},
-  {id:40,cat:'ボディ・ヘアケア',name:'ボディーローション',variants:[{name:'150mL',price:2530},{name:'2本セット',price:5060}]},
-  {id:41,cat:'ボディ・ヘアケア',name:'サプルプラス（シャンプー）',price:4169,cp:true},
-  {id:42,cat:'ボディ・ヘアケア',name:'ノーブルプラス（トリートメント）',price:4169,cp:true},
-  {id:43,cat:'ボディ・ヘアケア',name:'スカルプガードEX',price:4208,cp:true},
-  {id:44,cat:'ボディ・ヘアケア',name:'シルク100%ヘアケアクロス',price:4400},
-  {id:50,cat:'UV・ベースメイク',name:'UVデイクリーム＆ベース',variants:[{name:'30g SPF45',price:5720},{name:'SP(45g)さっぱり',price:7150}]},
-  {id:51,cat:'UV・ベースメイク',name:'カラーUV＆ベース',variants:[{name:'イエロー系BG 30g',price:5830},{name:'ピンク系BG 45g',price:7700}]},
-  {id:52,cat:'UV・ベースメイク',name:'マジカルシーラー',price:3630,neko:true},
-  {id:60,cat:'ファンデ・パウダー',name:'トランスルーセントパウダー',variants:[{name:'20gセット',price:5170},{name:'5gセット',price:2200}]},
-  {id:61,cat:'ファンデ・パウダー',name:'TLPレフィル',neko:true,variants:[{name:'ベージュ',price:3520},{name:'ホワイト',price:3520}]},
-  {id:62,cat:'ファンデ・パウダー',name:'プレストファンデーション',variants:[{name:'ナチュラルオークル',price:5280},{name:'ライトベージュ',price:5280}]},
-  {id:63,cat:'ファンデ・パウダー',name:'マイクロフィニッシングパウダー',neko:true,variants:[{name:'セット',price:5060},{name:'レフィル',price:3520}]},
-  {id:70,cat:'チーク・リップ',name:'シルキーブラッシュ',neko:true,variants:[{name:'本品',price:3740},{name:'レフィル',price:2750}]},
-  {id:71,cat:'チーク・リップ',name:'モイスチャーリップ',neko:true,variants:[{name:'ピンクBG',price:4180},{name:'リッチRD',price:4180}]},
-  {id:72,cat:'チーク・リップ',name:'リップビジューC',price:1980,neko:true},
-  {id:80,cat:'アイメイク',name:'アイシャドウベース（クリアピンク）',price:1870,neko:true},
-  {id:81,cat:'アイメイク',name:'ノーステインライナー',price:2860,neko:true},
-  {id:82,cat:'アイメイク',name:'ピュアアイラッシュ',price:2890,neko:true},
-  {id:83,cat:'アイメイク',name:'美眉ビューティペンシル',price:2420,neko:true},
-  {id:90,cat:'サプリメント',name:'ミキズコラーゲン',variants:[{name:'単品',price:5940},{name:'4袋セット',price:21384}]},
-  {id:91,cat:'サプリメント',name:'黄金のコラーゲン',variants:[{name:'単品',price:5940},{name:'4袋セット',price:21384}]},
-  {id:92,cat:'サプリメント',name:'白肌星Mg',variants:[{name:'90粒',price:5400},{name:'4個セット',price:19440}]},
-  {id:93,cat:'サプリメント',name:'アスカラダイジェスト',variants:[{name:'単品',price:3780},{name:'2個',price:7560},{name:'4袋',price:13690}]},
-  {id:94,cat:'サプリメント',name:'デルリズム',price:7020,cp:true},
-  {id:95,cat:'サプリメント',name:'デルミライト',variants:[{name:'30包',price:10800},{name:'2週間分',price:5400},{name:'4類(120包)',price:38880}]},
-  {id:96,cat:'サプリメント',name:'デルミパウダー',price:12960},
-  {id:100,cat:'セット・トライアル',name:'トライアルセット(9種)',price:990,neko:true},
-  {id:101,cat:'セット・トライアル',name:'はじめてのエポラーシェセット',price:11000},
-  {id:102,cat:'セット・トライアル',name:'こだわりの基本セット（5種）',price:17380},
-  {id:103,cat:'セット・トライアル',name:'夏肌セット（エル300+ハイエスト）',price:13000},
-  {id:110,cat:'その他・雑貨',name:'ネックビューティスリム',variants:[{name:'1枚',price:1430},{name:'2枚',price:2640},{name:'4枚',price:5060}]},
-  {id:111,cat:'その他・雑貨',name:'マグネシウム歯磨きペースト',price:1650},
-  {id:112,cat:'その他・雑貨',name:'潤ボーロ',variants:[{name:'1箱',price:1760},{name:'2箱',price:3520},{name:'3箱（送料無料）',price:5280}]},
-  {id:113,cat:'その他・雑貨',name:'エレヴィア',variants:[{name:'ブラック',price:14300},{name:'グレーBG',price:14300}]},
-];
+const API = 'https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
+let sessionPw = '';
 
-// STATE
-let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:''};
-let catFilter='すべて',SETTINGS=null,activeCpnKey='';
-
-// PAGE
-function showPg(p){
-  ['order','history','scripts'].forEach(x=>{
-    const el=document.getElementById('pg-'+x);
-    if(x==='order')el.style.display=p===x?'flex':'none';
-    else el.className=p===x?'on':'';
-    document.getElementById('btn-'+x)?.classList.toggle('on',p===x);
-  });
-  if(p==='history')renderHist();
+// ====== LOGIN ======
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  // まずAPIにGETして設定読み込み（パスワード確認はPOSTで行う）
+  // ここではとりあえずセッションパスワードを保存して画面遷移
+  // 実際の認証はPOSTで確認
+  sessionPw = pw;
+  verifyLogin(pw);
 }
 
-// PRODUCTS
-function initProds(){
-  const cats=['すべて',...new Set(PRODUCTS.map(p=>p.cat))];
-  const cw=document.getElementById('cat-wrap');
-  cats.forEach(c=>{
-    const b=document.createElement('button');
-    b.className='cb'+(c==='すべて'?' on':'');
-    b.textContent=c==='すべて'?'全商品':c;
-    b.onclick=()=>{catFilter=c;cw.querySelectorAll('.cb').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderProds();};
-    cw.appendChild(b);
-  });
-  renderProds();
-}
-function filterP(){renderProds();}
-function renderProds(){
-  const q=document.getElementById('p-srch').value.toLowerCase();
-  const pl=document.getElementById('prod-list');
-  pl.innerHTML='';
-  PRODUCTS.filter(p=>(catFilter==='すべて'||p.cat===catFilter)&&(!q||p.name.toLowerCase().includes(q)))
-    .forEach(p=>{
-      const d=document.createElement('div');
-      d.className='pi'+(p.cp?' cp':'');
-      const pr=p.price?'¥'+p.price.toLocaleString():'¥'+p.variants[0].price.toLocaleString()+'〜';
-      d.innerHTML='<span class="pi-name">'+p.name+'</span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
-      d.onclick=e=>pickP(p,e);
-      pl.appendChild(d);
-    });
-}
-function pickP(p,e){
-  if(!p.variants){addCart(p.name,p.price,p.neko||false);cpCheck();return;}
-  const mb=document.getElementById('mod-b');
-  document.getElementById('mod-t').textContent=p.name+' — 規格選択';
-  mb.innerHTML='';
-  p.variants.forEach(v=>{
-    const b=document.createElement('button');
-    b.className='vb';
-    b.innerHTML='<span class="vbn">'+v.name+'</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
-    b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko||p.neko||false);closeMod();cpCheck();};
-    mb.appendChild(b);
-  });
-  document.getElementById('mod-ov').classList.add('on');
-}
-function closeMod(e){
-  if(e&&e.target!==document.getElementById('mod-ov'))return;
-  document.getElementById('mod-ov').classList.remove('on');
-}
-
-// CART
-function addCart(name,price,neko){
-  const ex=cart.find(c=>c.name===name);
-  if(ex)ex.qty++;else cart.push({name,price,neko,qty:1});
-  renderRight();validate();
-}
-function chQty(i,d){
-  cart[i].qty+=d;
-  if(cart[i].qty<=0)cart.splice(i,1);
-  renderRight();validate();
-}
-
-// RIGHT PANEL RENDER (商品明細+合計)
-function renderRight(){
-  // 商品明細
-  const el=document.getElementById('r-items-list');
-  const cnt=cart.reduce((s,c)=>s+c.qty,0);
-  document.getElementById('prod-cnt').textContent=cnt+'点';
-  if(!cart.length){
-    el.innerHTML='<div class="r-empty">← 商品を選択してください</div>';
-    document.getElementById('total-divider').style.display='none';
-    document.getElementById('cpn-area').style.display='none';
-  }else{
-    el.innerHTML=cart.map(c=>'<div class="r-item"><span class="r-item-name">'+c.name+(c.qty>1?'<span class="r-item-qty">×'+c.qty+'</span>':'')+'</span><span class="r-item-price">¥'+(c.price*c.qty).toLocaleString()+'</span></div>').join('');
-    document.getElementById('total-divider').style.display='block';
-    document.getElementById('cpn-area').style.display='block';
-  }
-  cpCheck();
-}
-
-// CP CHECK
-function cpCheck(){
-  const zone=document.getElementById('cp-zone');
-  zone.innerHTML='';
-  st.cpDisc=0;st.cpLabel='';
-  const campaigns=SETTINGS?(SETTINGS.campaigns||[]):[];
-  if(!campaigns.length){cpCheckDefault();return;}
-  campaigns.forEach(cp=>{
-    if(!cp.name)return;
-    (cp.rules||[]).forEach(rule=>{
-      if(!rule.desc)return;
-      const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
-      const qty=rule.qty||1;
-      let matched=true,totalQty=0;
-      if(kws.length===1){
-        totalQty=cart.filter(c=>c.name.includes(kws[0])).reduce((s,c)=>s+c.qty,0);
-        matched=totalQty>=qty;
-      }else if(kws.length>=2){
-        matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0)>=qty);
-      }
-      if(matched&&rule.disc_price>0){
-        const origTotal=kws.length>=2
-          ?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+(p?p.price:0);},0)*qty
-          :(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
-        const disc=origTotal-rule.disc_price;
-        if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
-        addCpMsg(zone,cp.name+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
-      }else if(kws.length===1&&totalQty>0&&totalQty<qty){
-        addCpMsg(zone,'💡 あと'+(qty-totalQty)+'本で '+cp.name+'（'+rule.pct+'%OFF）が適用されます','hint');
-      }
-    });
-  });
-  if(zone.innerHTML===''){
-    campaigns.forEach(cp=>{if(cp.name)addCpMsg(zone,cp.name+'（'+cp.period+'）','info');});
-  }
-  calcTotals();
-}
-function cpCheckDefault(){
-  const zone=document.getElementById('cp-zone');
-  const sapl=cart.filter(c=>c.name.includes('サプルプラス')).reduce((s,c)=>s+c.qty,0);
-  const nobl=cart.filter(c=>c.name.includes('ノーブルプラス')).reduce((s,c)=>s+c.qty,0);
-  const del=cart.filter(c=>c.name.includes('デルリズム')).reduce((s,c)=>s+c.qty,0);
-  const sclp=cart.filter(c=>c.name.includes('スカルプガードEX')).reduce((s,c)=>s+c.qty,0);
-  st.cpDisc=0;st.cpLabel='';
-  if(sapl>=2){st.cpDisc+=4169*2-6800;st.cpLabel+='サプル×2CP';addCpMsg(zone,'✂️ 美髪CP：サプル×2本 ¥6,800（18%OFF）','ok');}
-  else if(nobl>=2){st.cpDisc+=4169*2-6800;st.cpLabel+='ノーブル×2CP';addCpMsg(zone,'✂️ 美髪CP：ノーブル×2本 ¥6,800（18%OFF）','ok');}
-  else if(sapl===1&&nobl===1){st.cpDisc+=4169*2-7050;st.cpLabel+='サプル＋ノーブルCP';addCpMsg(zone,'✂️ 美髪CP：サプル＋ノーブル各1本 ¥7,050（15%OFF）','ok');}
-  else if(sapl===1)addCpMsg(zone,'💡 ノーブルをもう1本でCP（15%OFF）が適用されます','hint');
-  else if(nobl===1)addCpMsg(zone,'💡 サプルをもう1本でCP（15%OFF）が適用されます','hint');
-  if(del===1){st.cpDisc+=7020-6318;st.cpLabel+=(st.cpLabel?'＋':'')+'デルリズム1本CP';addCpMsg(zone,'🌿 腸活CP：1本 ¥6,318（10%OFF）','ok');}
-  else if(del===2){st.cpDisc+=14040-11232;addCpMsg(zone,'🌿 腸活CP：2本 ¥11,232（20%OFF）','ok');}
-  else if(del>=3){st.cpDisc+=21060-15795;addCpMsg(zone,'🌿 腸活CP：3本 ¥15,795（25%OFF）','ok');}
-  if(del===1||del===2)addCpMsg(zone,'💡 デルリズムあと'+(3-del)+'本で'+(del===1?20:25)+'%OFF になります','hint');
-  if(sclp>0){st.cpDisc+=(4950-4208)*sclp;st.cpLabel+=(st.cpLabel?'＋':'')+'スカルプCP';addCpMsg(zone,'💆 スカルプCP：¥4,208（15%OFF）','ok');}
-  calcTotals();
-}
-function addCpMsg(zone,msg,type){
-  const d=document.createElement('div');
-  d.className='cp-msg '+(type==='ok'?'cp-ok':type==='hint'?'cp-hint':'cp-info');
-  d.innerHTML=msg;zone.appendChild(d);
-}
-
-// TOTALS
-function calcSub(){return cart.reduce((s,c)=>s+c.price*c.qty,0);}
-function calcShip(sub,pay){
-  if(!pay)return{label:'支払方法を選択してください',amt:null};
-  if(sub>=7700){
-    if(pay==='post')return{label:'後払い手数料',amt:200};
-    if(pay==='pre')return{label:'振込手数料（個別）',amt:null};
-    return{label:'送料無料',amt:0};
-  }
-  if(pay==='cod')return{label:'送料660+代引440=¥1,100',amt:1100};
-  if(pay==='card')return{label:'送料¥660',amt:660};
-  if(pay==='post')return{label:'送料660+後払200=¥860',amt:860};
-  if(pay==='pre')return{label:'送料¥660+振込手数料',amt:null};
-  return{label:'—',amt:null};
-}
-function calcTotals(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
-  const disc=st.cpDisc+st.cpnDisc;
-  const grand=sub-disc+(ship.amt||0);
-  document.getElementById('t-sub').textContent='¥'+sub.toLocaleString();
-  document.getElementById('t-ship-l').textContent=ship.label;
-  document.getElementById('t-ship-v').textContent=ship.amt!=null?(ship.amt===0?'無料':'¥'+ship.amt.toLocaleString()):'要確認';
-  const gEl=document.getElementById('t-grand');
-  if(ship.amt!=null){gEl.textContent='¥'+grand.toLocaleString();gEl.className='tgv';}
-  else{gEl.textContent='支払方法を選択';gEl.className='tgv checking';}
-  const cr=document.getElementById('t-cp-row');
-  if(st.cpDisc>0){cr.style.display='flex';document.getElementById('t-cp-l').textContent=st.cpLabel;document.getElementById('t-cp-v').textContent='-¥'+st.cpDisc.toLocaleString();}
-  else cr.style.display='none';
-  const cnr=document.getElementById('t-cpn-row');
-  if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
-  else cnr.style.display='none';
-  // 送料通知
-  const sn=document.getElementById('ship-notice');
-  if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
-  else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
-  else sn.innerHTML='';
-  // COD script
-  if(st.pay==='cod'){
-    const ct=document.getElementById('cod-txt');
-    if(sub>=7700)ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
-    else ct.innerHTML='合計¥'+sub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-sub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
-  }
-  // BDクーポン金額チェック更新
-  if(activeCpnKey==='bd'){
-    const minAmt=(SETTINGS&&SETTINGS.bd_coupon?SETTINGS.bd_coupon.min_amt:5400)||5400;
-    const hint=document.getElementById('cpn-hint');
-    const gift=(SETTINGS&&SETTINGS.bd_coupon?SETTINGS.bd_coupon.gift:'ミニコスメプレゼント')||'ミニコスメプレゼント';
-    let h='<div style="background:#fff0f6;border:2px solid #e879a0;border-radius:6px;padding:8px 10px;"><div style="font-size:12px;font-weight:800;color:#b5006a;margin-bottom:3px;">🎂 お誕生日おめでとうございます！</div><div style="font-size:10px;color:#7a004a;line-height:1.7;">🎁 '+gift+'<br>※'+minAmt.toLocaleString()+'円以上でご利用いただけます';
-    if(sub>0&&sub<minAmt)h+='<br><span style="color:var(--rd);font-weight:700;">⚠ 現在¥'+sub.toLocaleString()+'。あと¥'+(minAmt-sub).toLocaleString()+'で利用可能</span>';
-    else if(sub>=minAmt)h+='<br><span style="color:var(--ok);font-weight:700;">✅ 利用可能です</span>';
-    h+='</div></div>';
-    hint.innerHTML=h;
-  }
-}
-
-// PAYMENT / TIME
-function selPay(p){
-  st.pay=p;
-  document.querySelectorAll('.po').forEach(el=>el.classList.toggle('on',el.dataset.p===p));
-  document.getElementById('card-d').classList.toggle('on',p==='card');
-  document.getElementById('post-d').classList.toggle('on',p==='post');
-  document.getElementById('cod-d').classList.toggle('on',p==='cod');
-  calcTotals();validate();
-}
-function selTime(t){
-  st.time=t;
-  document.querySelectorAll('.to').forEach(el=>el.classList.toggle('on',el.dataset.t===t));
-  validate();
-}
-
-// COUPON
-function toggleCpn(key){
-  const btnMc=document.getElementById('cpntag-mc');
-  const btnBd=document.getElementById('cpntag-bd');
-  const hint=document.getElementById('cpn-hint');
-  if(activeCpnKey===key){
-    activeCpnKey='';st.cpnDisc=0;st.cpnLabel='';st.cpnKey='';
-    btnMc.classList.remove('on');btnBd.classList.remove('on');
-    hint.innerHTML='';
-  }else{
-    btnMc.classList.remove('on');btnBd.classList.remove('on');
-    activeCpnKey=key;st.cpnKey=key;
-    if(key==='mc'){
-      const mc=SETTINGS&&SETTINGS.monthly_coupon||{};
-      st.cpnDisc=mc.discount||500;st.cpnLabel=(mc.label||'毎月クーポン');
-      btnMc.classList.add('on');
-      hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+st.cpnDisc.toLocaleString()+' 適用中</span>';
-    }else if(key==='bd'){
-      st.cpnDisc=0;st.cpnLabel='BDクーポン';
-      btnBd.classList.add('on');
+async function verifyLogin(pw) {
+  try {
+    // GETで設定を取得してパスワードを照合
+    const res = await fetch(API + '?action=settings&t=' + Date.now());
+    const data = await res.json();
+    const savedPw = data.admin_password || 'eporashe2024';
+    if (pw !== savedPw) {
+      document.getElementById('login-err').style.display = 'block';
+      return;
     }
+    // ログイン成功
+    document.getElementById('login-pg').style.display = 'none';
+    document.getElementById('admin-pg').style.display = 'block';
+    fill(data);
+    if (data.updated_at) {
+      document.getElementById('last-saved').textContent = data.updated_at;
+      document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
+    }
+  } catch(e) {
+    document.getElementById('login-err').style.display = 'block';
+    document.getElementById('login-err').textContent = '⚠ 通信エラー。再度お試しください。';
   }
-  calcTotals();
 }
 
-// ADDRESS
-function onZipInput(el){
-  let v=el.value.replace(/-/g,'');
-  if(v.length===7)fetchZip();
-}
-async function fetchZip(){
-  const raw=document.getElementById('i-zip').value.replace(/-/g,'').trim();
-  const st2=document.getElementById('zip-status');
-  if(raw.length!==7||!/^[0-9]+$/.test(raw)){st2.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ 7桁の数字で入力</span>';return;}
-  st2.innerHTML='🔍 検索中…';
-  try{
-    const res=await fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode='+raw);
-    const data=await res.json();
-    if(data.results&&data.results.length>0){
-      const r=data.results[0];
-      const addr=r.address1+r.address2+r.address3;
-      const addrEl=document.getElementById('i-addr');
-      addrEl.value=addr;
-      st2.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ 住所を自動入力（番地・部屋番号を追記してください）</span>';
-      addrEl.focus();addrEl.setSelectionRange(addr.length,addr.length);
-      onAddr();
-    }else st2.innerHTML='<span style="color:var(--rd);font-weight:700;">❌ 住所が見つかりませんでした</span>';
-  }catch(e){st2.innerHTML='<span style="color:var(--rd);">⚠ 通信エラー。直接入力してください</span>';}
-}
-function onAddr(){
-  const addr=document.getElementById('i-addr').value;
-  if(addr.length<3){document.getElementById('del-card').style.display='none';return;}
-  const far=['北海道','青森','秋田','岩手','九州','福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄','和歌山','鳥取','岡山','島根','広島','山口','香川','徳島','愛媛','高知'];
-  const isFar=far.some(p=>addr.includes(p));
-  const now=new Date(),h=now.getHours();
-  let add=(h>=16?2:1)+(isFar?1:0);
-  const d=new Date(now);d.setDate(d.getDate()+add);
-  const days=['日','月','火','水','木','金','土'];
-  document.getElementById('del-date').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日（'+days[d.getDay()]+'）午前中';
-  let note='';
-  if(h>=16)note+='16時以降受付→翌日発送。';
-  if(isFar)note+=' 遠方地域→翌々日以降。';
-  document.getElementById('del-note').textContent=note;
-  document.getElementById('del-card').style.display='block';
+function doLogout() {
+  sessionPw = '';
+  document.getElementById('login-pg').style.display = 'flex';
+  document.getElementById('admin-pg').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
 }
 
-// VALIDATION
-function validate(){
-  const cartOk=cart.length>0,payOk=!!st.pay,timeOk=!!st.time;
-  const cardOk=st.pay!=='card'||(!!document.getElementById('i-cno').value&&!!document.getElementById('i-cexp').value);
-  const allOk=cartOk&&payOk&&timeOk&&cardOk;
-  const checks=[
-    {label:'商品',ok:cartOk},{label:'支払方法',ok:payOk},{label:'時間帯',ok:timeOk},
-    ...(st.pay==='card'?[{label:'カード番号',ok:!!document.getElementById('i-cno').value},{label:'有効期限',ok:!!document.getElementById('i-cexp').value}]:[]),
-  ];
-  document.getElementById('vbar-items').innerHTML=checks.map(c=>'<div class="vi '+(c.ok?'ok':'ng')+'">'+(c.ok?'✓':'!')+' '+c.label+'</div>').join('');
-  document.getElementById('confirm-btn').disabled=!allOk;
+// ====== LOAD ======
+async function loadSettings() {
+  const res = await fetch(API + '?t=' + Date.now());
+  const s = await res.json();
+  fill(s);
 }
 
-// CONFIRM
-function openConfirm(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
-  const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
-  const grand=sub-disc+shipAmt;
-  const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード'};
-  const timeN={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし',teiki:'定期'};
-  const now=new Date();
-  const name=document.getElementById('i-name').value||'—';
-  const phone=document.getElementById('i-phone').value||'—';
-  const addr=document.getElementById('i-addr').value||'（スマイル参照）';
-  const delDate=document.getElementById('del-date').textContent||'—';
-  const itemsRows=cart.map(c=>'<tr><td>'+c.name+(c.neko?' <span class="tag tn" style="font-size:9px;">★</span>':'')+'</td><td style="text-align:center;">×'+c.qty+'</td><td style="text-align:right;">¥'+c.price.toLocaleString()+'</td><td style="text-align:right;font-weight:800;">¥'+(c.price*c.qty).toLocaleString()+'</td></tr>').join('');
-  document.getElementById('ov-body').innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div style="font-family:'Shippori Mincho',serif;font-size:18px;letter-spacing:.1em;color:var(--nv);">受　注　票</div><div style="font-size:10px;color:var(--tx3);">'+now.toLocaleString('ja-JP')+'</div></div>'+
-    '<div class="rcpt-grid"><div class="rb"><div class="rb-h">👤 お客様情報</div><div class="rb-b">'+
-    '<div class="rr"><div class="rrl">電話番号</div><div class="rrv">'+phone+'</div></div>'+
-    '<div class="rr"><div class="rrl">お名前</div><div class="rrv" style="font-size:14px;font-weight:800;">'+name+' 様</div></div>'+
-    '<div class="rr"><div class="rrl">住所</div><div class="rrv">'+addr+'</div></div>'+
-    '<div class="rr"><div class="rrl">生年月日</div><div class="rrv">'+(document.getElementById('i-bday').value||'—')+'</div></div>'+
-    '</div></div>'+
-    '<div class="rb"><div class="rb-h">📦 配送情報</div><div class="rb-b">'+
-    '<div class="rr"><div class="rrl">最短お届け</div><div class="rrv" style="font-weight:800;color:var(--ok);">'+delDate+'</div></div>'+
-    '<div class="rr"><div class="rrl">時間帯</div><div class="rrv">'+(timeN[st.time]||'—')+'</div></div>'+
-    '<div class="rr"><div class="rrl">支払方法</div><div class="rrv">'+(payN[st.pay]||'—')+'</div></div>'+
-    '<div class="rr"><div class="rrl">チャネル</div><div class="rrv">'+{tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'}[document.getElementById('i-ch').value]+'</div></div>'+
-    '</div></div></div>'+
-    '<table class="itbl"><tr><th>商品名</th><th style="text-align:center;">数量</th><th style="text-align:right;">単価</th><th style="text-align:right;">小計</th></tr>'+itemsRows+'</table>'+
-    '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等'+(ship.amt!=null?'¥'+ship.amt.toLocaleString():'要確認')+'</div></div><div class="rt-v">'+( ship.amt!=null?'¥'+grand.toLocaleString():'確認中')+'</div></div>'+
-    (document.getElementById('i-note').value?'<div style="background:var(--wnl);border:1.5px solid #f59e0b;border-radius:var(--rs);padding:8px 11px;font-size:11px;color:var(--wn);margin-bottom:10px;"><b>📝 備考：</b>'+document.getElementById('i-note').value+'</div>':'')+
-    '<div class="rcpt-ope"><b>📞 受注完了トーク</b><br>「かしこまりました。本日は<b>'+name+'</b>様のご注文、〇〇が承りました。ご注文ありがとうございました！」</div>';
-  document.getElementById('ov-confirm').classList.add('on');
-}
-function closeConfirm(){document.getElementById('ov-confirm').classList.remove('on');}
-
-// SUBMIT
-function submitOrder(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
-  const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
-  const order={
-    id:Date.now(),date:new Date().toLocaleString('ja-JP'),
-    phone:document.getElementById('i-phone').value,
-    name:document.getElementById('i-name').value,
-    addr:document.getElementById('i-addr').value,
-    zip:document.getElementById('i-zip').value,
-    channel:document.getElementById('i-ch').value,
-    items:JSON.parse(JSON.stringify(cart)),
-    pay:st.pay,time:st.time,
-    subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
-    coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
-  };
-  fetch(GAS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'save_order',order})}).catch(e=>console.warn('GAS保存エラー',e));
-  const h=JSON.parse(localStorage.getItem('epro_orders')||'[]');
-  h.unshift(order);localStorage.setItem('epro_orders',JSON.stringify(h));
-  closeConfirm();newOrder();showPg('history');
-}
-
-// NEW ORDER
-function newOrder(){
-  cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:''};activeCpnKey='';
-  ['i-phone','i-name','i-addr','i-bday','i-note','i-zip'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  const zs=document.getElementById('zip-status');if(zs)zs.innerHTML='';
-  document.getElementById('cpn-hint').innerHTML='';
-  document.querySelectorAll('.po').forEach(e=>e.classList.remove('on'));
-  document.querySelectorAll('.to').forEach(e=>e.classList.remove('on'));
-  ['card-d','post-d','cod-d'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  document.getElementById('del-card').style.display='none';
-  document.querySelectorAll('.cpn-tag').forEach(b=>b.classList.remove('on'));
-  renderRight();validate();showPg('order');
-}
-
-// HISTORY
-async function renderHist(){
-  const el=document.getElementById('hist-list');
-  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--tx4);">📡 読み込み中…</div>';
-  let orders=[];
-  try{
-    const res=await fetch(GAS+'?action=orders&t='+Date.now());
-    const data=await res.json();
-    if(Array.isArray(data))orders=data;
-  }catch(e){orders=JSON.parse(localStorage.getItem('epro_orders')||'[]');}
-  if(!orders.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--tx4);">受注履歴がありません</div>';return;}
-  const pN={cod:'代引き',pre:'前振り',post:'後払い',card:'カード'};
-  el.innerHTML='';
-  orders.forEach(o=>{
-    const itemsStr=typeof o.items==='string'?o.items:(Array.isArray(o.items)?o.items.map(i=>i.name+'×'+i.qty).join(' / '):'');
-    const d=document.createElement('div');d.className='hi';
-    const grand=Number(o.grand)||Number(o.subtotal)||0;
-    d.innerHTML='<div class="hi-top"><div><div class="hi-date">'+o.date+'</div><div class="hi-name">'+(o.name||'（名前なし）')+'様</div></div><div class="hi-amt">¥'+grand.toLocaleString()+'</div></div><div class="hi-prd">'+itemsStr+'</div><div class="hi-info">📞 '+(o.phone||'—')+'　💳 '+(pN[o.pay]||o.pay||'—')+'　🕐 '+(o.time||'—')+(o.addr?' 📍 '+o.addr:'')+'</div>';
-    el.appendChild(d);
+function fill(s) {
+  // 月ラベル
+  set('month_label', s.month_label || '');
+  // BD
+  const bd = s.bd_coupon || {};
+  set('bd_code',  bd.code  || '');
+  set('bd_label', bd.label || '');
+  set('bd_min',   bd.min_amt || 5400);
+  set('bd_gift',  bd.gift  || '');
+  // MC
+  const mc = s.monthly_coupon || {};
+  set('mc_code',  mc.code     || '');
+  set('mc_label', mc.label    || '');
+  set('mc_disc',  mc.discount || 500);
+  // Campaigns
+  [1,2,3].forEach(n => {
+    const cp = (s.campaigns || [])[n-1] || {};
+    set(`cp${n}_name`,     cp.name    || '');
+    set(`cp${n}_period`,   cp.period  || '');
+    set(`cp${n}_products`, cp.products|| '');
+    ['a','b','c'].forEach((r,ri) => {
+      const rule = (cp.rules || [])[ri] || {};
+      set(`cp${n}_r${r}_desc`, rule.desc       || '');
+      set(`cp${n}_r${r}_orig`, rule.orig_price || '');
+      set(`cp${n}_r${r}_disc`, rule.disc_price || '');
+      set(`cp${n}_r${r}_pct`,  rule.pct        || '');
+      set(`cp${n}_r${r}_kw`,   rule.product_keywords || '');
+      set(`cp${n}_r${r}_qty`,  rule.qty        || '');
+    });
   });
-}
-function clearHist(){if(confirm('受注履歴をすべて削除しますか？')){localStorage.removeItem('epro_orders');renderHist();}}
-
-// SCRIPT ACCORDION
-function togSA(h){h.nextElementSibling.classList.toggle('on');}
-
-// SETTINGS FROM SERVER
-async function loadSettingsFromServer(){
-  try{
-    const res=await fetch(GAS+'?action=settings&t='+Date.now());
-    SETTINGS=await res.json();
-  }catch(e){SETTINGS=null;}
-  applySettings();
-}
-function applySettings(){
-  if(!SETTINGS)return;
-  const bd=SETTINGS.bd_coupon||{},mc=SETTINGS.monthly_coupon||{};
-  // クーポンボタン更新
-  document.getElementById('mc-name').textContent=mc.label||'毎月クーポン';
-  document.getElementById('mc-code').textContent=mc.code||'epr333';
-  document.getElementById('mc-disc').textContent='△'+(mc.discount||500).toLocaleString()+'円';
-  document.getElementById('bd-code').textContent=bd.code||'HB6767';
-  // ノベルティ
-  const nv=SETTINGS.novelty||{};
-  if(nv.this_month)document.getElementById('novelty-this').textContent=nv.this_month;
-  if(nv.next_month)document.getElementById('novelty-next').textContent=nv.next_month;
+  // Novelty
+  const nv = s.novelty || {};
+  set('novelty_this', nv.this_month || '');
+  set('novelty_next', nv.next_month || '');
+  // Updated
+  if (s.updated_at) {
+    document.getElementById('last-saved').textContent = s.updated_at;
+    document.getElementById('hd-updated').textContent = '最終更新: ' + s.updated_at;
+  }
 }
 
-// INIT
-document.addEventListener('DOMContentLoaded',async()=>{
-  initProds();
-  await loadSettingsFromServer();
-  window.cpCheck=()=>{
-    const zone=document.getElementById('cp-zone');zone.innerHTML='';
-    st.cpDisc=0;st.cpLabel='';
-    const campaigns=SETTINGS?(SETTINGS.campaigns||[]):[];
-    if(!campaigns.length){cpCheckDefault();return;}
-    campaigns.forEach(cp=>{
-      if(!cp.name)return;
-      (cp.rules||[]).forEach(rule=>{
-        if(!rule.desc)return;
-        const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
-        const qty=rule.qty||1;
-        let matched=true,totalQty=0;
-        if(kws.length===1){totalQty=cart.filter(c=>c.name.includes(kws[0])).reduce((s,c)=>s+c.qty,0);matched=totalQty>=qty;}
-        else if(kws.length>=2){matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0)>=qty);}
-        if(matched&&rule.disc_price>0){
-          const origTotal=kws.length>=2?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+(p?p.price:0);},0)*qty:(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
-          const disc=origTotal-rule.disc_price;
-          if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
-          addCpMsg(zone,cp.name+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
-        }else if(kws.length===1&&totalQty>0&&totalQty<qty){
-          addCpMsg(zone,'💡 あと'+(qty-totalQty)+'本で '+cp.name+'（'+rule.pct+'%OFF）が適用されます','hint');
-        }
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+function get(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// ====== SAVE ======
+async function saveSettings() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = '保存中…';
+
+  const body = {
+    password:       sessionPw,
+    month_label:    get('month_label'),
+    bd_code:        get('bd_code'),
+    bd_label:       get('bd_label'),
+    bd_min:         get('bd_min'),
+    bd_gift:        get('bd_gift'),
+    mc_code:        get('mc_code'),
+    mc_label:       get('mc_label'),
+    mc_disc:        get('mc_disc'),
+    novelty_this:   get('novelty_this'),
+    novelty_next:   get('novelty_next'),
+  };
+  // campaigns
+  [1,2,3].forEach(n => {
+    body[`cp${n}_name`]     = get(`cp${n}_name`);
+    body[`cp${n}_period`]   = get(`cp${n}_period`);
+    body[`cp${n}_products`] = get(`cp${n}_products`);
+    ['a','b','c'].forEach(r => {
+      ['desc','orig','disc','pct','kw','qty'].forEach(f => {
+        body[`cp${n}_r${r}_${f}`] = get(`cp${n}_r${r}_${f}`);
       });
     });
-    if(zone.innerHTML==='')campaigns.forEach(cp=>{if(cp.name)addCpMsg(zone,cp.name+'（'+cp.period+'）','info');});
-    calcTotals();
-  };
-  cpCheck();validate();showPg('order');
-});
+  });
+
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+
+  btn.disabled = false;
+  btn.textContent = '💾 保存する（全員に反映）';
+
+  if (data.ok) {
+    document.getElementById('last-saved').textContent = data.updated_at;
+    document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
+    showToast('✅ 保存しました！全スタッフのアプリに反映されます', 'ok');
+  } else {
+    showToast('❌ ' + (data.error || '保存に失敗しました'), 'err');
+  }
+}
+
+// ====== CHANGE PASSWORD ======
+async function changePw() {
+  const cur = document.getElementById('pw_current').value;
+  const nw  = document.getElementById('pw_new').value;
+  const cf  = document.getElementById('pw_confirm').value;
+  const msg = document.getElementById('pw-msg');
+  msg.style.display = 'block';
+  if (!cur || !nw) { msg.style.color='var(--red)'; msg.textContent='全て入力してください'; return; }
+  if (nw !== cf)   { msg.style.color='var(--red)'; msg.textContent='新しいパスワードが一致しません'; return; }
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'change_password', current_password: cur, new_password: nw })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    sessionPw = nw;
+    msg.style.color = 'var(--ok)';
+    msg.textContent = '✅ パスワードを変更しました';
+    document.getElementById('pw_current').value = '';
+    document.getElementById('pw_new').value = '';
+    document.getElementById('pw_confirm').value = '';
+  } else {
+    msg.style.color = 'var(--red)';
+    msg.textContent = '❌ ' + (data.error || '失敗しました');
+  }
+}
+
+// ====== TOAST ======
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast toast-' + type + ' show';
+  setTimeout(() => { t.classList.remove('show'); }, 3500);
+}
 </script>
 </body>
 </html>
