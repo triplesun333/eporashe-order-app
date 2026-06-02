@@ -287,6 +287,11 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
     <div class="col-l">
       <div class="col-l-scroll">
 
+        <!-- 開口一番 -->
+        <div style="background:var(--nvp);border-left:3px solid var(--nv);border-radius:0 var(--rs) var(--rs) 0;padding:7px 11px;margin-bottom:8px;font-size:11px;color:#1a2e42;line-height:1.6;">
+          <span style="font-size:9px;font-weight:800;color:var(--nv);letter-spacing:.06em;display:block;margin-bottom:3px;">📞 開口一番</span>
+          お電話ありがとうございます。無添加化粧品エポラーシェ、<strong style="color:var(--nv);">〇〇</strong>でございます。
+        </div>
         <!-- 顧客メモ（コンパクト） -->
         <div class="cust-compact">
           <div class="cust-row">
@@ -796,7 +801,7 @@ function cpCheckDefault(){
   if(del===1){st.cpDisc+=7020-6318;st.cpLabel+=(st.cpLabel?'＋':'')+'デルリズム1本CP';addCpMsg(zone,'🌿 腸活CP：1本 ¥6,318（10%OFF）','ok');}
   else if(del===2){st.cpDisc+=14040-11232;addCpMsg(zone,'🌿 腸活CP：2本 ¥11,232（20%OFF）','ok');}
   else if(del>=3){st.cpDisc+=21060-15795;addCpMsg(zone,'🌿 腸活CP：3本 ¥15,795（25%OFF）','ok');}
-  if(del===1||del===2)addCpMsg(zone,'💡 デルリズムあと'+(3-del)+'本で'+（del===1?20:25)+'%OFF になります','hint');
+  if(del===1||del===2)addCpMsg(zone,'💡 デルリズムあと'+(3-del)+'本で'+(del===1?20:25)+'%OFF になります','hint');
   if(sclp>0){st.cpDisc+=(4950-4208)*sclp;st.cpLabel+=(st.cpLabel?'＋':'')+'スカルプCP';addCpMsg(zone,'💆 スカルプCP：¥4,208（15%OFF）','ok');}
   calcTotals();
 }
