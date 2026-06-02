@@ -503,23 +503,53 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
     <div class="col-right">
       <div class="col-right-scroll">
 
-        <!-- 合計 -->
-        <div class="totals" id="totals-box">
-          <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
-          <div class="trow disc" id="t-cp-row" style="display:none;"><span id="t-cp-l">CPキャンペーン割引</span><span id="t-cp-v">-¥0</span></div>
-          <div class="trow disc" id="t-cpn-row" style="display:none;"><span id="t-cpn-l">クーポン</span><span id="t-cpn-v">-¥0</span></div>
-          <div class="trow" id="t-ship-row"><span id="t-ship-l">送料・手数料</span><span id="t-ship-v">—</span></div>
-          <div class="tdiv"></div>
-          <div class="tgrand"><span class="tgl">お支払い合計</span><span class="tgv" id="t-grand">¥0</span></div>
+        <!-- ① 今月のサンプル（一番上） -->
+        <div style="background:linear-gradient(135deg,#b8832a,#d4a853);border-radius:var(--r);padding:10px 14px;margin-bottom:10px;color:#fff;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:22px;">🎁</span>
+          <div>
+            <div style="font-size:10px;font-weight:800;opacity:.8;letter-spacing:.05em;margin-bottom:2px;">今月の同梱サンプル</div>
+            <div style="font-size:12px;font-weight:700;" id="novelty-this">サプルノーブルパウチ 2包</div>
+            <div style="font-size:10px;opacity:.8;">来月: <span id="novelty-next">黄金のコラーゲン 2包</span></div>
+          </div>
         </div>
 
-        <!-- 送料通知 -->
-        <div id="ship-notice"></div>
+        <!-- ② 商品明細 + 合計（メイン） -->
+        <div style="background:var(--navy);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;">
 
-        <!-- CP自動提案 -->
+          <!-- 商品明細 -->
+          <div id="r-items-list" style="margin-bottom:10px;min-height:32px;">
+            <div style="color:rgba(255,255,255,.4);font-size:12px;text-align:center;padding:8px 0;">商品を選択してください</div>
+          </div>
+
+          <!-- 区切り -->
+          <div style="border-top:1px solid rgba(255,255,255,.15);margin-bottom:10px;"></div>
+
+          <!-- 小計〜合計 -->
+          <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
+          <div class="trow disc" id="t-cp-row" style="display:none;">
+            <span id="t-cp-l" style="font-size:11px;">CPキャンペーン割引</span>
+            <span id="t-cp-v">-¥0</span>
+          </div>
+          <div class="trow disc" id="t-cpn-row" style="display:none;">
+            <span id="t-cpn-l" style="font-size:11px;">クーポン</span>
+            <span id="t-cpn-v">-¥0</span>
+          </div>
+          <div class="trow" id="t-ship-row">
+            <span id="t-ship-l" style="font-size:11px;">送料・手数料</span>
+            <span id="t-ship-v">—</span>
+          </div>
+          <div class="tdiv"></div>
+          <div class="tgrand">
+            <span class="tgl">お支払い合計</span>
+            <span class="tgv" id="t-grand">¥0</span>
+          </div>
+        </div>
+
+        <!-- ③ 送料通知 / CP提案 -->
+        <div id="ship-notice"></div>
         <div id="cp-zone"></div>
 
-        <!-- お届け予定 -->
+        <!-- ④ お届け予定 -->
         <div class="del-card" id="del-card">
           <div class="del-h">📦 最短お届け予定</div>
           <div class="del-d" id="del-date">—</div>
@@ -528,7 +558,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
 
         <div class="sep"></div>
 
-        <!-- お届けスクリプト -->
+        <!-- ⑤ お届けスクリプト -->
         <div class="rtit">💬 お届けスクリプト</div>
         <div class="ope">
           <div class="ope-h">【〜16時受付】</div>
@@ -545,7 +575,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
 
         <div class="sep"></div>
 
-        <!-- 送料早見 -->
+        <!-- ⑥ 送料早見 -->
         <div class="rtit">💴 送料・手数料早見表</div>
         <table class="stbl">
           <tr><th></th><th>〜7,699円</th><th>7,700円〜</th></tr>
@@ -555,20 +585,13 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
           <tr><td>振込</td><td>¥660+振込費</td><td>振込費のみ</td></tr>
         </table>
 
-        <!-- 地域 -->
-        <div class="rtit">🗾 地域別最短日</div>
+        <!-- ⑦ 地域別最短日 -->
+        <div class="rtit" style="margin-top:10px;">🗾 地域別最短日</div>
         <div style="font-size:10px;line-height:1.9;color:var(--text2);">
           <div style="background:var(--red-light);padding:4px 8px;border-radius:4px;color:var(--red);font-weight:700;font-size:10px;margin-bottom:6px;">📌 締切16時。以降は翌日発送。</div>
           <b>翌々日</b>: 北海道・九州・沖縄<br>
-          <b>翌々日（修正）</b>: 青森・秋田・和歌山・鳥取・岡山・島根・広島・山口・香川・徳島・愛媛・高知<br>
+          <b>翌々日</b>: 青森・秋田・和歌山・鳥取・岡山・島根・広島・山口・香川・徳島・愛媛・高知<br>
           <span style="color:var(--text3);">※高知の一部は18時以降</span>
-        </div>
-
-        <div class="sep"></div>
-        <!-- 今月のサンプル -->
-        <div class="rtit">🎁 今月の同梱サンプル</div>
-        <div style="background:var(--gold-light);border:1.5px solid var(--gold);border-radius:var(--rs);padding:8px 11px;font-size:11px;color:#7a5000;line-height:1.8;" id="novelty-box">
-          今月：<b id="novelty-this">サプルノーブルパウチ 2包</b><br>来月：<b id="novelty-next">黄金のコラーゲン 2包</b>
         </div>
 
       </div>
@@ -789,13 +812,31 @@ function closeMod(e){
 function addCart(name,price,neko){
   const ex=cart.find(c=>c.name===name);
   if(ex)ex.qty++;else cart.push({name,price,neko,qty:1});
-  renderCart();calcTotals();validate();
+  renderCart();renderRightItems();calcTotals();validate();
 }
 function chQty(i,d){
   cart[i].qty+=d;
   if(cart[i].qty<=0)cart.splice(i,1);
   renderCart();calcTotals();validate();
 }
+function renderRightItems() {
+  const el = document.getElementById('r-items-list');
+  if (!el) return;
+  if (!cart.length) {
+    el.innerHTML = '<div style="color:rgba(255,255,255,.4);font-size:12px;text-align:center;padding:8px 0;">商品を選択してください</div>';
+    return;
+  }
+  el.innerHTML = cart.map(c => {
+    const total = c.price * c.qty;
+    return '<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:8px;">'
+      + '<span style="font-size:11px;color:rgba(255,255,255,.85);flex:1;line-height:1.4;">'
+      + c.name + (c.qty > 1 ? ' <span style="color:rgba(255,255,255,.55);font-size:10px;">×' + c.qty + '</span>' : '')
+      + '</span>'
+      + '<span style="font-size:12px;font-weight:800;color:#f0c87a;white-space:nowrap;">¥' + total.toLocaleString() + '</span>'
+      + '</div>';
+  }).join('');
+}
+
 function renderCart(){
   const el=document.getElementById('cart-items');
   document.getElementById('cart-cnt').textContent=cart.reduce((s,c)=>s+c.qty,0)+'点';
@@ -1193,7 +1234,7 @@ function newOrder(){
   document.querySelectorAll('.po').forEach(e=>e.classList.remove('on'));
   document.querySelectorAll('.to').forEach(e=>e.classList.remove('on'));
   ['card-d','post-d','cod-d'].forEach(id=>document.getElementById(id).classList.remove('on'));
-  renderCart();calcTotals();cpCheck();validate();
+  renderCart();renderRightItems();calcTotals();cpCheck();validate();
   showPg('order');
 }
 
