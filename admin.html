@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>エポラーシェ 管理画面</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800&display=swap');
+:root{
+  --navy:#1a3a5c;--navy2:#2e5f8a;--navy-l:#e8f0f8;
+  --gold:#b8832a;--gold-l:#fef6e4;
+  --ok:#1e6b45;--ok-l:#e4f5ec;
+  --red:#b91c1c;--red-l:#fef2f2;
+  --warn:#92500a;--warn-l:#fef4e4;
+  --bg:#edeae4;--white:#fff;--surface:#f7f4ef;
+  --border:#ddd8d0;--border2:#c5bdb4;
+  --text:#1a1410;--text2:#4a3f35;--text3:#8a7d72;
+  --r:10px;--rs:6px;
+  --sh:0 2px 10px rgba(0,0,0,.09);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
+.login-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:360px;box-shadow:var(--sh);text-align:center;}
+.login-logo{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--text3);margin-bottom:24px;}
+.login-box input{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:.18s;}
+.login-box input:focus{border-color:var(--navy);}
+.login-btn{width:100%;padding:11px;border:none;border-radius:var(--rs);background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:.18s;}
+.login-btn:hover{background:var(--navy2);}
+.login-err{color:var(--red);font-size:12px;margin-top:8px;font-weight:700;display:none;}
+
+/* HEADER */
+.hd{background:var(--navy);height:50px;display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.hd-logo{color:#fff;font-size:15px;font-weight:800;letter-spacing:.05em;}
+.hd-logo span{color:#f0c87a;}
+.hd-sp{flex:1;}
+.hd-info{color:rgba(255,255,255,.7);font-size:11px;}
+.hd-logout{padding:5px 14px;border-radius:14px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
+.hd-logout:hover{background:rgba(255,255,255,.15);}
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:24px 16px;}
+.page-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
+.page-sub{font-size:11px;color:var(--text3);margin-bottom:20px;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh);}
+.card-head{background:var(--navy);color:#fff;padding:10px 16px;font-size:12px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:8px;}
+.card-body{padding:16px;}
+
+/* FORM */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.fgrid-full{grid-column:1/-1;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg label{font-size:10px;font-weight:800;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{padding:8px 10px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;outline:none;background:#fff;transition:.18s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,58,92,.1);}
+.fg .hint{font-size:10px;color:var(--text3);}
+
+/* CAMPAIGN BLOCK */
+.cp-block{border:2px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:12px;background:var(--surface);}
+.cp-block-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.rule-block{background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;}
+.rule-title{font-size:10px;font-weight:800;color:var(--text3);margin-bottom:7px;letter-spacing:.05em;}
+
+/* SAVE BAR */
+.save-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:100;}
+.save-info{font-size:11px;color:var(--text3);}
+.save-info span{color:var(--ok);font-weight:700;}
+.btn{padding:10px 22px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;transition:.18s;}
+.btn-save{background:var(--ok);color:#fff;box-shadow:0 3px 10px rgba(30,107,69,.25);}
+.btn-save:hover{background:#175a38;transform:translateY(-1px);}
+.btn-save:disabled{opacity:.5;cursor:default;transform:none;}
+.btn-outline{background:#fff;border:2px solid var(--border2);color:var(--text2);}
+.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
+
+/* TOAST */
+.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:999;transform:translateY(-20px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-ok{background:var(--ok);color:#fff;}
+.toast-err{background:var(--red);color:#fff;}
+
+/* PW SECTION */
+.pw-inline{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.pw-inline .fg{flex:1;min-width:150px;}
+.pw-inline .btn{height:38px;padding:0 16px;font-size:12px;}
+
+/* DIVIDER */
+.sep{height:1px;background:var(--border);margin:14px 0;}
+
+/* Preview badge */
+.prev-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;background:var(--gold-l);color:var(--gold);border:1px solid var(--gold);margin-left:8px;}
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN ====== -->
+<div class="login-wrap" id="login-pg">
+  <div class="login-box">
+    <div class="login-logo">⚙️ エポラーシェ</div>
+    <div class="login-sub">管理画面 — スタッフ専用</div>
+    <input type="password" id="pw-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">ログイン</button>
+    <div class="login-err" id="login-err">❌ パスワードが違います</div>
+  </div>
+</div>
+
+<!-- ====== ADMIN ====== -->
+<div id="admin-pg" style="display:none;">
+  <header class="hd">
+    <div class="hd-logo"><span>✦</span> エポラーシェ 管理画面</div>
+    <div class="hd-sp"></div>
+    <div class="hd-info" id="hd-updated"></div>
+    <button class="hd-logout" onclick="doLogout()">ログアウト</button>
+  </header>
+
+  <div class="main">
+    <div class="page-title">📅 今月の設定</div>
+    <div class="page-sub">変更後は必ず「保存する」ボタンを押してください。全スタッフのアプリに即時反映されます。</div>
+
+    <!-- 月ラベル -->
+    <div class="card">
+      <div class="card-head">📅 対象月</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>対象月（表示用）</label>
+            <input type="text" id="month_label" placeholder="例: 7月">
+            <div class="hint">アプリのキャンペーン表示に使います</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BD クーポン -->
+    <div class="card">
+      <div class="card-head">🎂 バースデークーポン</div>
+      <div class="card-body">
+        <div style="background:#fff0f6;border:2px solid #e879a0;border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7a004a;line-height:1.8;">
+          💡 BDクーポンは割引ではなく<strong>プレゼント</strong>です。オペレーターへ「お誕生日おめでとうございます」のメッセージが表示されます。
+        </div>
+        <div class="fgrid">
+          <div class="fg">
+            <label>クーポン番号</label>
+            <input type="text" id="bd_code" placeholder="例: HB6767">
+          </div>
+          <div class="fg">
+            <label>クーポン名（表示名）</label>
+            <input type="text" id="bd_label" placeholder="例: BDクーポン">
+          </div>
+          <div class="fg">
+            <label>最低購入金額（円）</label>
+            <input type="number" id="bd_min" placeholder="5400">
+          </div>
+          <div class="fg">
+            <label>プレゼント内容</label>
+            <input type="text" id="bd_gift" placeholder="例: ミニコスメセットプレゼント">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 毎月クーポン -->
+    <div class="card">
+      <div class="card-head">🏷 毎月クーポン</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>クーポン番号</label>
+            <input type="text" id="mc_code" placeholder="例: epr333">
+          </div>
+          <div class="fg">
+            <label>クーポン名（表示名）</label>
+            <input type="text" id="mc_label" placeholder="例: 毎月クーポン">
+          </div>
+          <div class="fg">
+            <label>割引金額（円）</label>
+            <input type="number" id="mc_disc" placeholder="500">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンペーン1 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 1</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>キャンペーン名</label>
+            <input type="text" id="cp1_name" placeholder="例: 美髪革命CP">
+          </div>
+          <div class="fg">
+            <label>期間</label>
+            <input type="text" id="cp1_period" placeholder="例: 7/1〜7/31">
+          </div>
+          <div class="fg fgrid-full">
+            <label>対象商品名（カンマ区切り）</label>
+            <input type="text" id="cp1_products" placeholder="例: サプルプラス, ノーブルプラス">
+            <div class="hint">アプリの商品リストで「CP」マークが付く商品名を入力します</div>
+          </div>
+        </div>
+
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;letter-spacing:.05em;">割引ルール（最大3パターン）</div>
+
+        <!-- Rule A -->
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_ra_desc" placeholder="例: サプル×2本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_ra_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_ra_disc" placeholder="6800"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_ra_pct" placeholder="18"></div>
+            <div class="fg"><label>キーワード（商品名の一部）</label><input type="text" id="cp1_ra_kw" placeholder="例: サプルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_ra_qty" placeholder="2"></div>
+          </div>
+        </div>
+
+        <!-- Rule B -->
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_rb_desc" placeholder="例: ノーブル×2本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rb_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rb_disc" placeholder="6800"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rb_pct" placeholder="18"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp1_rb_kw" placeholder="例: ノーブルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rb_qty" placeholder="2"></div>
+          </div>
+        </div>
+
+        <!-- Rule C -->
+        <div class="rule-block">
+          <div class="rule-title">パターン C（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp1_rc_desc" placeholder="例: サプル＋ノーブル各1本"></div>
+            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rc_orig" placeholder="8338"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rc_disc" placeholder="7050"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rc_pct" placeholder="15"></div>
+            <div class="fg"><label>キーワード（カンマ区切り）</label><input type="text" id="cp1_rc_kw" placeholder="例: サプルプラス,ノーブルプラス"></div>
+            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rc_qty" placeholder="1"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンペーン2 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 2（任意）</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp2_name" placeholder="例: 腸活CP"></div>
+          <div class="fg"><label>期間</label><input type="text" id="cp2_period" placeholder="例: 7/1〜7/15"></div>
+          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp2_products"></div>
+        </div>
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_ra_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_ra_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_ra_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_ra_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_ra_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_ra_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_rb_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rb_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rb_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rb_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rb_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_rb_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン C（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp2_rc_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rc_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rc_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rc_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rc_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp2_rc_qty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- キャンペーン3 -->
+    <div class="card">
+      <div class="card-head">🎯 キャンペーン 3（任意）</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp3_name"></div>
+          <div class="fg"><label>期間</label><input type="text" id="cp3_period"></div>
+          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp3_products"></div>
+        </div>
+        <div class="sep"></div>
+        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
+        <div class="rule-block">
+          <div class="rule-title">パターン A</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp3_ra_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_ra_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_ra_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_ra_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp3_ra_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp3_ra_qty"></div>
+          </div>
+        </div>
+        <div class="rule-block">
+          <div class="rule-title">パターン B（任意）</div>
+          <div class="fgrid3">
+            <div class="fg"><label>説明</label><input type="text" id="cp3_rb_desc"></div>
+            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_rb_orig"></div>
+            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_rb_disc"></div>
+            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_rb_pct"></div>
+            <div class="fg"><label>キーワード</label><input type="text" id="cp3_rb_kw"></div>
+            <div class="fg"><label>数量</label><input type="number" id="cp3_rb_qty"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ノベルティ -->
+    <div class="card">
+      <div class="card-head">🎁 同梱サンプル・ノベルティ</div>
+      <div class="card-body">
+        <div class="fgrid">
+          <div class="fg">
+            <label>今月のサンプル</label>
+            <input type="text" id="novelty_this" placeholder="例: サプルノーブルパウチ 2包">
+          </div>
+          <div class="fg">
+            <label>来月のサンプル</label>
+            <input type="text" id="novelty_next" placeholder="例: 黄金のコラーゲン 2包">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- パスワード変更 -->
+    <div class="card">
+      <div class="card-head">🔐 パスワード変更</div>
+      <div class="card-body">
+        <div class="pw-inline">
+          <div class="fg"><label>現在のパスワード</label><input type="password" id="pw_current" placeholder="現在のパスワード"></div>
+          <div class="fg"><label>新しいパスワード</label><input type="password" id="pw_new" placeholder="新しいパスワード"></div>
+          <div class="fg"><label>確認</label><input type="password" id="pw_confirm" placeholder="もう一度入力"></div>
+          <button class="btn btn-outline" onclick="changePw()">変更する</button>
+        </div>
+        <div id="pw-msg" style="margin-top:8px;font-size:11px;font-weight:700;display:none;"></div>
+      </div>
+    </div>
+
+    <div style="height:80px;"></div>
+  </div>
+
+  <!-- SAVE BAR -->
+  <div class="save-bar">
+    <div class="save-info">最終保存: <span id="last-saved">未保存</span></div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-outline" onclick="loadSettings()">↩ 再読み込み</button>
+      <button class="btn btn-save" id="save-btn" onclick="saveSettings()">💾 保存する（全員に反映）</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
+let sessionPw = '';
+
+// ====== LOGIN ======
+function doLogin() {
+  const pw = document.getElementById('pw-input').value;
+  // まずAPIにGETして設定読み込み（パスワード確認はPOSTで行う）
+  // ここではとりあえずセッションパスワードを保存して画面遷移
+  // 実際の認証はPOSTで確認
+  sessionPw = pw;
+  verifyLogin(pw);
+}
+
+async function verifyLogin(pw) {
+  // 保存テストとしてダミーPOSTでパスワード確認
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw, month_label: '__verify__',
+      bd_code:'', bd_label:'', bd_min:0, bd_gift:'',
+      mc_code:'', mc_label:'', mc_disc:0,
+      novelty_this:'', novelty_next:'' })
+  });
+  if (res.status === 401) {
+    document.getElementById('login-err').style.display = 'block';
+    return;
+  }
+  // ログイン成功
+  document.getElementById('login-pg').style.display = 'none';
+  document.getElementById('admin-pg').style.display = 'block';
+  await loadSettings();
+}
+
+function doLogout() {
+  sessionPw = '';
+  document.getElementById('login-pg').style.display = 'flex';
+  document.getElementById('admin-pg').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  document.getElementById('login-err').style.display = 'none';
+}
+
+// ====== LOAD ======
+async function loadSettings() {
+  const res = await fetch(API + '?t=' + Date.now());
+  const s = await res.json();
+  fill(s);
+}
+
+function fill(s) {
+  // 月ラベル
+  set('month_label', s.month_label || '');
+  // BD
+  const bd = s.bd_coupon || {};
+  set('bd_code',  bd.code  || '');
+  set('bd_label', bd.label || '');
+  set('bd_min',   bd.min_amt || 5400);
+  set('bd_gift',  bd.gift  || '');
+  // MC
+  const mc = s.monthly_coupon || {};
+  set('mc_code',  mc.code     || '');
+  set('mc_label', mc.label    || '');
+  set('mc_disc',  mc.discount || 500);
+  // Campaigns
+  [1,2,3].forEach(n => {
+    const cp = (s.campaigns || [])[n-1] || {};
+    set(`cp${n}_name`,     cp.name    || '');
+    set(`cp${n}_period`,   cp.period  || '');
+    set(`cp${n}_products`, cp.products|| '');
+    ['a','b','c'].forEach((r,ri) => {
+      const rule = (cp.rules || [])[ri] || {};
+      set(`cp${n}_r${r}_desc`, rule.desc       || '');
+      set(`cp${n}_r${r}_orig`, rule.orig_price || '');
+      set(`cp${n}_r${r}_disc`, rule.disc_price || '');
+      set(`cp${n}_r${r}_pct`,  rule.pct        || '');
+      set(`cp${n}_r${r}_kw`,   rule.product_keywords || '');
+      set(`cp${n}_r${r}_qty`,  rule.qty        || '');
+    });
+  });
+  // Novelty
+  const nv = s.novelty || {};
+  set('novelty_this', nv.this_month || '');
+  set('novelty_next', nv.next_month || '');
+  // Updated
+  if (s.updated_at) {
+    document.getElementById('last-saved').textContent = s.updated_at;
+    document.getElementById('hd-updated').textContent = '最終更新: ' + s.updated_at;
+  }
+}
+
+function set(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+function get(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+// ====== SAVE ======
+async function saveSettings() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true;
+  btn.textContent = '保存中…';
+
+  const body = {
+    password:       sessionPw,
+    month_label:    get('month_label'),
+    bd_code:        get('bd_code'),
+    bd_label:       get('bd_label'),
+    bd_min:         get('bd_min'),
+    bd_gift:        get('bd_gift'),
+    mc_code:        get('mc_code'),
+    mc_label:       get('mc_label'),
+    mc_disc:        get('mc_disc'),
+    novelty_this:   get('novelty_this'),
+    novelty_next:   get('novelty_next'),
+  };
+  // campaigns
+  [1,2,3].forEach(n => {
+    body[`cp${n}_name`]     = get(`cp${n}_name`);
+    body[`cp${n}_period`]   = get(`cp${n}_period`);
+    body[`cp${n}_products`] = get(`cp${n}_products`);
+    ['a','b','c'].forEach(r => {
+      ['desc','orig','disc','pct','kw','qty'].forEach(f => {
+        body[`cp${n}_r${r}_${f}`] = get(`cp${n}_r${r}_${f}`);
+      });
+    });
+  });
+
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+
+  btn.disabled = false;
+  btn.textContent = '💾 保存する（全員に反映）';
+
+  if (data.ok) {
+    document.getElementById('last-saved').textContent = data.updated_at;
+    document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
+    showToast('✅ 保存しました！全スタッフのアプリに反映されます', 'ok');
+  } else {
+    showToast('❌ ' + (data.error || '保存に失敗しました'), 'err');
+  }
+}
+
+// ====== CHANGE PASSWORD ======
+async function changePw() {
+  const cur = document.getElementById('pw_current').value;
+  const nw  = document.getElementById('pw_new').value;
+  const cf  = document.getElementById('pw_confirm').value;
+  const msg = document.getElementById('pw-msg');
+  msg.style.display = 'block';
+  if (!cur || !nw) { msg.style.color='var(--red)'; msg.textContent='全て入力してください'; return; }
+  if (nw !== cf)   { msg.style.color='var(--red)'; msg.textContent='新しいパスワードが一致しません'; return; }
+  const res = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'change_password', current_password: cur, new_password: nw })
+  });
+  const data = await res.json();
+  if (data.ok) {
+    sessionPw = nw;
+    msg.style.color = 'var(--ok)';
+    msg.textContent = '✅ パスワードを変更しました';
+    document.getElementById('pw_current').value = '';
+    document.getElementById('pw_new').value = '';
+    document.getElementById('pw_confirm').value = '';
+  } else {
+    msg.style.color = 'var(--red)';
+    msg.textContent = '❌ ' + (data.error || '失敗しました');
+  }
+}
+
+// ====== TOAST ======
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast toast-' + type + ' show';
+  setTimeout(() => { t.classList.remove('show'); }, 3500);
+}
+</script>
+</body>
+</html>
