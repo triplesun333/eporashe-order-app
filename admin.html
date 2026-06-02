@@ -394,23 +394,27 @@ function doLogin() {
 }
 
 async function verifyLogin(pw) {
-  // 保存テストとしてダミーPOSTでパスワード確認
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pw, month_label: '__verify__',
-      bd_code:'', bd_label:'', bd_min:0, bd_gift:'',
-      mc_code:'', mc_label:'', mc_disc:0,
-      novelty_this:'', novelty_next:'' })
-  });
-  if (res.status === 401) {
+  try {
+    // GETで設定を取得してパスワードを照合
+    const res = await fetch(API + '?action=settings&t=' + Date.now());
+    const data = await res.json();
+    const savedPw = data.admin_password || 'eporashe2024';
+    if (pw !== savedPw) {
+      document.getElementById('login-err').style.display = 'block';
+      return;
+    }
+    // ログイン成功
+    document.getElementById('login-pg').style.display = 'none';
+    document.getElementById('admin-pg').style.display = 'block';
+    fill(data);
+    if (data.updated_at) {
+      document.getElementById('last-saved').textContent = data.updated_at;
+      document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
+    }
+  } catch(e) {
     document.getElementById('login-err').style.display = 'block';
-    return;
+    document.getElementById('login-err').textContent = '⚠ 通信エラー。再度お試しください。';
   }
-  // ログイン成功
-  document.getElementById('login-pg').style.display = 'none';
-  document.getElementById('admin-pg').style.display = 'block';
-  await loadSettings();
 }
 
 function doLogout() {
