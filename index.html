@@ -71,7 +71,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .cats{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:6px;}
 .cb{padding:2px 8px;border:1.5px solid var(--bd2);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:10px;font-weight:700;color:var(--tx2);transition:.12s;white-space:nowrap;}
 .cb.on{background:var(--nv);color:#fff;border-color:var(--nv);}
-.plist{border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden;max-height:calc(100vh - 340px);overflow-y:auto;}
+.plist{border:1px solid var(--bd);border-radius:var(--rs);}
 .pi{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid var(--bd);cursor:pointer;gap:6px;transition:background .1s;}
 .pi:last-child{border-bottom:none;}
 .pi:hover{background:var(--nvp);}
@@ -965,7 +965,7 @@ function openConfirm(){
   const delDate=document.getElementById('del-date').textContent||'—';
   const itemsRows=cart.map(c=>'<tr><td>'+c.name+(c.neko?' <span class="tag tn" style="font-size:9px;">★</span>':'')+'</td><td style="text-align:center;">×'+c.qty+'</td><td style="text-align:right;">¥'+c.price.toLocaleString()+'</td><td style="text-align:right;font-weight:800;">¥'+(c.price*c.qty).toLocaleString()+'</td></tr>').join('');
   document.getElementById('ov-body').innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div style="font-family:'Shippori Mincho',serif;font-size:18px;letter-spacing:.1em;color:var(--nv);">受　注　票</div><div style="font-size:10px;color:var(--tx3);">'+now.toLocaleString('ja-JP')+'</div></div>'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div style="font-size:18px;letter-spacing:.1em;color:var(--nv);">受　注　票</div><div style="font-size:10px;color:var(--tx3);">'+now.toLocaleString('ja-JP')+'</div></div>'+
     '<div class="rcpt-grid"><div class="rb"><div class="rb-h">👤 お客様情報</div><div class="rb-b">'+
     '<div class="rr"><div class="rrl">電話番号</div><div class="rrv">'+phone+'</div></div>'+
     '<div class="rr"><div class="rrl">お名前</div><div class="rrv" style="font-size:14px;font-weight:800;">'+name+' 様</div></div>'+
