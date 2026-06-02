@@ -345,7 +345,40 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <span class="prod-cnt" id="prod-cnt">0点</span>
         </div>
         <div class="cats" id="cat-wrap"></div>
-        <div class="plist" id="prod-list"></div>
+        <div class="plist" id="prod-list" style="max-height:none;overflow-y:visible;"></div>
+
+        <!-- スクリプト折りたたみ（左パネル下部） -->
+        <div style="margin-top:10px;">
+          <div onclick="this.nextElementSibling.classList.toggle('on')" style="padding:7px 10px;background:var(--nv);color:#fff;border-radius:var(--rs);cursor:pointer;font-size:11px;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+            <span>💬 お届けスクリプト</span><span>▼</span>
+          </div>
+          <div style="display:none;background:var(--nvp);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;font-size:11px;line-height:1.9;color:#1a2e42;margin-bottom:6px;">
+            <b>【〜16時受付】</b> 最短のお届けは明日の午前中となりますが、ご希望のお日にちやお時間帯のご指定などございますか？<br>
+            <b>【16時〜受付】</b> 本日の発送が終了しておりまして、明日の発送・最短は明後日の午前中となりますが…<br>
+            <b>【上級トーク】</b> ご案内は以上となりますが、普段お使い頂いている商品の使い方などでもご不明点やお困りのことなどはございませんか？
+          </div>
+          <div onclick="this.nextElementSibling.classList.toggle('on')" style="padding:7px 10px;background:var(--nv);color:#fff;border-radius:var(--rs);cursor:pointer;font-size:11px;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+            <span>💴 送料・手数料早見表</span><span>▼</span>
+          </div>
+          <div style="display:none;margin-bottom:6px;">
+            <table class="stbl">
+              <tr><th></th><th>〜7,699円</th><th>7,700円〜</th></tr>
+              <tr><td>代引き</td><td>¥1,100</td><td>¥440</td></tr>
+              <tr><td>クレジット</td><td>¥660</td><td class="ok-cell">無料</td></tr>
+              <tr><td>後払い</td><td>¥860</td><td>¥200</td></tr>
+              <tr><td>振込</td><td>¥660+振込費</td><td>振込費のみ</td></tr>
+            </table>
+          </div>
+          <div onclick="this.nextElementSibling.classList.toggle('on')" style="padding:7px 10px;background:var(--nv);color:#fff;border-radius:var(--rs);cursor:pointer;font-size:11px;font-weight:800;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+            <span>🗾 地域別最短日</span><span>▼</span>
+          </div>
+          <div style="display:none;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;font-size:11px;line-height:1.9;color:var(--tx2);margin-bottom:6px;">
+            <div style="background:var(--rdl);padding:4px 8px;border-radius:4px;color:var(--rd);font-size:10px;font-weight:700;margin-bottom:6px;">📌 締切16時。以降は翌日発送。</div>
+            <b>翌々日：</b>北海道・九州・沖縄<br>
+            <b>翌々日：</b>青森・秋田・和歌山・鳥取・岡山・島根・広島・山口・香川・徳島・愛媛・高知<br>
+            <span style="color:var(--tx3);font-size:10px;">※高知の一部は18時以降</span>
+          </div>
+        </div>
 
       </div>
       <!-- バリデーションバー -->
@@ -411,13 +444,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="r-sec-head">
             💳 支払方法
             <span style="color:var(--rd);font-weight:800;">*</span>
-            <div class="tip-wrap" style="margin-left:4px;">
-              <div class="tip-icon">?</div>
-              <div class="tip-box">代引き: 7,700円以上で手数料込み無料
-クレジット: 7,700円以上で送料無料
-後払い: 手数料200円・審査あり・上限5万円
-前振り: 振込手数料はお客様負担</div>
-            </div>
+
           </div>
           <div class="r-sec-body">
             <div class="pay-grid">
@@ -462,12 +489,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="r-sec-head">
             🕐 お届け時間帯
             <span style="color:var(--rd);font-weight:800;">*</span>
-            <div class="tip-wrap" style="margin-left:4px;">
-              <div class="tip-icon">?</div>
-              <div class="tip-box">AM＝9時前後〜12時前後
-細かな時間指定は受けられません
-後払いの場合は時間指定不可</div>
-            </div>
+<span style="font-size:9px;color:var(--tx3);margin-left:6px;">AM＝9〜12時前後 / 後払いは指定不可</span>
           </div>
           <div class="r-sec-body">
             <div class="time-grid">
@@ -490,38 +512,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="del-n" id="del-note"></div>
         </div>
 
-        <!-- ⑥ スクリプト・送料表（ホバーで開く） -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">💬 お届けスクリプト</div>
-            <div class="tip-box" style="width:300px;left:0;transform:none;">【〜16時受付】
-最短のお届けは明日の午前中となりますが、ご希望のお日にちやお時間帯のご指定などございますか？
 
-【16時〜受付】
-本日の発送が終了しておりまして、明日の発送・最短は明後日の午前中となりますが…
-
-【ご案内後・上級トーク】
-普段お使い頂いている商品の使い方などでもご不明点やお困りのことなどはございませんか？</div>
-          </div>
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">💴 送料早見</div>
-            <div class="tip-box" style="width:280px;left:0;transform:none;">          ～7,699円   7,700円～
-代引き    ¥1,100      ¥440
-クレジット  ¥660       無料
-後払い    ¥860        ¥200
-振込     ¥660+振込費  振込費のみ</div>
-          </div>
-          <div class="tip-wrap">
-            <div class="tip-icon" style="width:auto;padding:3px 8px;border-radius:10px;font-size:9px;background:var(--nv);">🗾 地域別最短日</div>
-            <div class="tip-box" style="width:280px;left:0;transform:none;">📌 締切16時。以降は翌日発送。
-
-翌々日: 北海道・九州・沖縄
-翌々日: 青森・秋田・和歌山・鳥取
-      岡山・島根・広島・山口
-      香川・徳島・愛媛・高知
-※高知の一部は18時以降</div>
-          </div>
-        </div>
 
       </div>
     </div>
