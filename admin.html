@@ -686,7 +686,8 @@ async function saveSettings() {
   };
 
   try {
-    const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const encoded = encodeURIComponent(JSON.stringify(body));
+    const res = await fetch(API + '?method=post&data=' + encoded, {method:'GET'});
     const data = await res.json();
     btn.disabled = false; btn.textContent = '💾 保存する（全員に反映）';
     if (data.ok) {
@@ -708,7 +709,8 @@ async function changePw() {
   msg.style.display='block';
   if(!cur||!nw){msg.style.color='var(--rd)';msg.textContent='全て入力してください';return;}
   if(nw!==cf){msg.style.color='var(--rd)';msg.textContent='新しいパスワードが一致しません';return;}
-  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'change_password',current_password:cur,new_password:nw})});
+  const pwBody={action:'change_password',current_password:cur,new_password:nw};
+  const res=await fetch(API+'?method=post&data='+encodeURIComponent(JSON.stringify(pwBody)),{method:'GET'});
   const data=await res.json();
   if(data.ok){sessionPw=nw;msg.style.color='var(--ok)';msg.textContent='✅ 変更しました';['pw_cur','pw_new','pw_cf'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';}); }
   else{msg.style.color='var(--rd)';msg.textContent='❌ '+(data.error||'失敗しました');}
