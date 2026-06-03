@@ -164,258 +164,171 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
 
     <!-- コスメ話（1年分） -->
     <div class="card">
-      <div class="card-head">💄 コスメ話（同梱サンプル・1年分）</div>
+      <div class="card-head">💄 コスメ話（1年分）</div>
       <div class="card-body">
-        <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">今月・来月のサンプルを1年分登録できます。アプリは今月の月に対応する内容を自動で表示します。</div>
-        <div style="display:grid;grid-template-columns:60px 1fr 1fr;gap:4px;margin-bottom:6px;">
-          <div></div>
-          <div style="font-size:10px;font-weight:800;color:var(--tx3);text-transform:uppercase;">今月のサンプル</div>
-          <div style="font-size:10px;font-weight:800;color:var(--tx3);text-transform:uppercase;">来月のサンプル</div>
-        </div>
-
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">1月</span>
-            </div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">各月のコスメ話（同梱サンプル）を登録してください。アプリは今月の入力内容を表示し、来月は翌月の入力を自動参照します。今月は金色でハイライト表示されます。</div>
+        <div style="border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-1">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">1月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_1" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_1" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">2月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-2">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">2月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_2" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_2" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">3月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-3">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">3月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_3" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_3" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">4月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-4">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">4月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_4" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_4" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">5月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-5">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">5月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_5" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_5" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">6月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-6">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">6月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_6" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_6" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">7月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-7">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">7月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_7" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_7" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">8月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-8">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">8月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_8" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_8" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">9月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-9">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">9月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_9" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_9" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">10月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-10">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">10月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_10" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_10" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">11月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-11">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">11月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_11" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_11" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
-          <div class="fgrid" style="margin-bottom:6px;">
-            <div style="display:flex;align-items:center;gap:8px;flex:0 0 60px;">
-              <span style="font-size:11px;font-weight:800;color:var(--nv);white-space:nowrap;">12月</span>
-            </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-12">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span>
             <div class="fg" style="flex:1;">
               <input type="text" id="cosme_12" placeholder="例: サプルノーブルパウチ 2包">
             </div>
-            <div class="fg" style="flex:1;">
-              <input type="text" id="cosme_next_12" placeholder="来月のサンプル（任意）">
-            </div>
           </div>
+        </div>
       </div>
     </div>
 
     <!-- BDクーポン（1年分） -->
     <div class="card">
-      <div class="card-head">🎂 バースデークーポン（1年分）</div>
+      <div class="card-head">🎂 バースデークーポン番号（1年分）</div>
       <div class="card-body">
         <div style="background:#fff0f6;border:1.5px solid #e879a0;border-radius:var(--rs);padding:9px 12px;margin-bottom:12px;font-size:11px;color:#7a004a;">
-          💡 BDクーポンは割引ではなく<b>プレゼント</b>です。月ごとに番号とプレゼント内容を設定してください。
+          💡 プレゼント内容（ミニコスメセット）・最低金額（5,400円）は固定です。月ごとのクーポン番号だけ入力してください。
         </div>
-
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">1月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_1" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_1" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_1" placeholder="5400"></div>
+        <div style="border:1px solid var(--bd);border-radius:var(--rs);overflow:hidden;">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-1">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">1月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_1" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">2月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_2" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_2" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_2" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-2">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">2月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_2" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">3月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_3" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_3" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_3" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-3">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">3月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_3" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">4月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_4" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_4" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_4" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-4">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">4月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_4" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">5月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_5" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_5" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_5" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-5">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">5月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_5" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">6月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_6" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_6" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_6" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-6">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">6月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_6" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">7月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_7" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_7" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_7" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-7">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">7月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_7" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">8月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_8" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_8" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_8" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-8">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">8月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_8" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">9月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_9" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_9" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_9" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-9">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">9月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_9" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">10月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_10" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_10" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_10" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-10">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">10月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_10" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">11月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_11" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_11" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_11" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-11">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">11月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_11" placeholder="例: HB7788">
             </div>
           </div>
-          <div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;">
-            <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:6px;">12月</div>
-            <div class="fgrid">
-              <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code_12" placeholder="例: HB7788"></div>
-              <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift_12" placeholder="例: ミニコスメセットプレゼント"></div>
-              <div class="fg"><label>最低金額（円）</label><input type="number" id="bd_min_12" placeholder="5400"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-12">
+            <span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span>
+            <div class="fg" style="flex:1;">
+              <input type="text" id="bd_code_12" placeholder="例: HB7788">
             </div>
           </div>
+        </div>
       </div>
     </div>
 
-    <!-- パスワード変更 -->
+        <!-- パスワード変更 -->
     <div class="card">
       <div class="card-head">🔐 パスワード変更</div>
       <div class="card-body">
@@ -500,19 +413,16 @@ function fillForm(s) {
   campaigns = (s.campaigns||[]).map(cp => settingsToCampaign(cp));
   renderCampaigns();
 
-  // コスメ話
+  // コスメ話（今月欄のみ）
   const cosme = s.cosme_talk || [];
   cosme.forEach((c, i) => {
     set('cosme_' + (i+1), c.this_month || '');
-    set('cosme_next_' + (i+1), c.next_month || '');
   });
 
-  // BDクーポン月別
+  // BDクーポン月別（コードのみ）
   const bdMonthly = s.bd_monthly || [];
   bdMonthly.forEach((bd, i) => {
     set('bd_code_' + (i+1), bd.code || '');
-    set('bd_gift_' + (i+1), bd.gift || '');
-    set('bd_min_' + (i+1), bd.min_amt || 5400);
   });
 
   if (s.updated_at) {
@@ -742,21 +652,20 @@ async function saveSettings() {
     return base;
   });
 
-  // コスメ話12ヶ月
+  // コスメ話12ヶ月（今月欄のみ保存、来月は翌月のthis_monthを参照）
   const cosmeTalk = Array.from({length:12}, (_,i) => ({
     month: i+1,
     this_month: get('cosme_'+(i+1)),
-    next_month: get('cosme_next_'+(i+1)),
   }));
 
   // BDクーポン12ヶ月
+  // BDクーポン月別（コード番号のみ）
   const bdMonthly = Array.from({length:12}, (_,i) => ({
     month: i+1,
     code:    get('bd_code_'+(i+1)),
-    gift:    get('bd_gift_'+(i+1)),
-    min_amt: Number(get('bd_min_'+(i+1))) || 5400,
+    gift:    'ミニコスメセットプレゼント',
+    min_amt: 5400,
   }));
-
   const body = {
     password: sessionPw,
     mc_code: get('mc_code'), mc_label: get('mc_label'), mc_disc: get('mc_disc'),
