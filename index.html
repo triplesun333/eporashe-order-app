@@ -722,7 +722,7 @@ function cpCheck(){
           :(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
         const disc=origTotal-rule.disc_price;
         if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
-        addCpMsg(zone,cp.name+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
+        const _pl=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,'✂️ '+cp.name+_pl+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
       }else if(kws.length===1&&totalQty>0&&totalQty<qty){
         addCpMsg(zone,'💡 あと'+(qty-totalQty)+'本で '+cp.name+'（'+rule.pct+'%OFF）が適用されます','hint');
       }
@@ -761,34 +761,53 @@ function cpCheck(){
         addCpMsg(zone,detail,'info');
       // A/B/F: 割引ルール
       }else if(cp.rules&&cp.rules.length){
-        const detail=cp.name+'（'+cp.period+'）：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+        const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+'（'+cp.period+'）'+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
         addCpMsg(zone,detail,'info');
       }else{
-        addCpMsg(zone,cp.name+'（'+cp.period+'）','info');
+        const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+'（'+cp.period+'）'+_pd,'info');
       }
     });
   }
   calcTotals();
 }
 // ── キャンペーン期間チェック ──
+function parsePeriodDate(str, isEnd) {
+  // "6/5〜6/19" や "6/12(19時)〜6/30" などから日付を解析
+  if (!str) return null;
+  const now = new Date();
+  const year = now.getFullYear();
+  // 〜で分割
+  const parts = str.split(/[〜～]/);
+  const target = isEnd ? (parts[1]||parts[0]) : parts[0];
+  // 数字と/を抽出
+  const m = target.match(/(\d{1,2})\/(\d{1,2})/);
+  if (!m) return null;
+  const d = new Date(year, Number(m[1])-1, Number(m[2]));
+  // 年をまたぐ場合（例: 12月→1月）
+  if (!isEnd && d < new Date() && Number(m[1]) >= 10) d.setFullYear(year-1);
+  if (isEnd && d < new Date() && Number(m[1]) <= 3) d.setFullYear(year+1);
+  return d;
+}
+
 function getCampaignStatus(cp) {
   const today = new Date();
   today.setHours(0,0,0,0);
 
-  if (!cp.date_start && !cp.date_end) return 'active'; // 日付未設定は常時表示
+  // date_start/date_endがあればそれを使用、なければperiodから解析
+  let start = cp.date_start ? new Date(cp.date_start) : parsePeriodDate(cp.period, false);
+  let end   = cp.date_end   ? new Date(cp.date_end)   : parsePeriodDate(cp.period, true);
 
-  const start = cp.date_start ? new Date(cp.date_start) : null;
-  const end   = cp.date_end   ? new Date(cp.date_end)   : null;
+  if (!start && !end) return 'active'; // 解析不可は常時表示
+
   if (end) end.setHours(23,59,59,999);
 
   if (start && today < start) {
-    // 開始前 → 7日以内なら予告
     const diff = Math.ceil((start - today) / (1000*60*60*24));
-    if (diff <= 7) return 'upcoming'; // 予告
-    return 'future'; // 非表示
+    if (diff <= 7) return 'upcoming';
+    return 'future';
   }
-  if (end && today > end) return 'ended'; // 終了 → 非表示
-  return 'active'; // 期間中
+  if (end && today > end) return 'ended';
+  return 'active';
 }
 
 function getActiveCampaigns() {
@@ -1262,7 +1281,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
           const origTotal=kws.length>=2?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+(p?p.price:0);},0)*qty:(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
           const disc=origTotal-rule.disc_price;
           if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
-          addCpMsg(zone,cp.name+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
+          const _pl=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,'✂️ '+cp.name+_pl+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
         }else if(kws.length===1&&totalQty>0&&totalQty<qty){
           addCpMsg(zone,'💡 あと'+(qty-totalQty)+'本で '+cp.name+'（'+rule.pct+'%OFF）が適用されます','hint');
         }
@@ -1301,10 +1320,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
           addCpMsg(zone,detail,'info');
         // A/B/F: 割引ルール
         }else if(cp.rules&&cp.rules.length){
-          const detail=cp.name+'（'+cp.period+'）：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+          const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+'（'+cp.period+'）'+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
           addCpMsg(zone,detail,'info');
         }else{
-          addCpMsg(zone,cp.name+'（'+cp.period+'）','info');
+          const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+'（'+cp.period+'）'+_pd,'info');
         }
       });
     }
