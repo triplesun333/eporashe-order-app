@@ -952,8 +952,18 @@ function toggleCpn(key){
       btnMc.classList.add('on');
       hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+st.cpnDisc.toLocaleString()+' 適用中</span>';
     }else if(key==='bd'){
-      st.cpnDisc=0;st.cpnLabel='BDクーポン';
+      const curM=new Date().getMonth()+1;
+      const bdM=(SETTINGS&&SETTINGS.bd_monthly||[]).find(b=>b.month===curM)||(SETTINGS&&SETTINGS.bd_coupon)||{};
+      const minAmt=bdM.min_amt||5400;
+      const gift=bdM.gift||'ミニコスメセットプレゼント';
+      st.cpnDisc=0;st.cpnLabel='BDクーポン（'+gift+'）';
       btnBd.classList.add('on');
+      const sub=calcSub();
+      let bdHtml='<div style="background:#fff0f6;border:2px solid #e879a0;border-radius:var(--rs);padding:8px 10px;"><div style="font-size:12px;font-weight:800;color:#b5006a;margin-bottom:3px;">🎂 お誕生日おめでとうございます！</div><div style="font-size:10px;color:#7a004a;line-height:1.7;">🎁 '+gift+'<br>※'+minAmt.toLocaleString()+'円以上でご利用いただけます';
+      if(sub>0&&sub<minAmt)bdHtml+='<br><span style="color:var(--rd);font-weight:700;">⚠ 現在¥'+sub.toLocaleString()+'。あと¥'+(minAmt-sub).toLocaleString()+'で利用可能</span>';
+      else if(sub>=minAmt)bdHtml+='<br><span style="color:var(--ok);font-weight:700;">✅ 利用可能です</span>';
+      bdHtml+='</div></div>';
+      hint.innerHTML=bdHtml;
     }
   }
   calcTotals();
@@ -1203,6 +1213,8 @@ async function loadSettingsFromServer(){
     console.warn('商品読み込みエラー:', e);
   }
   applySettings();
+  // 設定読み込み後にcpCheckを再実行
+  if(typeof cpCheck === 'function') cpCheck();
 }
 
 // GASからの商品データをアプリ用フォーマットに変換
@@ -1266,14 +1278,17 @@ function applySettings(){
     bdBtn.querySelector('.cpn-tag-disc').textContent='🎁 '+(bdThis.gift||'ミニコスメプレゼント');
   }
 
-  // 月別コスメ話
+  // 月別コスメ話（今月・翌月を自動参照）
   const cosmeTalk = SETTINGS.cosme_talk||[];
+  const nextMonth = curMonth===12?1:curMonth+1;
   const cosmeThis = cosmeTalk.find(c=>c.month===curMonth);
+  const cosmeNext = cosmeTalk.find(c=>c.month===nextMonth);
   const nth=document.getElementById('novelty-this');
   const nnx=document.getElementById('novelty-next');
-  if(cosmeThis){
-    if(nth&&cosmeThis.this_month)nth.textContent=cosmeThis.this_month;
-    if(nnx&&cosmeThis.next_month)nnx.textContent=cosmeThis.next_month;
+  if(cosmeThis&&cosmeThis.this_month){
+    if(nth) nth.textContent=cosmeThis.this_month;
+    // 来月は翌月の今月欄を参照
+    if(nnx) nnx.textContent=(cosmeNext&&cosmeNext.this_month)||'';
   }else{
     const nv=SETTINGS.novelty||{};
     if(nth&&nv.this_month)nth.textContent=nv.this_month;
