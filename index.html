@@ -701,8 +701,8 @@ function cpCheck(){
   const zone=document.getElementById('cp-zone');
   zone.innerHTML='';
   st.cpDisc=0;st.cpLabel='';
-  const campaigns=SETTINGS?(SETTINGS.campaigns||[]):[];
-  if(!campaigns.length){cpCheckDefault();return;}
+  const campaigns=getActiveCampaigns();
+  if(!campaigns.length&&(!SETTINGS||(SETTINGS.campaigns||[]).length===0)){cpCheckDefault();return;}
   campaigns.forEach(cp=>{
     if(!cp.name)return;
     (cp.rules||[]).forEach(rule=>{
@@ -770,6 +770,40 @@ function cpCheck(){
   }
   calcTotals();
 }
+// ── キャンペーン期間チェック ──
+function getCampaignStatus(cp) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  if (!cp.date_start && !cp.date_end) return 'active'; // 日付未設定は常時表示
+
+  const start = cp.date_start ? new Date(cp.date_start) : null;
+  const end   = cp.date_end   ? new Date(cp.date_end)   : null;
+  if (end) end.setHours(23,59,59,999);
+
+  if (start && today < start) {
+    // 開始前 → 7日以内なら予告
+    const diff = Math.ceil((start - today) / (1000*60*60*24));
+    if (diff <= 7) return 'upcoming'; // 予告
+    return 'future'; // 非表示
+  }
+  if (end && today > end) return 'ended'; // 終了 → 非表示
+  return 'active'; // 期間中
+}
+
+function getActiveCampaigns() {
+  const all = SETTINGS ? (SETTINGS.campaigns || []) : [];
+  return all.filter(cp => {
+    const s = getCampaignStatus(cp);
+    return s === 'active' || s === 'upcoming';
+  });
+}
+
+function getUpcomingCampaigns() {
+  const all = SETTINGS ? (SETTINGS.campaigns || []) : [];
+  return all.filter(cp => getCampaignStatus(cp) === 'upcoming');
+}
+
 function cpCheckDefault(){
   const zone=document.getElementById('cp-zone');
   const sapl=cart.filter(c=>c.name.includes('サプルプラス')).reduce((s,c)=>s+c.qty,0);
@@ -837,6 +871,21 @@ function calcTotals(){
     if(sub>=7700)ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
     else ct.innerHTML='合計¥'+sub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-sub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
   }
+  // 予告キャンペーン表示
+  const _zone = document.getElementById('cp-zone');
+  if (_zone) {
+    _zone.querySelectorAll('.cp-upcoming').forEach(e=>e.remove());
+    getUpcomingCampaigns().forEach(cp => {
+      const start = new Date(cp.date_start);
+      const diff = Math.ceil((start - new Date(new Date().setHours(0,0,0,0))) / (1000*60*60*24));
+      const d = document.createElement('div');
+      d.className = 'cp-msg cp-upcoming';
+      d.style.cssText = 'background:#fff8e1;border:1.5px solid #f59e0b;color:#92500a;';
+      d.innerHTML = '🔔 もうすぐ開始！<b>' + cp.name + '</b>（' + (cp.date_start||'').replace(/^\d{4}\//, '') + '〜）あと' + diff + '日';
+      _zone.appendChild(d);
+    });
+  }
+
   // BDクーポン金額チェック更新
   if(activeCpnKey==='bd'){
     const minAmt=(SETTINGS&&SETTINGS.bd_coupon?SETTINGS.bd_coupon.min_amt:5400)||5400;
