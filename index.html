@@ -729,7 +729,44 @@ function cpCheck(){
     });
   });
   if(zone.innerHTML===''){
-    campaigns.forEach(cp=>{if(cp.name)addCpMsg(zone,cp.name+'（'+cp.period+'）','info');});
+    // キャンペーン情報を詳しく表示
+    campaigns.forEach(cp=>{
+      if(!cp.name) return;
+      const type=cp.type||'A';
+      const sub=calcSub();
+      // D: 金額プレゼント
+      if(type==='D'&&cp.gift_min){
+        const minAmt=cp.gift_min;
+        if(sub>0&&sub<minAmt){
+          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
+        }else if(sub>=minAmt){
+          addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）','ok');
+        }else{
+          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
+        }
+      // E: 累進プレゼント
+      }else if(type==='E'&&cp.prog_start){
+        const start=cp.prog_start,step=cp.prog_step||10000;
+        if(sub>0&&sub<start){
+          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
+        }else if(sub>=start){
+          const cnt=Math.floor((sub-start)/step)+1;
+          addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.prog_gift_name+'】'+cnt+'個プレゼント対象！（¥'+(start+step*cnt).toLocaleString()+'以上で'+(cnt+1)+'個）','ok');
+        }else{
+          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
+        }
+      // C: コードクーポン
+      }else if(type==='C'){
+        const detail=cp.name+'（'+cp.period+'）：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
+        addCpMsg(zone,detail,'info');
+      // A/B/F: 割引ルール
+      }else if(cp.rules&&cp.rules.length){
+        const detail=cp.name+'（'+cp.period+'）：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+        addCpMsg(zone,detail,'info');
+      }else{
+        addCpMsg(zone,cp.name+'（'+cp.period+'）','info');
+      }
+    });
   }
   calcTotals();
 }
@@ -1182,7 +1219,46 @@ document.addEventListener('DOMContentLoaded',async()=>{
         }
       });
     });
-    if(zone.innerHTML==='')campaigns.forEach(cp=>{if(cp.name)addCpMsg(zone,cp.name+'（'+cp.period+'）','info');});
+    if(zone.innerHTML===''){
+      // キャンペーン情報を詳しく表示
+      campaigns.forEach(cp=>{
+        if(!cp.name) return;
+        const type=cp.type||'A';
+        const sub=calcSub();
+        // D: 金額プレゼント
+        if(type==='D'&&cp.gift_min){
+          const minAmt=cp.gift_min;
+          if(sub>0&&sub<minAmt){
+            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
+          }else if(sub>=minAmt){
+            addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）','ok');
+          }else{
+            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
+          }
+        // E: 累進プレゼント
+        }else if(type==='E'&&cp.prog_start){
+          const start=cp.prog_start,step=cp.prog_step||10000;
+          if(sub>0&&sub<start){
+            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
+          }else if(sub>=start){
+            const cnt=Math.floor((sub-start)/step)+1;
+            addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.prog_gift_name+'】'+cnt+'個プレゼント対象！（¥'+(start+step*cnt).toLocaleString()+'以上で'+(cnt+1)+'個）','ok');
+          }else{
+            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
+          }
+        // C: コードクーポン
+        }else if(type==='C'){
+          const detail=cp.name+'（'+cp.period+'）：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
+          addCpMsg(zone,detail,'info');
+        // A/B/F: 割引ルール
+        }else if(cp.rules&&cp.rules.length){
+          const detail=cp.name+'（'+cp.period+'）：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+          addCpMsg(zone,detail,'info');
+        }else{
+          addCpMsg(zone,cp.name+'（'+cp.period+'）','info');
+        }
+      });
+    }
     calcTotals();
   };
   cpCheck();validate();showPg('order');
