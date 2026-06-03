@@ -201,7 +201,19 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
         </span>
       </div>
       <div class="card-body">
-        <!-- タイプ説明 -->
+        <!-- JSONインポート -->
+        <div style="background:var(--nvl);border:2px solid var(--nv);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:800;color:var(--nv);margin-bottom:8px;">📋 JSONを貼り付けて一括適用</div>
+          <div style="font-size:10px;color:var(--tx3);margin-bottom:8px;">クロードが作成したJSONをここに貼り付けて「適用」を押すと全キャンペーンが一括セットされます。</div>
+          <textarea id="json-import-box" rows="4" style="width:100%;padding:8px 10px;border:1.5px solid var(--bd);border-radius:var(--rs);font-family:monospace;font-size:11px;resize:vertical;outline:none;" placeholder='[{"type":"A","name":"美髪革命CP","date_start":"2026/06/12","date_end":"2026/06/30",...}]'></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+            <button class="btn btn-save" onclick="applyJsonImport()">✅ 適用する</button>
+            <button class="btn btn-outline" onclick="document.getElementById('json-import-box').value=''">🗑 クリア</button>
+            <span id="json-import-msg" style="font-size:11px;font-weight:700;"></span>
+          </div>
+        </div>
+
+      <!-- タイプ説明 -->
         <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;font-size:10px;">
           <span class="cp-type-badge badge-A">A: 数量割引</span>
           <span style="color:var(--tx3);">サプル×2本18%OFF</span>
@@ -536,6 +548,27 @@ async function saveSettings() {
   } catch(e) {
     btn.disabled = false; btn.textContent = '💾 保存する（全員に反映）';
     showToast('❌ 通信エラー', 'err');
+  }
+}
+
+// ========== JSON IMPORT ==========
+function applyJsonImport() {
+  const box = document.getElementById('json-import-box');
+  const msg = document.getElementById('json-import-msg');
+  const raw = box.value.trim();
+  if (!raw) { msg.style.color='var(--rd)'; msg.textContent='JSONを入力してください'; return; }
+  try {
+    const data = JSON.parse(raw);
+    if (!Array.isArray(data)) throw new Error('配列形式で入力してください');
+    campaigns = data.map(cp => settingsToCampaign(cp));
+    renderCampaigns();
+    box.value = '';
+    msg.style.color = 'var(--ok)';
+    msg.textContent = '✅ ' + campaigns.length + '件のキャンペーンを適用しました！「保存する」を押して確定してください。';
+    document.getElementById('cp-list').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    msg.style.color = 'var(--rd)';
+    msg.textContent = '❌ JSONの形式が正しくありません：' + e.message;
   }
 }
 
