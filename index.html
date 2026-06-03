@@ -801,7 +801,7 @@ function getCampaignStatus(cp) {
 
   if (start && today < start) {
     const diff = Math.ceil((start - today) / (1000*60*60*24));
-    if (diff <= 7) return 'upcoming';
+    if (diff <= 14) return 'upcoming';
     return 'future';
   }
   if (end && today > end) return 'ended';
@@ -809,11 +809,9 @@ function getCampaignStatus(cp) {
 }
 
 function getActiveCampaigns() {
+  // activeのみ返す（upcomingは予告表示のみ）
   const all = SETTINGS ? (SETTINGS.campaigns || []) : [];
-  return all.filter(cp => {
-    const s = getCampaignStatus(cp);
-    return s === 'active' || s === 'upcoming';
-  });
+  return all.filter(cp => getCampaignStatus(cp) === 'active');
 }
 
 function getUpcomingCampaigns() {
