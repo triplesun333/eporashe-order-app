@@ -738,35 +738,35 @@ function cpCheck(){
       if(type==='D'&&cp.gift_min){
         const minAmt=cp.gift_min;
         if(sub>0&&sub<minAmt){
-          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
+          addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
         }else if(sub>=minAmt){
-          let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）';
+          let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！'+(cp.period?'（'+cp.period+'）':'');
       if(cp.note) _giftMsg += ' ⚠ 受注処理：'+cp.note;
       addCpMsg(zone, _giftMsg, 'ok');
         }else{
-          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
+          addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
         }
       // E: 累進プレゼント
       }else if(type==='E'&&cp.prog_start){
         const start=cp.prog_start,step=cp.prog_step||10000;
         if(sub>0&&sub<start){
-          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
+          addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
         }else if(sub>=start){
           const cnt=Math.floor((sub-start)/step)+1;
           addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.prog_gift_name+'】'+cnt+'個プレゼント対象！（¥'+(start+step*cnt).toLocaleString()+'以上で'+(cnt+1)+'個）','ok');
         }else{
-          addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
+          addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
         }
       // C: コードクーポン
       }else if(type==='C'){
-        const detail=cp.name+'（'+cp.period+'）：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
+        const detail=cp.name+(cp.period?'（'+cp.period+'）':'')+'：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
         addCpMsg(zone,detail,'info');
       // A/B/F: 割引ルール
       }else if(cp.rules&&cp.rules.length){
-        const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+'（'+cp.period+'）'+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+        const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+(cp.period?'（'+cp.period+'）':'')+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
         addCpMsg(zone,detail,'info');
       }else{
-        const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+'（'+cp.period+'）'+_pd,'info');
+        const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+(cp.period?'（'+cp.period+'）':'')+_pd,'info');
       }
     });
   }
@@ -1335,35 +1335,35 @@ document.addEventListener('DOMContentLoaded',async()=>{
         if(type==='D'&&cp.gift_min){
           const minAmt=cp.gift_min;
           if(sub>0&&sub<minAmt){
-            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
+            addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
           }else if(sub>=minAmt){
-            let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）';
+            let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！'+(cp.period?'（'+cp.period+'）':'');
       if(cp.note) _giftMsg += ' ⚠ 受注処理：'+cp.note;
       addCpMsg(zone, _giftMsg, 'ok');
           }else{
-            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
+            addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
           }
         // E: 累進プレゼント
         }else if(type==='E'&&cp.prog_start){
           const start=cp.prog_start,step=cp.prog_step||10000;
           if(sub>0&&sub<start){
-            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
+            addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
           }else if(sub>=start){
             const cnt=Math.floor((sub-start)/step)+1;
             addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.prog_gift_name+'】'+cnt+'個プレゼント対象！（¥'+(start+step*cnt).toLocaleString()+'以上で'+(cnt+1)+'個）','ok');
           }else{
-            addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
+            addCpMsg(zone,'🎁 '+cp.name+(cp.period?'（'+cp.period+'）':'')+'：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
           }
         // C: コードクーポン
         }else if(type==='C'){
-          const detail=cp.name+'（'+cp.period+'）：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
+          const detail=cp.name+(cp.period?'（'+cp.period+'）':'')+'：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
           addCpMsg(zone,detail,'info');
         // A/B/F: 割引ルール
         }else if(cp.rules&&cp.rules.length){
-          const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+'（'+cp.period+'）'+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
+          const _pp=cp.products?'【'+cp.products+'】':''; const detail=cp.name+(cp.period?'（'+cp.period+'）':'')+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
           addCpMsg(zone,detail,'info');
         }else{
-          const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+'（'+cp.period+'）'+_pd,'info');
+          const _pd=cp.products?'【'+cp.products+'】':''; addCpMsg(zone,cp.name+(cp.period?'（'+cp.period+'）':'')+_pd,'info');
         }
       });
     }
