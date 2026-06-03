@@ -740,7 +740,9 @@ function cpCheck(){
         if(sub>0&&sub<minAmt){
           addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
         }else if(sub>=minAmt){
-          addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）','ok');
+          let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）';
+      if(cp.note) _giftMsg += ' ⚠ 受注処理：'+cp.note;
+      addCpMsg(zone, _giftMsg, 'ok');
         }else{
           addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
         }
@@ -1245,16 +1247,38 @@ function convertProducts(raw){
 }
 function applySettings(){
   if(!SETTINGS)return;
-  const bd=SETTINGS.bd_coupon||{},mc=SETTINGS.monthly_coupon||{};
+  const curMonth = new Date().getMonth()+1; // 1-12
+
+  // 月別BDクーポン
+  const bdMonthly = SETTINGS.bd_monthly||[];
+  const bdThis = bdMonthly.find(b=>b.month===curMonth) || SETTINGS.bd_coupon || {};
+  const mc = SETTINGS.monthly_coupon||{};
+
   // クーポンボタン更新
   document.getElementById('mc-name').textContent=mc.label||'毎月クーポン';
   document.getElementById('mc-code').textContent=mc.code||'epr333';
   document.getElementById('mc-disc').textContent='△'+(mc.discount||500).toLocaleString()+'円';
-  document.getElementById('bd-code').textContent=bd.code||'HB6767';
-  // ノベルティ
-  const nv=SETTINGS.novelty||{};
-  if(nv.this_month)document.getElementById('novelty-this').textContent=nv.this_month;
-  if(nv.next_month)document.getElementById('novelty-next').textContent=nv.next_month;
+  document.getElementById('bd-code').textContent=bdThis.code||'HB6767';
+
+  // BDボタンのonclickも更新
+  const bdBtn=document.getElementById('cpntag-bd');
+  if(bdBtn){
+    bdBtn.querySelector('.cpn-tag-disc').textContent='🎁 '+(bdThis.gift||'ミニコスメプレゼント');
+  }
+
+  // 月別コスメ話
+  const cosmeTalk = SETTINGS.cosme_talk||[];
+  const cosmeThis = cosmeTalk.find(c=>c.month===curMonth);
+  const nth=document.getElementById('novelty-this');
+  const nnx=document.getElementById('novelty-next');
+  if(cosmeThis){
+    if(nth&&cosmeThis.this_month)nth.textContent=cosmeThis.this_month;
+    if(nnx&&cosmeThis.next_month)nnx.textContent=cosmeThis.next_month;
+  }else{
+    const nv=SETTINGS.novelty||{};
+    if(nth&&nv.this_month)nth.textContent=nv.this_month;
+    if(nnx&&nv.next_month)nnx.textContent=nv.next_month;
+  }
 }
 
 // INIT
@@ -1298,7 +1322,9 @@ document.addEventListener('DOMContentLoaded',async()=>{
           if(sub>0&&sub<minAmt){
             addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：あと¥'+(minAmt-sub).toLocaleString()+'で【'+cp.gift_name+'】プレゼント！','hint');
           }else if(sub>=minAmt){
-            addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）','ok');
+            let _giftMsg = '🎁 ✅ '+cp.name+'：【'+cp.gift_name+'】プレゼント対象です！（'+cp.period+'）';
+      if(cp.note) _giftMsg += ' ⚠ 受注処理：'+cp.note;
+      addCpMsg(zone, _giftMsg, 'ok');
           }else{
             addCpMsg(zone,'🎁 '+cp.name+'（'+cp.period+'）：¥'+minAmt.toLocaleString()+'以上で【'+cp.gift_name+'】プレゼント','info');
           }
