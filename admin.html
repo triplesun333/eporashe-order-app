@@ -433,13 +433,24 @@ function fillForm(s) {
 }
 
 // ========== CAMPAIGN UI ==========
+function toInputDate(str) {
+  // "2026/06/12" → "2026-06-12"（input[type=date]用）
+  if (!str) return '';
+  return str.replace(/\//g, '-');
+}
+function toStorageDate(str) {
+  // "2026-06-12" → "2026/06/12"（GAS保存用）
+  if (!str) return '';
+  return str.replace(/-/g, '/');
+}
+
 function settingsToCampaign(cp) {
   return {
     type: cp.type || 'A',
     name: cp.name || '',
     period: cp.period || '',
-    date_start: cp.date_start || '',
-    date_end: cp.date_end || '',
+    date_start: toInputDate(cp.date_start || ''),
+    date_end:   toInputDate(cp.date_end   || ''),
     products: cp.products || '',
     rules: cp.rules || [],
     coupon_code: cp.coupon_code || '',
@@ -644,7 +655,7 @@ async function saveSettings() {
   btn.disabled = true; btn.textContent = '保存中…';
 
   const apiCampaigns = campaigns.map(cp => {
-    const base = {type:cp.type, name:cp.name, date_start:cp.date_start||'', date_end:cp.date_end||'', period:cp.period||'', products:cp.products, note:cp.note||''};
+    const base = {type:cp.type, name:cp.name, date_start:toStorageDate(cp.date_start||''), date_end:toStorageDate(cp.date_end||''), period:cp.period||'', products:cp.products, note:cp.note||''};
     if(cp.type==='A'||cp.type==='B'||cp.type==='F') base.rules=cp.rules;
     else if(cp.type==='C'){base.coupon_code=cp.coupon_code;base.discount_pct=Number(cp.discount_pct);base.min_amount=Number(cp.min_amount);base.target_keywords=cp.target_keywords;}
     else if(cp.type==='D'){base.gift_name=cp.gift_name;base.gift_min=Number(cp.gift_min);}
