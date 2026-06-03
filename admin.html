@@ -4,125 +4,151 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>エポラーシェ 管理画面</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700;800&display=swap');
 :root{
-  --navy:#1a3a5c;--navy2:#2e5f8a;--navy-l:#e8f0f8;
-  --gold:#b8832a;--gold-l:#fef6e4;
-  --ok:#1e6b45;--ok-l:#e4f5ec;
-  --red:#b91c1c;--red-l:#fef2f2;
-  --warn:#92500a;--warn-l:#fef4e4;
-  --bg:#edeae4;--white:#fff;--surface:#f7f4ef;
-  --border:#ddd8d0;--border2:#c5bdb4;
-  --text:#1a1410;--text2:#4a3f35;--text3:#8a7d72;
+  --bg:#edeae4;--wh:#fff;--sf:#f7f4ef;
+  --bd:#ddd8d0;--bd2:#c5bdb4;
+  --nv:#1a3a5c;--nv2:#2e5f8a;--nvl:#e8f0f8;
+  --gd:#b8832a;--gdl:#fef6e4;
+  --ok:#1e6b45;--okl:#e4f5ec;
+  --rd:#b91c1c;--rdl:#fef2f2;
+  --wn:#92500a;--wnl:#fef4e4;
+  --tx:#1a1410;--tx2:#4a3f35;--tx3:#8a7d72;
   --r:10px;--rs:6px;
   --sh:0 2px 10px rgba(0,0,0,.09);
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.6;min-height:100vh;}
+body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);font-size:13px;min-height:100vh;}
 
 /* LOGIN */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.login-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:36px 40px;width:360px;box-shadow:var(--sh);text-align:center;}
-.login-logo{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.login-sub{font-size:11px;color:var(--text3);margin-bottom:24px;}
-.login-box input{width:100%;padding:10px 12px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:.18s;}
-.login-box input:focus{border-color:var(--navy);}
-.login-btn{width:100%;padding:11px;border:none;border-radius:var(--rs);background:var(--navy);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;transition:.18s;}
-.login-btn:hover{background:var(--navy2);}
-.login-err{color:var(--red);font-size:12px;margin-top:8px;font-weight:700;display:none;}
+.login-box{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);padding:36px 40px;width:360px;box-shadow:var(--sh);text-align:center;}
+.login-logo{font-size:18px;font-weight:800;color:var(--nv);margin-bottom:4px;}
+.login-sub{font-size:11px;color:var(--tx3);margin-bottom:24px;}
+.login-box input{width:100%;padding:10px 12px;border:2px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:14px;outline:none;margin-bottom:12px;transition:.18s;}
+.login-box input:focus{border-color:var(--nv);}
+.login-btn{width:100%;padding:11px;border:none;border-radius:var(--rs);background:var(--nv);color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;}
+.login-btn:hover{background:var(--nv2);}
+.login-err{color:var(--rd);font-size:12px;margin-top:8px;font-weight:700;display:none;}
 
 /* HEADER */
-.hd{background:var(--navy);height:50px;display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,.3);}
-.hd-logo{color:#fff;font-size:15px;font-weight:800;letter-spacing:.05em;}
+.hd{background:var(--nv);height:48px;display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+.hd-logo{color:#fff;font-size:14px;font-weight:800;letter-spacing:.05em;}
 .hd-logo span{color:#f0c87a;}
 .hd-sp{flex:1;}
 .hd-info{color:rgba(255,255,255,.7);font-size:11px;}
-.hd-logout{padding:5px 14px;border-radius:14px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
-.hd-logout:hover{background:rgba(255,255,255,.15);}
+.hd-out{padding:5px 14px;border-radius:14px;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
 
 /* MAIN */
-.main{max-width:900px;margin:0 auto;padding:24px 16px;}
-.page-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:4px;}
-.page-sub{font-size:11px;color:var(--text3);margin-bottom:20px;}
+.main{max-width:960px;margin:0 auto;padding:20px 16px 100px;}
+.page-title{font-size:17px;font-weight:800;color:var(--nv);margin-bottom:4px;}
+.page-sub{font-size:11px;color:var(--tx3);margin-bottom:20px;}
 
-/* CARDS */
-.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);margin-bottom:16px;overflow:hidden;box-shadow:var(--sh);}
-.card-head{background:var(--navy);color:#fff;padding:10px 16px;font-size:12px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:8px;}
-.card-body{padding:16px;}
+/* CARD */
+.card{background:var(--wh);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:14px;overflow:hidden;box-shadow:var(--sh);}
+.card-head{background:var(--nv);color:#fff;padding:9px 16px;font-size:11px;font-weight:800;letter-spacing:.05em;display:flex;align-items:center;gap:8px;}
+.card-body{padding:14px 16px;}
 
 /* FORM */
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.fgrid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
 .fgrid-full{grid-column:1/-1;}
-.fg{display:flex;flex-direction:column;gap:4px;}
-.fg label{font-size:10px;font-weight:800;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;}
-.fg input,.fg select,.fg textarea{padding:8px 10px;border:2px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;outline:none;background:#fff;transition:.18s;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(26,58,92,.1);}
-.fg .hint{font-size:10px;color:var(--text3);}
+.fg{display:flex;flex-direction:column;gap:3px;}
+.fg label{font-size:10px;font-weight:800;color:var(--tx3);letter-spacing:.04em;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{padding:7px 10px;border:2px solid var(--bd);border-radius:var(--rs);font-family:inherit;font-size:13px;outline:none;background:#fff;transition:.15s;}
+.fg input:focus,.fg select:focus{border-color:var(--nv);box-shadow:0 0 0 3px rgba(26,58,92,.1);}
+.fg .hint{font-size:10px;color:var(--tx3);}
 
-/* CAMPAIGN BLOCK */
-.cp-block{border:2px solid var(--border);border-radius:var(--rs);padding:14px;margin-bottom:12px;background:var(--surface);}
-.cp-block-title{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
-.rule-block{background:var(--white);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:8px;}
-.rule-title{font-size:10px;font-weight:800;color:var(--text3);margin-bottom:7px;letter-spacing:.05em;}
+/* TYPE COLORS */
+.type-A{border-left:4px solid #2d6a4f;}
+.type-B{border-left:4px solid #92500a;}
+.type-C{border-left:4px solid #6d28d9;}
+.type-D{border-left:4px solid #b8832a;}
+.type-E{border-left:4px solid #b91c1c;}
+.type-F{border-left:4px solid #1a3a5c;}
+
+/* CAMPAIGN BLOCKS */
+.cp-list{display:flex;flex-direction:column;gap:10px;}
+.cp-block{background:var(--sf);border:1.5px solid var(--bd);border-radius:var(--rs);overflow:hidden;}
+.cp-block-head{padding:8px 12px;background:var(--bg);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+.cp-block-head:hover{background:var(--nvl);}
+.cp-block-title{font-size:12px;font-weight:800;flex:1;}
+.cp-del-btn{width:24px;height:24px;border-radius:50%;border:none;background:var(--rdl);color:var(--rd);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cp-block-body{padding:12px;}
+.cp-type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;color:#fff;}
+.badge-A{background:#2d6a4f;} .badge-B{background:#92500a;} .badge-C{background:#6d28d9;}
+.badge-D{background:#b8832a;} .badge-E{background:#b91c1c;} .badge-F{background:#1a3a5c;}
+
+/* RULE BLOCKS */
+.rule-list{display:flex;flex-direction:column;gap:6px;margin-top:8px;}
+.rule-block{background:var(--wh);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;position:relative;}
+.rule-block-title{font-size:10px;font-weight:800;color:var(--tx3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
+.rule-del{font-size:11px;color:var(--rd);cursor:pointer;border:none;background:none;font-family:inherit;font-weight:700;}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:16px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:800;transition:.15s;display:inline-flex;align-items:center;gap:5px;}
+.btn-save{background:var(--ok);color:#fff;box-shadow:0 3px 8px rgba(30,107,69,.25);}
+.btn-save:hover{background:#175a38;}
+.btn-save:disabled{opacity:.5;cursor:default;}
+.btn-add{background:var(--nv);color:#fff;}
+.btn-add:hover{background:var(--nv2);}
+.btn-outline{background:#fff;border:2px solid var(--bd2);color:var(--tx2);}
+.btn-outline:hover{border-color:var(--nv);color:var(--nv);}
+.btn-import{background:var(--okl);border:2px solid var(--ok);color:var(--ok);}
+.btn-sm{padding:5px 10px;font-size:11px;}
 
 /* SAVE BAR */
-.save-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:100;}
-.save-info{font-size:11px;color:var(--text3);}
+.save-bar{position:fixed;bottom:0;left:0;right:0;background:var(--wh);border-top:1px solid var(--bd);padding:10px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 -2px 8px rgba(0,0,0,.08);z-index:100;}
+.save-info{font-size:11px;color:var(--tx3);}
 .save-info span{color:var(--ok);font-weight:700;}
-.btn{padding:10px 22px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:800;transition:.18s;}
-.btn-save{background:var(--ok);color:#fff;box-shadow:0 3px 10px rgba(30,107,69,.25);}
-.btn-save:hover{background:#175a38;transform:translateY(-1px);}
-.btn-save:disabled{opacity:.5;cursor:default;transform:none;}
-.btn-outline{background:#fff;border:2px solid var(--border2);color:var(--text2);}
-.btn-outline:hover{border-color:var(--navy);color:var(--navy);}
 
 /* TOAST */
-.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:var(--rs);font-size:13px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:999;transform:translateY(-20px);opacity:0;transition:all .3s;}
+.toast{position:fixed;top:16px;right:16px;padding:10px 18px;border-radius:var(--rs);font-size:12px;font-weight:700;box-shadow:0 4px 20px rgba(0,0,0,.2);z-index:999;transform:translateY(-20px);opacity:0;transition:all .3s;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast-ok{background:var(--ok);color:#fff;}
-.toast-err{background:var(--red);color:#fff;}
+.toast-err{background:var(--rd);color:#fff;}
 
-/* PW SECTION */
-.pw-inline{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
-.pw-inline .fg{flex:1;min-width:150px;}
-.pw-inline .btn{height:38px;padding:0 16px;font-size:12px;}
+/* IMPORT */
+.import-preview{margin-top:10px;display:none;}
+.import-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.import-tbl th{background:var(--nv);color:#fff;padding:5px 8px;text-align:left;}
+.import-tbl td{padding:5px 8px;border-bottom:1px solid var(--bd);}
 
-/* DIVIDER */
-.sep{height:1px;background:var(--border);margin:14px 0;}
-
-/* Preview badge */
-.prev-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;background:var(--gold-l);color:var(--gold);border:1px solid var(--gold);margin-left:8px;}
+.sep{height:1px;background:var(--bd);margin:12px 0;}
+.pw-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;}
+.pw-row .fg{flex:1;min-width:140px;}
 </style>
 </head>
 <body>
 
-<!-- ====== LOGIN ====== -->
+<!-- LOGIN -->
 <div class="login-wrap" id="login-pg">
   <div class="login-box">
     <div class="login-logo">⚙️ エポラーシェ</div>
     <div class="login-sub">管理画面 — スタッフ専用</div>
-    <input type="password" id="pw-input" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doLogin()">
+    <input type="password" id="pw-inp" placeholder="パスワードを入力" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">ログイン</button>
     <div class="login-err" id="login-err">❌ パスワードが違います</div>
   </div>
 </div>
 
-<!-- ====== ADMIN ====== -->
+<!-- ADMIN -->
 <div id="admin-pg" style="display:none;">
   <header class="hd">
     <div class="hd-logo"><span>✦</span> エポラーシェ 管理画面</div>
     <div class="hd-sp"></div>
     <div class="hd-info" id="hd-updated"></div>
-    <button class="hd-logout" onclick="doLogout()">ログアウト</button>
+    <button class="hd-out" onclick="doLogout()">ログアウト</button>
   </header>
 
   <div class="main">
     <div class="page-title">📅 今月の設定</div>
-    <div class="page-sub">変更後は必ず「保存する」ボタンを押してください。全スタッフのアプリに即時反映されます。</div>
+    <div class="page-sub">変更後は必ず「保存する」を押してください。全スタッフのアプリに即時反映されます。</div>
 
-    <!-- 月ラベル -->
+    <!-- 対象月 -->
     <div class="card">
       <div class="card-head">📅 対象月</div>
       <div class="card-body">
@@ -130,36 +156,23 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
           <div class="fg">
             <label>対象月（表示用）</label>
             <input type="text" id="month_label" placeholder="例: 7月">
-            <div class="hint">アプリのキャンペーン表示に使います</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- BD クーポン -->
+    <!-- BDクーポン -->
     <div class="card">
       <div class="card-head">🎂 バースデークーポン</div>
       <div class="card-body">
-        <div style="background:#fff0f6;border:2px solid #e879a0;border-radius:var(--rs);padding:10px 14px;margin-bottom:14px;font-size:12px;color:#7a004a;line-height:1.8;">
-          💡 BDクーポンは割引ではなく<strong>プレゼント</strong>です。オペレーターへ「お誕生日おめでとうございます」のメッセージが表示されます。
+        <div style="background:#fff0f6;border:1.5px solid #e879a0;border-radius:var(--rs);padding:9px 12px;margin-bottom:12px;font-size:11px;color:#7a004a;">
+          💡 BDクーポンは割引ではなく<b>プレゼント</b>です。アプリに「🎂 お誕生日おめでとうございます！」が表示されます。
         </div>
         <div class="fgrid">
-          <div class="fg">
-            <label>クーポン番号</label>
-            <input type="text" id="bd_code" placeholder="例: HB6767">
-          </div>
-          <div class="fg">
-            <label>クーポン名（表示名）</label>
-            <input type="text" id="bd_label" placeholder="例: BDクーポン">
-          </div>
-          <div class="fg">
-            <label>最低購入金額（円）</label>
-            <input type="number" id="bd_min" placeholder="5400">
-          </div>
-          <div class="fg">
-            <label>プレゼント内容</label>
-            <input type="text" id="bd_gift" placeholder="例: ミニコスメセットプレゼント">
-          </div>
+          <div class="fg"><label>クーポン番号</label><input type="text" id="bd_code" placeholder="HB6767"></div>
+          <div class="fg"><label>クーポン名</label><input type="text" id="bd_label" placeholder="BDクーポン"></div>
+          <div class="fg"><label>最低購入金額（円）</label><input type="number" id="bd_min" placeholder="5400"></div>
+          <div class="fg"><label>プレゼント内容</label><input type="text" id="bd_gift" placeholder="ミニコスメセットプレゼント"></div>
         </div>
       </div>
     </div>
@@ -169,190 +182,48 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
       <div class="card-head">🏷 毎月クーポン</div>
       <div class="card-body">
         <div class="fgrid">
-          <div class="fg">
-            <label>クーポン番号</label>
-            <input type="text" id="mc_code" placeholder="例: epr333">
-          </div>
-          <div class="fg">
-            <label>クーポン名（表示名）</label>
-            <input type="text" id="mc_label" placeholder="例: 毎月クーポン">
-          </div>
-          <div class="fg">
-            <label>割引金額（円）</label>
-            <input type="number" id="mc_disc" placeholder="500">
-          </div>
+          <div class="fg"><label>クーポン番号</label><input type="text" id="mc_code" placeholder="epr333"></div>
+          <div class="fg"><label>クーポン名</label><input type="text" id="mc_label" placeholder="毎月クーポン"></div>
+          <div class="fg"><label>割引金額（円）</label><input type="number" id="mc_disc" placeholder="500"></div>
         </div>
       </div>
     </div>
 
-    <!-- キャンペーン1 -->
+    <!-- キャンペーン -->
     <div class="card">
-      <div class="card-head">🎯 キャンペーン 1</div>
-      <div class="card-body">
-        <div class="fgrid">
-          <div class="fg">
-            <label>キャンペーン名</label>
-            <input type="text" id="cp1_name" placeholder="例: 美髪革命CP">
-          </div>
-          <div class="fg">
-            <label>期間</label>
-            <input type="text" id="cp1_period" placeholder="例: 7/1〜7/31">
-          </div>
-          <div class="fg fgrid-full">
-            <label>対象商品名（カンマ区切り）</label>
-            <input type="text" id="cp1_products" placeholder="例: サプルプラス, ノーブルプラス">
-            <div class="hint">アプリの商品リストで「CP」マークが付く商品名を入力します</div>
-          </div>
-        </div>
-
-        <div class="sep"></div>
-        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;letter-spacing:.05em;">割引ルール（最大3パターン）</div>
-
-        <!-- Rule A -->
-        <div class="rule-block">
-          <div class="rule-title">パターン A</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp1_ra_desc" placeholder="例: サプル×2本"></div>
-            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_ra_orig" placeholder="8338"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_ra_disc" placeholder="6800"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_ra_pct" placeholder="18"></div>
-            <div class="fg"><label>キーワード（商品名の一部）</label><input type="text" id="cp1_ra_kw" placeholder="例: サプルプラス"></div>
-            <div class="fg"><label>対象数量</label><input type="number" id="cp1_ra_qty" placeholder="2"></div>
-          </div>
-        </div>
-
-        <!-- Rule B -->
-        <div class="rule-block">
-          <div class="rule-title">パターン B（任意）</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp1_rb_desc" placeholder="例: ノーブル×2本"></div>
-            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rb_orig" placeholder="8338"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rb_disc" placeholder="6800"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rb_pct" placeholder="18"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp1_rb_kw" placeholder="例: ノーブルプラス"></div>
-            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rb_qty" placeholder="2"></div>
-          </div>
-        </div>
-
-        <!-- Rule C -->
-        <div class="rule-block">
-          <div class="rule-title">パターン C（任意）</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp1_rc_desc" placeholder="例: サプル＋ノーブル各1本"></div>
-            <div class="fg"><label>通常価格合計（円）</label><input type="number" id="cp1_rc_orig" placeholder="8338"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp1_rc_disc" placeholder="7050"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp1_rc_pct" placeholder="15"></div>
-            <div class="fg"><label>キーワード（カンマ区切り）</label><input type="text" id="cp1_rc_kw" placeholder="例: サプルプラス,ノーブルプラス"></div>
-            <div class="fg"><label>対象数量</label><input type="number" id="cp1_rc_qty" placeholder="1"></div>
-          </div>
-        </div>
+      <div class="card-head">
+        🎯 キャンペーン設定
+        <span style="margin-left:auto;display:flex;gap:8px;">
+          <button class="btn btn-import btn-sm" onclick="document.getElementById('excel-file').click()">📂 Excelインポート</button>
+          <input type="file" id="excel-file" accept=".xlsx,.xls,.csv" style="display:none;" onchange="importExcel(this)">
+          <button class="btn btn-outline btn-sm" onclick="downloadTemplate()">📥 様式DL</button>
+          <button class="btn btn-add btn-sm" onclick="addCampaign()">＋ キャンペーン追加</button>
+        </span>
       </div>
-    </div>
-
-    <!-- キャンペーン2 -->
-    <div class="card">
-      <div class="card-head">🎯 キャンペーン 2（任意）</div>
       <div class="card-body">
-        <div class="fgrid">
-          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp2_name" placeholder="例: 腸活CP"></div>
-          <div class="fg"><label>期間</label><input type="text" id="cp2_period" placeholder="例: 7/1〜7/15"></div>
-          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp2_products"></div>
+        <!-- タイプ説明 -->
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;font-size:10px;">
+          <span class="cp-type-badge badge-A">A: 数量割引</span>
+          <span style="color:var(--tx3);">サプル×2本18%OFF</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-B">B: 段階割引</span>
+          <span style="color:var(--tx3);">1本10%・2本20%・3本25%</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-C">C: コードクーポン</span>
+          <span style="color:var(--tx3);">コードで対象商品X%OFF</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-D">D: 金額プレゼント</span>
+          <span style="color:var(--tx3);">X円以上で景品</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-E">E: 累進プレゼント</span>
+          <span style="color:var(--tx3);">2万→1個・3万→2個</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-F">F: セット価格</span>
+          <span style="color:var(--tx3);">2商品セットで特別価格</span>
         </div>
-        <div class="sep"></div>
-        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
-        <div class="rule-block">
-          <div class="rule-title">パターン A</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp2_ra_desc"></div>
-            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_ra_orig"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_ra_disc"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_ra_pct"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp2_ra_kw"></div>
-            <div class="fg"><label>数量</label><input type="number" id="cp2_ra_qty"></div>
-          </div>
-        </div>
-        <div class="rule-block">
-          <div class="rule-title">パターン B（任意）</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp2_rb_desc"></div>
-            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rb_orig"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rb_disc"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rb_pct"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rb_kw"></div>
-            <div class="fg"><label>数量</label><input type="number" id="cp2_rb_qty"></div>
-          </div>
-        </div>
-        <div class="rule-block">
-          <div class="rule-title">パターン C（任意）</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp2_rc_desc"></div>
-            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp2_rc_orig"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp2_rc_disc"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp2_rc_pct"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp2_rc_kw"></div>
-            <div class="fg"><label>数量</label><input type="number" id="cp2_rc_qty"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- キャンペーン3 -->
-    <div class="card">
-      <div class="card-head">🎯 キャンペーン 3（任意）</div>
-      <div class="card-body">
-        <div class="fgrid">
-          <div class="fg"><label>キャンペーン名</label><input type="text" id="cp3_name"></div>
-          <div class="fg"><label>期間</label><input type="text" id="cp3_period"></div>
-          <div class="fg fgrid-full"><label>対象商品名（カンマ区切り）</label><input type="text" id="cp3_products"></div>
-        </div>
-        <div class="sep"></div>
-        <div style="font-size:11px;font-weight:800;color:var(--text3);margin-bottom:8px;">割引ルール</div>
-        <div class="rule-block">
-          <div class="rule-title">パターン A</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp3_ra_desc"></div>
-            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_ra_orig"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_ra_disc"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_ra_pct"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp3_ra_kw"></div>
-            <div class="fg"><label>数量</label><input type="number" id="cp3_ra_qty"></div>
-          </div>
-        </div>
-        <div class="rule-block">
-          <div class="rule-title">パターン B（任意）</div>
-          <div class="fgrid3">
-            <div class="fg"><label>説明</label><input type="text" id="cp3_rb_desc"></div>
-            <div class="fg"><label>通常価格（円）</label><input type="number" id="cp3_rb_orig"></div>
-            <div class="fg"><label>割引後価格（円）</label><input type="number" id="cp3_rb_disc"></div>
-            <div class="fg"><label>割引率（%）</label><input type="number" id="cp3_rb_pct"></div>
-            <div class="fg"><label>キーワード</label><input type="text" id="cp3_rb_kw"></div>
-            <div class="fg"><label>数量</label><input type="number" id="cp3_rb_qty"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Excelインポート -->
-    <div class="card">
-      <div class="card-head">📥 Excelでキャンペーンを一括インポート</div>
-      <div class="card-body">
-        <div style="background:var(--navy-l);border:1.5px solid var(--navy);border-radius:var(--rs);padding:12px 14px;margin-bottom:14px;font-size:12px;line-height:1.9;">
-          <b>📋 Excel様式（1行1キャンペーン）</b><br>
-          A列: タイプ　B列: キャンペーン名　C列: 期間　D列: 商品キーワード（カンマ区切り）<br>
-          E列: 数量　F列: 通常価格　G列: 割引後価格　H列: 割引率(%)　I列: クーポンコード<br>
-          J列: 最低金額　K列: 景品名　L列: 景品開始金額　M列: 景品増加金額<br><br>
-          <b>タイプ一覧：</b>
-          A=数量割引 / B=段階割引 / C=コードクーポン / D=金額プレゼント / E=累進プレゼント / F=セット価格
-        </div>
-        <div style="margin-bottom:10px;">
-          <button class="btn btn-outline" onclick="downloadTemplate()" style="margin-right:8px;">📥 様式をダウンロード</button>
-          <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:2px solid var(--ok);border-radius:var(--rs);cursor:pointer;font-size:12px;font-weight:800;color:var(--ok);background:var(--ok-l);">
-            📂 Excelファイルを選択してインポート
-            <input type="file" accept=".xlsx,.xls,.csv" onchange="importExcel(this)" style="display:none;">
-          </label>
-        </div>
-        <div id="import-preview" style="display:none;">
-          <div style="font-size:12px;font-weight:800;color:var(--text2);margin-bottom:8px;">インポートプレビュー</div>
+        <div class="cp-list" id="cp-list"></div>
+        <div id="import-preview" class="import-preview">
+          <div style="font-size:12px;font-weight:800;color:var(--tx2);margin-bottom:8px;">📋 インポートプレビュー</div>
           <div id="import-table"></div>
           <button class="btn btn-save" style="margin-top:10px;" onclick="applyImport()">✅ このキャンペーンを適用する</button>
         </div>
@@ -362,17 +233,11 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
 
     <!-- ノベルティ -->
     <div class="card">
-      <div class="card-head">🎁 同梱サンプル・ノベルティ</div>
+      <div class="card-head">🎁 同梱サンプル</div>
       <div class="card-body">
         <div class="fgrid">
-          <div class="fg">
-            <label>今月のサンプル</label>
-            <input type="text" id="novelty_this" placeholder="例: サプルノーブルパウチ 2包">
-          </div>
-          <div class="fg">
-            <label>来月のサンプル</label>
-            <input type="text" id="novelty_next" placeholder="例: 黄金のコラーゲン 2包">
-          </div>
+          <div class="fg"><label>今月のサンプル</label><input type="text" id="novelty_this" placeholder="例: サプルノーブルパウチ 2包"></div>
+          <div class="fg"><label>来月のサンプル</label><input type="text" id="novelty_next" placeholder="例: 黄金のコラーゲン 2包"></div>
         </div>
       </div>
     </div>
@@ -381,57 +246,308 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);f
     <div class="card">
       <div class="card-head">🔐 パスワード変更</div>
       <div class="card-body">
-        <div class="pw-inline">
-          <div class="fg"><label>現在のパスワード</label><input type="password" id="pw_current" placeholder="現在のパスワード"></div>
-          <div class="fg"><label>新しいパスワード</label><input type="password" id="pw_new" placeholder="新しいパスワード"></div>
-          <div class="fg"><label>確認</label><input type="password" id="pw_confirm" placeholder="もう一度入力"></div>
+        <div class="pw-row">
+          <div class="fg"><label>現在のパスワード</label><input type="password" id="pw_cur"></div>
+          <div class="fg"><label>新しいパスワード</label><input type="password" id="pw_new"></div>
+          <div class="fg"><label>確認</label><input type="password" id="pw_cf"></div>
           <button class="btn btn-outline" onclick="changePw()">変更する</button>
         </div>
-        <div id="pw-msg" style="margin-top:8px;font-size:11px;font-weight:700;display:none;"></div>
+        <div id="pw-msg" style="font-size:11px;font-weight:700;margin-top:6px;display:none;"></div>
       </div>
     </div>
-
-    <div style="height:80px;"></div>
   </div>
 
   <!-- SAVE BAR -->
   <div class="save-bar">
     <div class="save-info">最終保存: <span id="last-saved">未保存</span></div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-outline" onclick="loadSettings()">↩ 再読み込み</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" onclick="loadSettings()">↩ 再読込</button>
       <button class="btn btn-save" id="save-btn" onclick="saveSettings()">💾 保存する（全員に反映）</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const API = 'https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkjZRH1MLP8OTW5RmOgoo3DLRHKfT_MF5y6ATLHqA/exec';
 let sessionPw = '';
-
-// ====== LOGIN ======
-// ========== Excelインポート ==========
 let importedCampaigns = [];
 
+// ========== キャンペーンデータ ==========
+// campaigns配列: 各要素は {type, name, period, ...type固有フィールド}
+let campaigns = [];
+
+// ========== LOGIN ==========
+function doLogin() {
+  const pw = document.getElementById('pw-inp').value;
+  sessionPw = pw;
+  verifyLogin(pw);
+}
+async function verifyLogin(pw) {
+  try {
+    const res = await fetch(API + '?action=settings&t=' + Date.now());
+    const data = await res.json();
+    const savedPw = data.admin_password || 'eporashe2024';
+    if (pw !== savedPw) { document.getElementById('login-err').style.display='block'; return; }
+    document.getElementById('login-pg').style.display = 'none';
+    document.getElementById('admin-pg').style.display = 'block';
+    fillForm(data);
+  } catch(e) {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-err').textContent='⚠ 通信エラー。再度お試しください。';
+  }
+}
+function doLogout() {
+  sessionPw='';
+  document.getElementById('login-pg').style.display='flex';
+  document.getElementById('admin-pg').style.display='none';
+  document.getElementById('pw-inp').value='';
+  document.getElementById('login-err').style.display='none';
+}
+
+// ========== LOAD ==========
+async function loadSettings() {
+  const res = await fetch(API + '?action=settings&t=' + Date.now());
+  const data = await res.json();
+  fillForm(data);
+}
+function fillForm(s) {
+  set('month_label', s.month_label||'');
+  const bd=s.bd_coupon||{};
+  set('bd_code',bd.code||''); set('bd_label',bd.label||''); set('bd_min',bd.min_amt||5400); set('bd_gift',bd.gift||'');
+  const mc=s.monthly_coupon||{};
+  set('mc_code',mc.code||''); set('mc_label',mc.label||''); set('mc_disc',mc.discount||500);
+  set('novelty_this',(s.novelty||{}).this_month||''); set('novelty_next',(s.novelty||{}).next_month||'');
+  // キャンペーンをUI用データに変換
+  campaigns = (s.campaigns||[]).map(cp => settingsToCampaign(cp));
+  renderCampaigns();
+  if(s.updated_at){
+    document.getElementById('last-saved').textContent=s.updated_at;
+    document.getElementById('hd-updated').textContent='最終更新: '+s.updated_at;
+  }
+}
+
+// 設定JSONのキャンペーン → UI用データ
+function settingsToCampaign(cp) {
+  return {
+    type: cp.type || 'A',
+    name: cp.name || '',
+    period: cp.period || '',
+    products: cp.products || '',
+    // A/B/F: rules配列
+    rules: cp.rules || [],
+    // C: コードクーポン
+    coupon_code: cp.coupon_code || '',
+    min_amount: cp.min_amount || 0,
+    discount_pct: cp.discount_pct || 0,
+    target_keywords: cp.target_keywords || '',
+    // D: 金額プレゼント
+    gift_name: cp.gift_name || '',
+    gift_min: cp.gift_min || 0,
+    // E: 累進プレゼント
+    prog_gift_name: cp.prog_gift_name || '',
+    prog_start: cp.prog_start || 0,
+    prog_step: cp.prog_step || 0,
+  };
+}
+
+// ========== CAMPAIGN UI ==========
+function addCampaign(data) {
+  campaigns.push(data || {type:'A', name:'', period:'', products:'', rules:[{desc:'',orig_price:0,disc_price:0,pct:0,product_keywords:'',qty:1}]});
+  renderCampaigns();
+}
+
+function delCampaign(idx) {
+  campaigns.splice(idx, 1);
+  renderCampaigns();
+}
+
+function renderCampaigns() {
+  const list = document.getElementById('cp-list');
+  if (!campaigns.length) {
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:var(--tx3);">キャンペーンがありません。「＋ キャンペーン追加」または「Excelインポート」で追加してください。</div>';
+    return;
+  }
+  list.innerHTML = '';
+  campaigns.forEach((cp, i) => {
+    const block = document.createElement('div');
+    block.className = 'cp-block type-' + (cp.type||'A');
+    block.innerHTML = buildCampaignHTML(cp, i);
+    list.appendChild(block);
+  });
+}
+
+function buildCampaignHTML(cp, i) {
+  const typeOpts = ['A','B','C','D','E','F'].map(t =>
+    `<option value="${t}" ${cp.type===t?'selected':''}>${t}: ${{A:'数量割引',B:'段階割引',C:'コードクーポン',D:'金額プレゼント',E:'累進プレゼント',F:'セット価格'}[t]}</option>`
+  ).join('');
+
+  let typeSpecific = '';
+  const type = cp.type || 'A';
+
+  if (type === 'A' || type === 'B' || type === 'F') {
+    // ルール一覧
+    const rulesHTML = (cp.rules||[]).map((r,ri) => `
+      <div class="rule-block">
+        <div class="rule-block-title">
+          パターン ${ri+1}
+          <button class="rule-del" onclick="delRule(${i},${ri})">✕ 削除</button>
+        </div>
+        <div class="fgrid3">
+          <div class="fg"><label>説明</label><input type="text" value="${r.desc||''}" onchange="updateRule(${i},${ri},'desc',this.value)" placeholder="例: サプル×2本"></div>
+          <div class="fg"><label>商品キーワード</label><input type="text" value="${r.product_keywords||''}" onchange="updateRule(${i},${ri},'product_keywords',this.value)" placeholder="例: サプルプラス"></div>
+          <div class="fg"><label>対象数量</label><input type="number" value="${r.qty||1}" onchange="updateRule(${i},${ri},'qty',this.value)"></div>
+          <div class="fg"><label>通常価格合計（円）</label><input type="number" value="${r.orig_price||''}" onchange="updateRule(${i},${ri},'orig_price',this.value)"></div>
+          <div class="fg"><label>割引後価格（円）</label><input type="number" value="${r.disc_price||''}" onchange="updateRule(${i},${ri},'disc_price',this.value)"></div>
+          <div class="fg"><label>割引率（%）</label><input type="number" value="${r.pct||''}" onchange="updateRule(${i},${ri},'pct',this.value)"></div>
+        </div>
+      </div>`).join('');
+    typeSpecific = `
+      <div class="rule-list">${rulesHTML}</div>
+      <button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="addRule(${i})">＋ パターン追加</button>`;
+  } else if (type === 'C') {
+    typeSpecific = `
+      <div class="fgrid">
+        <div class="fg"><label>クーポンコード</label><input type="text" value="${cp.coupon_code||''}" onchange="updateCp(${i},'coupon_code',this.value)" placeholder="例: ks2026"></div>
+        <div class="fg"><label>割引率（%）</label><input type="number" value="${cp.discount_pct||''}" onchange="updateCp(${i},'discount_pct',this.value)" placeholder="10"></div>
+        <div class="fg"><label>最低購入金額（円）</label><input type="number" value="${cp.min_amount||''}" onchange="updateCp(${i},'min_amount',this.value)" placeholder="10000"></div>
+        <div class="fg fgrid-full"><label>対象商品キーワード（カンマ区切り・空欄=全商品）</label><input type="text" value="${cp.target_keywords||''}" onchange="updateCp(${i},'target_keywords',this.value)" placeholder="例: デルミライト,デルミパウダー,ミキズコラーゲン"></div>
+      </div>`;
+  } else if (type === 'D') {
+    typeSpecific = `
+      <div class="fgrid">
+        <div class="fg"><label>景品名</label><input type="text" value="${cp.gift_name||''}" onchange="updateCp(${i},'gift_name',this.value)" placeholder="例: ロゴ入り保冷バッグ"></div>
+        <div class="fg"><label>最低購入金額（円）</label><input type="number" value="${cp.gift_min||''}" onchange="updateCp(${i},'gift_min',this.value)" placeholder="16500"></div>
+      </div>`;
+  } else if (type === 'E') {
+    typeSpecific = `
+      <div class="fgrid">
+        <div class="fg"><label>景品名</label><input type="text" value="${cp.prog_gift_name||''}" onchange="updateCp(${i},'prog_gift_name',this.value)" placeholder="例: ロイヤルブラン"></div>
+        <div class="fg"><label>開始金額（円）</label><input type="number" value="${cp.prog_start||''}" onchange="updateCp(${i},'prog_start',this.value)" placeholder="20000"></div>
+        <div class="fg"><label>増加金額（円）</label><input type="number" value="${cp.prog_step||''}" onchange="updateCp(${i},'prog_step',this.value)" placeholder="10000"></div>
+      </div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:4px;">例: 開始20,000円・増加10,000円 → 2万円で1個・3万円で2個・4万円で3個…</div>`;
+  }
+
+  return `
+    <div class="cp-block-head" onclick="toggleBlock(this)">
+      <span class="cp-type-badge badge-${type}">${type}</span>
+      <span class="cp-block-title">${cp.name||'（名前未入力）'} <span style="font-size:10px;font-weight:400;color:var(--tx3);">${cp.period||''}</span></span>
+      <button class="cp-del-btn" onclick="event.stopPropagation();delCampaign(${i})">✕</button>
+    </div>
+    <div class="cp-block-body">
+      <div class="fgrid" style="margin-bottom:8px;">
+        <div class="fg"><label>タイプ</label>
+          <select onchange="updateCpType(${i},this.value)">${typeOpts}</select>
+        </div>
+        <div class="fg"><label>キャンペーン名</label><input type="text" value="${cp.name||''}" onchange="updateCp(${i},'name',this.value);this.closest('.cp-block').querySelector('.cp-block-title').innerHTML=this.value+' <span style=\'font-size:10px;font-weight:400;color:var(--tx3);\'>'+this.closest('.cp-block-body').querySelector('[onchange*=period]').value+'</span>'" placeholder="例: 美髪革命CP"></div>
+        <div class="fg"><label>期間</label><input type="text" value="${cp.period||''}" onchange="updateCp(${i},'period',this.value)" placeholder="例: 7/1〜7/31"></div>
+        <div class="fg"><label>対象商品名（表示用）</label><input type="text" value="${cp.products||''}" onchange="updateCp(${i},'products',this.value)" placeholder="例: サプルプラス,ノーブルプラス"></div>
+      </div>
+      ${typeSpecific}
+    </div>`;
+}
+
+function toggleBlock(head) {
+  const body = head.nextElementSibling;
+  body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function updateCp(i, key, val) {
+  campaigns[i][key] = val;
+}
+function updateCpType(i, val) {
+  campaigns[i].type = val;
+  // タイプ変更時はデフォルト値を設定
+  if (val === 'A' || val === 'B' || val === 'F') {
+    if (!campaigns[i].rules || !campaigns[i].rules.length) {
+      campaigns[i].rules = [{desc:'',orig_price:0,disc_price:0,pct:0,product_keywords:'',qty:1}];
+    }
+  }
+  renderCampaigns();
+}
+function addRule(i) {
+  campaigns[i].rules = campaigns[i].rules || [];
+  campaigns[i].rules.push({desc:'',orig_price:0,disc_price:0,pct:0,product_keywords:'',qty:1});
+  renderCampaigns();
+}
+function delRule(i, ri) {
+  campaigns[i].rules.splice(ri, 1);
+  renderCampaigns();
+}
+function updateRule(i, ri, key, val) {
+  campaigns[i].rules[ri][key] = (key==='qty'||key==='orig_price'||key==='disc_price'||key==='pct') ? Number(val) : val;
+}
+
+// ========== SAVE ==========
+async function saveSettings() {
+  const btn = document.getElementById('save-btn');
+  btn.disabled = true; btn.textContent = '保存中…';
+
+  // キャンペーンをAPI用に変換
+  const apiCampaigns = campaigns.map(cp => {
+    const base = { type: cp.type, name: cp.name, period: cp.period, products: cp.products };
+    if (cp.type === 'A' || cp.type === 'B' || cp.type === 'F') {
+      base.rules = cp.rules;
+    } else if (cp.type === 'C') {
+      base.coupon_code = cp.coupon_code;
+      base.discount_pct = Number(cp.discount_pct);
+      base.min_amount = Number(cp.min_amount);
+      base.target_keywords = cp.target_keywords;
+    } else if (cp.type === 'D') {
+      base.gift_name = cp.gift_name;
+      base.gift_min = Number(cp.gift_min);
+    } else if (cp.type === 'E') {
+      base.prog_gift_name = cp.prog_gift_name;
+      base.prog_start = Number(cp.prog_start);
+      base.prog_step = Number(cp.prog_step);
+    }
+    return base;
+  });
+
+  const body = {
+    password: sessionPw,
+    month_label: get('month_label'),
+    bd_code: get('bd_code'), bd_label: get('bd_label'), bd_min: get('bd_min'), bd_gift: get('bd_gift'),
+    mc_code: get('mc_code'), mc_label: get('mc_label'), mc_disc: get('mc_disc'),
+    novelty_this: get('novelty_this'), novelty_next: get('novelty_next'),
+    campaigns_json: JSON.stringify(apiCampaigns),
+  };
+
+  try {
+    const res = await fetch(API, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = '💾 保存する（全員に反映）';
+    if (data.ok) {
+      document.getElementById('last-saved').textContent = data.updated_at;
+      showToast('✅ 保存しました！全スタッフのアプリに反映されます', 'ok');
+    } else {
+      showToast('❌ ' + (data.error || '保存に失敗しました'), 'err');
+    }
+  } catch(e) {
+    btn.disabled = false; btn.textContent = '💾 保存する（全員に反映）';
+    showToast('❌ 通信エラー', 'err');
+  }
+}
+
+// ========== EXCEL IMPORT ==========
 function downloadTemplate() {
   const wb = XLSX.utils.book_new();
   const headers = ['タイプ','キャンペーン名','期間','商品キーワード','数量','通常価格','割引後価格','割引率(%)','クーポンコード','最低金額','景品名','景品開始金額','景品増加金額'];
   const examples = [
-    ['A','美髪革命CP','6/12〜6/30','サプルプラス',2,8338,6800,18,'','','','',''],
-    ['A','美髪革命CP','6/12〜6/30','ノーブルプラス',2,8338,6800,18,'','','','',''],
+    ['A','美髪革命CP','6/12〜6/30','サプルプラス（シャンプー）',2,8338,6800,18,'','','','',''],
+    ['A','美髪革命CP','6/12〜6/30','ノーブルプラス（トリートメント）',2,8338,6800,18,'','','','',''],
     ['B','夏の腸活CP','6/5〜6/19','デルリズム',1,7020,6318,10,'','','','',''],
     ['B','夏の腸活CP','6/5〜6/19','デルリズム',2,14040,11232,20,'','','','',''],
     ['B','夏の腸活CP','6/5〜6/19','デルリズム',3,21060,15795,25,'','','','',''],
-    ['C','年度末感謝祭','3/13〜3/31','','',0,0,10,'ks2026',10000,'','',''],
-    ['D','保冷バッグCP','6/1〜6/30','','',0,0,0,'',16500,'保冷バッグ','',''],
-    ['E','ロイヤルブランCP','12/26〜1/4','','',0,0,0,'',20000,'ロイヤルブラン',20000,10000],
+    ['C','年度末感謝祭','3/13〜3/31','デルミライト,デルミパウダー,ミキズコラーゲン',1,0,0,10,'ks2026',10000,'','',''],
+    ['D','保冷バッグCP','6/1〜6/30','',1,0,0,0,'',16500,'ロゴ入り保冷バッグ','',''],
+    ['E','ロイヤルブランCP','12/26〜1/4','',1,0,0,0,'',20000,'ロイヤルブラン',20000,10000],
     ['F','夏肌セット','5/22〜8/31','エルローション,ハイエストゲル',1,16280,13000,20,'','','','',''],
   ];
   const ws = XLSX.utils.aoa_to_sheet([headers, ...examples]);
-  ws['!cols'] = headers.map(() => ({wch: 16}));
+  ws['!cols'] = headers.map(() => ({wch:16}));
   XLSX.utils.book_append_sheet(wb, ws, 'キャンペーン');
   XLSX.writeFile(wb, 'campaign_template.xlsx');
 }
@@ -445,278 +561,99 @@ function importExcel(input) {
       const wb = XLSX.read(e.target.result, {type:'binary'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      if (rows.length < 2) { showImportMsg('データがありません', 'err'); return; }
-
-      // ヘッダー行をスキップしてキャンペーンに変換
-      const dataRows = rows.slice(1).filter(r => r[0] && r[1]);
-      importedCampaigns = convertRowsToCampaigns(dataRows);
-
-      // プレビュー表示
+      if (rows.length < 2) { showImportMsg('データがありません','err'); return; }
+      importedCampaigns = convertExcelToCampaigns(rows.slice(1).filter(r=>r[0]&&r[1]));
       showImportPreview(importedCampaigns);
     } catch(e) {
-      showImportMsg('ファイルの読み込みに失敗しました: ' + e.message, 'err');
+      showImportMsg('読み込み失敗: '+e.message,'err');
     }
   };
   reader.readAsBinaryString(file);
 }
 
-function convertRowsToCampaigns(rows) {
-  const campMap = {};
-  rows.forEach(r => {
-    const type    = (r[0]||'').toString().trim().toUpperCase();
-    const name    = (r[1]||'').toString().trim();
-    const period  = (r[2]||'').toString().trim();
-    const kw      = (r[3]||'').toString().trim();
-    const qty     = Number(r[4]) || 1;
-    const orig    = Number(r[5]) || 0;
-    const disc    = Number(r[6]) || 0;
-    const pct     = Number(r[7]) || 0;
-    const code    = (r[8]||'').toString().trim();
-    const minAmt  = Number(r[9]) || 0;
-    const gift    = (r[10]||'').toString().trim();
-    const giftStart = Number(r[11]) || 0;
-    const giftStep  = Number(r[12]) || 0;
-
-    const key = name + '|' + period;
-    if (!campMap[key]) {
-      campMap[key] = {
-        name, period,
-        products: kw,
-        type, code, minAmt, gift, giftStart, giftStep,
-        rules: []
-      };
+function convertExcelToCampaigns(rows) {
+  const map={};const order=[];
+  rows.forEach(r=>{
+    const type=(r[0]||'').toString().trim().toUpperCase();
+    const name=(r[1]||'').toString().trim();
+    const period=(r[2]||'').toString().trim();
+    const kw=(r[3]||'').toString().trim();
+    const qty=Number(r[4])||1;
+    const orig=Number(r[5])||0;
+    const disc=Number(r[6])||0;
+    const pct=Number(r[7])||0;
+    const code=(r[8]||'').toString().trim();
+    const minAmt=Number(r[9])||0;
+    const gift=(r[10]||'').toString().trim();
+    const giftStart=Number(r[11])||0;
+    const giftStep=Number(r[12])||0;
+    const key=type+'|'+name+'|'+period;
+    if(!map[key]){
+      const base={type,name,period,products:kw};
+      if(type==='A'||type==='B'||type==='F') base.rules=[];
+      else if(type==='C'){base.coupon_code=code;base.discount_pct=pct;base.min_amount=minAmt;base.target_keywords=kw;}
+      else if(type==='D'){base.gift_name=gift;base.gift_min=minAmt;}
+      else if(type==='E'){base.prog_gift_name=gift;base.prog_start=giftStart;base.prog_step=giftStep;}
+      map[key]=base;order.push(key);
     }
-    if (type === 'A' || type === 'B' || type === 'F') {
-      campMap[key].rules.push({
-        desc: kw + (qty > 1 ? '×' + qty + '本' : ''),
-        orig_price: orig, disc_price: disc, pct, product_keywords: kw, qty
-      });
+    if(type==='A'||type==='B'||type==='F'){
+      map[key].rules.push({desc:kw+(qty>1?'×'+qty+'本':''),orig_price:orig,disc_price:disc,pct,product_keywords:kw,qty});
     }
   });
-  return Object.values(campMap);
+  return order.map(k=>map[k]);
 }
 
-function showImportPreview(campaigns) {
-  const div = document.getElementById('import-preview');
-  const tbl = document.getElementById('import-table');
-  div.style.display = 'block';
-  tbl.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:11px;">'
-    + '<tr style="background:var(--navy);color:#fff;"><th style="padding:5px 8px;text-align:left;">タイプ</th><th style="padding:5px 8px;text-align:left;">キャンペーン名</th><th style="padding:5px 8px;text-align:left;">期間</th><th style="padding:5px 8px;text-align:left;">ルール数</th></tr>'
-    + campaigns.map(c => '<tr style="border-bottom:1px solid var(--border);"><td style="padding:5px 8px;">'+c.type+'</td><td style="padding:5px 8px;font-weight:700;">'+c.name+'</td><td style="padding:5px 8px;">'+c.period+'</td><td style="padding:5px 8px;">'+c.rules.length+'件</td></tr>').join('')
-    + '</table>';
-  showImportMsg(campaigns.length + '件のキャンペーンを読み込みました', 'ok');
+function showImportPreview(cps) {
+  const div=document.getElementById('import-preview');
+  const tbl=document.getElementById('import-table');
+  div.style.display='block';
+  tbl.innerHTML='<table class="import-tbl"><tr><th>タイプ</th><th>キャンペーン名</th><th>期間</th><th>内容</th></tr>'
+    +cps.map(c=>'<tr><td><span class="cp-type-badge badge-'+c.type+'">'+c.type+'</span></td><td style="font-weight:700;">'+c.name+'</td><td>'+c.period+'</td><td style="font-size:10px;color:var(--tx3);">'+getSummary(c)+'</td></tr>').join('')+'</table>';
+  showImportMsg(cps.length+'件を読み込みました','ok');
+}
+
+function getSummary(c){
+  if(c.type==='C') return 'コード:'+c.coupon_code+' '+c.discount_pct+'%OFF';
+  if(c.type==='D') return c.gift_min.toLocaleString()+'円以上→'+c.gift_name;
+  if(c.type==='E') return c.prog_start.toLocaleString()+'円→'+c.prog_gift_name+' 累進';
+  return (c.rules||[]).length+'パターン';
 }
 
 function applyImport() {
-  // インポートしたキャンペーンをフォームに反映（最大3件）
-  importedCampaigns.slice(0, 3).forEach((cp, i) => {
-    const n = i + 1;
-    set('cp'+n+'_name',    cp.name);
-    set('cp'+n+'_period',  cp.period);
-    set('cp'+n+'_products',cp.products);
-    ['a','b','c'].forEach((r, ri) => {
-      const rule = cp.rules[ri] || {};
-      set('cp'+n+'_r'+r+'_desc', rule.desc || '');
-      set('cp'+n+'_r'+r+'_orig', rule.orig_price || '');
-      set('cp'+n+'_r'+r+'_disc', rule.disc_price || '');
-      set('cp'+n+'_r'+r+'_pct',  rule.pct || '');
-      set('cp'+n+'_r'+r+'_kw',   rule.product_keywords || '');
-      set('cp'+n+'_r'+r+'_qty',  rule.qty || '');
-    });
-  });
-  document.getElementById('import-preview').style.display = 'none';
-  showImportMsg('✅ フォームに反映しました！内容を確認して「保存する」を押してください。', 'ok');
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  campaigns = importedCampaigns;
+  renderCampaigns();
+  document.getElementById('import-preview').style.display='none';
+  showImportMsg('✅ フォームに反映しました。「保存する」を押してください。','ok');
+  document.getElementById('cp-list').scrollIntoView({behavior:'smooth'});
 }
 
-function showImportMsg(msg, type) {
-  const el = document.getElementById('import-msg');
-  el.innerHTML = '<div style="padding:8px 12px;border-radius:var(--rs);font-size:12px;font-weight:700;margin-top:8px;background:'+(type==='ok'?'var(--ok-l)':'var(--red-l)')+';color:'+(type==='ok'?'var(--ok)':'var(--red)')+';">'+msg+'</div>';
+function showImportMsg(msg,type){
+  const el=document.getElementById('import-msg');
+  el.innerHTML='<div style="padding:7px 10px;border-radius:var(--rs);font-size:12px;font-weight:700;margin-top:8px;background:'+(type==='ok'?'var(--okl)':'var(--rdl)')+';color:'+(type==='ok'?'var(--ok)':'var(--rd)')+';">'+msg+'</div>';
 }
 
-// ========== ログイン ==========
-function doLogin() {
-  const pw = document.getElementById('pw-input').value;
-  // まずAPIにGETして設定読み込み（パスワード確認はPOSTで行う）
-  // ここではとりあえずセッションパスワードを保存して画面遷移
-  // 実際の認証はPOSTで確認
-  sessionPw = pw;
-  verifyLogin(pw);
+// ========== PASSWORD ==========
+async function changePw(){
+  const cur=document.getElementById('pw_cur').value;
+  const nw=document.getElementById('pw_new').value;
+  const cf=document.getElementById('pw_cf').value;
+  const msg=document.getElementById('pw-msg');
+  msg.style.display='block';
+  if(!cur||!nw){msg.style.color='var(--rd)';msg.textContent='全て入力してください';return;}
+  if(nw!==cf){msg.style.color='var(--rd)';msg.textContent='新しいパスワードが一致しません';return;}
+  const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'change_password',current_password:cur,new_password:nw})});
+  const data=await res.json();
+  if(data.ok){sessionPw=nw;msg.style.color='var(--ok)';msg.textContent='✅ パスワードを変更しました';['pw_cur','pw_new','pw_cf'].forEach(id=>document.getElementById(id).value='');}
+  else{msg.style.color='var(--rd)';msg.textContent='❌ '+(data.error||'失敗しました');}
 }
 
-async function verifyLogin(pw) {
-  try {
-    // GETで設定を取得してパスワードを照合
-    const res = await fetch(API + '?action=settings&t=' + Date.now());
-    const data = await res.json();
-    const savedPw = data.admin_password || 'eporashe2024';
-    if (pw !== savedPw) {
-      document.getElementById('login-err').style.display = 'block';
-      return;
-    }
-    // ログイン成功
-    document.getElementById('login-pg').style.display = 'none';
-    document.getElementById('admin-pg').style.display = 'block';
-    fill(data);
-    if (data.updated_at) {
-      document.getElementById('last-saved').textContent = data.updated_at;
-      document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
-    }
-  } catch(e) {
-    document.getElementById('login-err').style.display = 'block';
-    document.getElementById('login-err').textContent = '⚠ 通信エラー。再度お試しください。';
-  }
-}
-
-function doLogout() {
-  sessionPw = '';
-  document.getElementById('login-pg').style.display = 'flex';
-  document.getElementById('admin-pg').style.display = 'none';
-  document.getElementById('pw-input').value = '';
-  document.getElementById('login-err').style.display = 'none';
-}
-
-// ====== LOAD ======
-async function loadSettings() {
-  const res = await fetch(API + '?t=' + Date.now());
-  const s = await res.json();
-  fill(s);
-}
-
-function fill(s) {
-  // 月ラベル
-  set('month_label', s.month_label || '');
-  // BD
-  const bd = s.bd_coupon || {};
-  set('bd_code',  bd.code  || '');
-  set('bd_label', bd.label || '');
-  set('bd_min',   bd.min_amt || 5400);
-  set('bd_gift',  bd.gift  || '');
-  // MC
-  const mc = s.monthly_coupon || {};
-  set('mc_code',  mc.code     || '');
-  set('mc_label', mc.label    || '');
-  set('mc_disc',  mc.discount || 500);
-  // Campaigns
-  [1,2,3].forEach(n => {
-    const cp = (s.campaigns || [])[n-1] || {};
-    set(`cp${n}_name`,     cp.name    || '');
-    set(`cp${n}_period`,   cp.period  || '');
-    set(`cp${n}_products`, cp.products|| '');
-    ['a','b','c'].forEach((r,ri) => {
-      const rule = (cp.rules || [])[ri] || {};
-      set(`cp${n}_r${r}_desc`, rule.desc       || '');
-      set(`cp${n}_r${r}_orig`, rule.orig_price || '');
-      set(`cp${n}_r${r}_disc`, rule.disc_price || '');
-      set(`cp${n}_r${r}_pct`,  rule.pct        || '');
-      set(`cp${n}_r${r}_kw`,   rule.product_keywords || '');
-      set(`cp${n}_r${r}_qty`,  rule.qty        || '');
-    });
-  });
-  // Novelty
-  const nv = s.novelty || {};
-  set('novelty_this', nv.this_month || '');
-  set('novelty_next', nv.next_month || '');
-  // Updated
-  if (s.updated_at) {
-    document.getElementById('last-saved').textContent = s.updated_at;
-    document.getElementById('hd-updated').textContent = '最終更新: ' + s.updated_at;
-  }
-}
-
-function set(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.value = val;
-}
-function get(id) {
-  const el = document.getElementById(id);
-  return el ? el.value : '';
-}
-
-// ====== SAVE ======
-async function saveSettings() {
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.textContent = '保存中…';
-
-  const body = {
-    password:       sessionPw,
-    month_label:    get('month_label'),
-    bd_code:        get('bd_code'),
-    bd_label:       get('bd_label'),
-    bd_min:         get('bd_min'),
-    bd_gift:        get('bd_gift'),
-    mc_code:        get('mc_code'),
-    mc_label:       get('mc_label'),
-    mc_disc:        get('mc_disc'),
-    novelty_this:   get('novelty_this'),
-    novelty_next:   get('novelty_next'),
-  };
-  // campaigns
-  [1,2,3].forEach(n => {
-    body[`cp${n}_name`]     = get(`cp${n}_name`);
-    body[`cp${n}_period`]   = get(`cp${n}_period`);
-    body[`cp${n}_products`] = get(`cp${n}_products`);
-    ['a','b','c'].forEach(r => {
-      ['desc','orig','disc','pct','kw','qty'].forEach(f => {
-        body[`cp${n}_r${r}_${f}`] = get(`cp${n}_r${r}_${f}`);
-      });
-    });
-  });
-
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  const data = await res.json();
-
-  btn.disabled = false;
-  btn.textContent = '💾 保存する（全員に反映）';
-
-  if (data.ok) {
-    document.getElementById('last-saved').textContent = data.updated_at;
-    document.getElementById('hd-updated').textContent = '最終更新: ' + data.updated_at;
-    showToast('✅ 保存しました！全スタッフのアプリに反映されます', 'ok');
-  } else {
-    showToast('❌ ' + (data.error || '保存に失敗しました'), 'err');
-  }
-}
-
-// ====== CHANGE PASSWORD ======
-async function changePw() {
-  const cur = document.getElementById('pw_current').value;
-  const nw  = document.getElementById('pw_new').value;
-  const cf  = document.getElementById('pw_confirm').value;
-  const msg = document.getElementById('pw-msg');
-  msg.style.display = 'block';
-  if (!cur || !nw) { msg.style.color='var(--red)'; msg.textContent='全て入力してください'; return; }
-  if (nw !== cf)   { msg.style.color='var(--red)'; msg.textContent='新しいパスワードが一致しません'; return; }
-  const res = await fetch(API, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ action: 'change_password', current_password: cur, new_password: nw })
-  });
-  const data = await res.json();
-  if (data.ok) {
-    sessionPw = nw;
-    msg.style.color = 'var(--ok)';
-    msg.textContent = '✅ パスワードを変更しました';
-    document.getElementById('pw_current').value = '';
-    document.getElementById('pw_new').value = '';
-    document.getElementById('pw_confirm').value = '';
-  } else {
-    msg.style.color = 'var(--red)';
-    msg.textContent = '❌ ' + (data.error || '失敗しました');
-  }
-}
-
-// ====== TOAST ======
-function showToast(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast toast-' + type + ' show';
-  setTimeout(() => { t.classList.remove('show'); }, 3500);
+// ========== HELPERS ==========
+function set(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function get(id){const el=document.getElementById(id);return el?el.value:'';}
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast toast-'+type+' show';
+  setTimeout(()=>t.classList.remove('show'),3500);
 }
 </script>
 </body>
