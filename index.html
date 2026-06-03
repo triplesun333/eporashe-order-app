@@ -665,7 +665,7 @@ function addCart(name,price,neko){
 function chQty(i,d){
   cart[i].qty+=d;
   if(cart[i].qty<=0)cart.splice(i,1);
-  renderRight();validate();
+  renderRight();cpCheck();validate();
 }
 
 // RIGHT PANEL RENDER (商品明細+合計)
@@ -679,7 +679,17 @@ function renderRight(){
     document.getElementById('total-divider').style.display='none';
     document.getElementById('cpn-area').style.display='none';
   }else{
-    el.innerHTML=cart.map(c=>'<div class="r-item"><span class="r-item-name">'+c.name+(c.qty>1?'<span class="r-item-qty">×'+c.qty+'</span>':'')+'</span><span class="r-item-price">¥'+(c.price*c.qty).toLocaleString()+'</span></div>').join('');
+    el.innerHTML=cart.map((c,i)=>`
+      <div class="r-item" style="margin-bottom:7px;">
+        <span class="r-item-name" style="flex:1;font-size:11px;color:rgba(255,255,255,.85);line-height:1.3;">${c.name}</span>
+        <div style="display:flex;align-items:center;gap:5px;flex-shrink:0;">
+          <button onclick="chQty(${i},-1)" style="width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">−</button>
+          <span style="font-size:12px;color:#fff;min-width:16px;text-align:center;">${c.qty}</span>
+          <button onclick="chQty(${i},1)" style="width:22px;height:22px;border-radius:50%;border:1.5px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;">＋</button>
+          <span style="font-size:12px;font-weight:800;color:#f0c87a;min-width:60px;text-align:right;">¥${(c.price*c.qty).toLocaleString()}</span>
+          <button onclick="chQty(${i},-99)" style="width:20px;height:20px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:rgba(255,255,255,.6);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="削除">✕</button>
+        </div>
+      </div>`).join('');
     document.getElementById('total-divider').style.display='block';
     document.getElementById('cpn-area').style.display='block';
   }
