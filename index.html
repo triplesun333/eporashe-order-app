@@ -772,20 +772,18 @@ function cpCheck(){
 }
 // ── キャンペーン期間チェック ──
 function parsePeriodDate(str, isEnd) {
-  // "6/5〜6/19" や "6/12(19時)〜6/30" などから日付を解析
   if (!str) return null;
   const now = new Date();
   const year = now.getFullYear();
-  // 〜で分割
   const parts = str.split(/[〜～]/);
   const target = isEnd ? (parts[1]||parts[0]) : parts[0];
-  // 数字と/を抽出
   const m = target.match(/(\d{1,2})\/(\d{1,2})/);
   if (!m) return null;
-  const d = new Date(year, Number(m[1])-1, Number(m[2]));
-  // 年をまたぐ場合（例: 12月→1月）
-  if (!isEnd && d < new Date() && Number(m[1]) >= 10) d.setFullYear(year-1);
-  if (isEnd && d < new Date() && Number(m[1]) <= 3) d.setFullYear(year+1);
+  const month = Number(m[1]);
+  const day   = Number(m[2]);
+  let d = new Date(year, month-1, day);
+  if (isEnd) d.setHours(23,59,59,999);
+  else d.setHours(0,0,0,0);
   return d;
 }
 
@@ -895,12 +893,15 @@ function calcTotals(){
   if (_zone) {
     _zone.querySelectorAll('.cp-upcoming').forEach(e=>e.remove());
     getUpcomingCampaigns().forEach(cp => {
-      const start = new Date(cp.date_start);
-      const diff = Math.ceil((start - new Date(new Date().setHours(0,0,0,0))) / (1000*60*60*24));
+      const start = cp.date_start ? new Date(cp.date_start) : parsePeriodDate(cp.period, false);
+      if (!start) return;
+      const todayMs = new Date(); todayMs.setHours(0,0,0,0);
+      const diff = Math.ceil((start - todayMs) / (1000*60*60*24));
       const d = document.createElement('div');
       d.className = 'cp-msg cp-upcoming';
       d.style.cssText = 'background:#fff8e1;border:1.5px solid #f59e0b;color:#92500a;';
-      d.innerHTML = '🔔 もうすぐ開始！<b>' + cp.name + '</b>（' + (cp.date_start||'').replace(/^\d{4}\//, '') + '〜）あと' + diff + '日';
+      const startLabel = cp.date_start ? cp.date_start.replace(/^\d{4}\//, '') : cp.period.split(/[〜～]/)[0].trim();
+      d.innerHTML = '🔔 もうすぐ開始！<b>' + cp.name + '</b>（' + startLabel + '〜）あと' + diff + '日';
       _zone.appendChild(d);
     });
   }
