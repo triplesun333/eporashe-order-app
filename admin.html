@@ -334,6 +334,8 @@ function settingsToCampaign(cp) {
     type: cp.type || 'A',
     name: cp.name || '',
     period: cp.period || '',
+    date_start: cp.date_start || '',
+    date_end:   cp.date_end   || '',
     products: cp.products || '',
     // A/B/F: rules配列
     rules: cp.rules || [],
@@ -433,7 +435,7 @@ function buildCampaignHTML(cp, i) {
   return `
     <div class="cp-block-head" onclick="toggleBlock(this)">
       <span class="cp-type-badge badge-${type}">${type}</span>
-      <span class="cp-block-title">${cp.name||'（名前未入力）'} <span style="font-size:10px;font-weight:400;color:var(--tx3);">${cp.period||''}</span></span>
+      <span class="cp-block-title">${cp.name||'（名前未入力）'} <span style="font-size:10px;font-weight:400;color:var(--tx3);">${cp.date_start||cp.period||''} 〜 ${cp.date_end||''}</span></span>
       <button class="cp-del-btn" onclick="event.stopPropagation();delCampaign(${i})">✕</button>
     </div>
     <div class="cp-block-body">
@@ -442,7 +444,8 @@ function buildCampaignHTML(cp, i) {
           <select onchange="updateCpType(${i},this.value)">${typeOpts}</select>
         </div>
         <div class="fg"><label>キャンペーン名</label><input type="text" value="${cp.name||''}" onchange="updateCp(${i},'name',this.value);this.closest('.cp-block').querySelector('.cp-block-title').innerHTML=this.value+' <span style=\'font-size:10px;font-weight:400;color:var(--tx3);\'>'+this.closest('.cp-block-body').querySelector('[onchange*=period]').value+'</span>'" placeholder="例: 美髪革命CP"></div>
-        <div class="fg"><label>期間</label><input type="text" value="${cp.period||''}" onchange="updateCp(${i},'period',this.value)" placeholder="例: 7/1〜7/31"></div>
+        <div class="fg"><label>開始日</label><input type="date" value="${cp.date_start||''}" onchange="updateCp(${i},'date_start',this.value)"></div>
+        <div class="fg"><label>終了日</label><input type="date" value="${cp.date_end||''}" onchange="updateCp(${i},'date_end',this.value)"></div>
         <div class="fg"><label>対象商品名（表示用）</label><input type="text" value="${cp.products||''}" onchange="updateCp(${i},'products',this.value)" placeholder="例: サプルプラス,ノーブルプラス"></div>
       </div>
       ${typeSpecific}
@@ -460,6 +463,7 @@ function updateCp(i, key, val) {
 function updateCpType(i, val) {
   campaigns[i].type = val;
   // タイプ変更時はデフォルト値を設定
+  // date_start/date_endは引き継ぐ
   if (val === 'A' || val === 'B' || val === 'F') {
     if (!campaigns[i].rules || !campaigns[i].rules.length) {
       campaigns[i].rules = [{desc:'',orig_price:0,disc_price:0,pct:0,product_keywords:'',qty:1}];
@@ -487,7 +491,11 @@ async function saveSettings() {
 
   // キャンペーンをAPI用に変換
   const apiCampaigns = campaigns.map(cp => {
-    const base = { type: cp.type, name: cp.name, period: cp.period, products: cp.products };
+    // periodはdate_start〜date_endから自動生成
+    const periodStr = cp.date_start && cp.date_end
+      ? cp.date_start.replace(/^\d{4}\//,'') + '〜' + cp.date_end.replace(/^\d{4}\//,'')
+      : (cp.period || '');
+    const base = { type: cp.type, name: cp.name, period: periodStr, date_start: cp.date_start||'', date_end: cp.date_end||'', products: cp.products };
     if (cp.type === 'A' || cp.type === 'B' || cp.type === 'F') {
       base.rules = cp.rules;
     } else if (cp.type === 'C') {
