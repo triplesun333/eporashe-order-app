@@ -1266,7 +1266,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   window.cpCheck=()=>{
     const zone=document.getElementById('cp-zone');zone.innerHTML='';
     st.cpDisc=0;st.cpLabel='';
-    const campaigns=SETTINGS?(SETTINGS.campaigns||[]):[];
+    const campaigns=getActiveCampaigns();
     if(!campaigns.length){cpCheckDefault();return;}
     campaigns.forEach(cp=>{
       if(!cp.name)return;
