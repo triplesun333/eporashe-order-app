@@ -77,6 +77,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .pi:hover{background:var(--nvp);}
 .pi.cp{border-left:3px solid var(--cp);}
 .pi-name{flex:1;font-size:12px;}
+.pi-code{font-size:10px;color:var(--tx4);margin-left:5px;font-weight:400;}
 .pi-p{font-size:11px;font-weight:700;color:var(--gd);white-space:nowrap;}
 .tag{display:inline-flex;align-items:center;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;}
 .tn{background:#fff0d4;color:#8a5000;}
@@ -632,7 +633,7 @@ function renderProds(){
       const d=document.createElement('div');
       d.className='pi'+(p.cp?' cp':'');
       const pr=p.price?'¥'+p.price.toLocaleString():'¥'+p.variants[0].price.toLocaleString()+'〜';
-      d.innerHTML='<span class="pi-name">'+p.name+'</span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
+      d.innerHTML='<span class="pi-name">'+p.name+'<span class="pi-code">['+p.id+']</span></span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
       d.onclick=e=>pickP(p,e);
       pl.appendChild(d);
     });
