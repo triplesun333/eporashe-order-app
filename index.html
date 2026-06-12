@@ -94,6 +94,8 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .pi.cp{border-left:3px solid var(--cp);}
 .pi-name{flex:1;font-size:12px;}
 .pi-code{display:inline-block;font-size:10px;color:var(--tx3);background:var(--sf);border:1px solid var(--bd);border-radius:4px;padding:1px 5px;margin-left:6px;font-weight:700;font-family:monospace;vertical-align:middle;}
+.pi-thumb{width:32px;height:32px;border-radius:4px;object-fit:cover;flex-shrink:0;background:var(--sf);border:1px solid var(--bd);}
+.pi-thumb-ph{display:inline-block;}
 .pi-p{font-size:11px;font-weight:700;color:var(--gd);white-space:nowrap;}
 .tag{display:inline-flex;align-items:center;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:800;white-space:nowrap;flex-shrink:0;}
 .tn{background:#fff0d4;color:#8a5000;}
@@ -716,7 +718,8 @@ function renderProds(){
       const d=document.createElement('div');
       d.className='pi'+(p.cp?' cp':'');
       const pr=p.price?'¥'+p.price.toLocaleString():'¥'+p.variants[0].price.toLocaleString()+'〜';
-      d.innerHTML='<span class="pi-name">'+p.name+'<span class="pi-code">['+p.id+']</span></span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
+      const thumb=p.img?'<img src="'+p.img+'" class="pi-thumb" loading="lazy" onerror="this.style.display=\'none\'">':'<span class="pi-thumb pi-thumb-ph"></span>';
+      d.innerHTML=thumb+'<span class="pi-name">'+p.name+'<span class="pi-code">['+p.id+']</span></span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
       d.onclick=e=>pickP(p,e);
       pl.appendChild(d);
     });
@@ -1379,16 +1382,18 @@ function convertProducts(raw){
         neko: r.neko,
         cp:   r.cp,
         variants: [],
-        price: null
+        price: null,
+        img: r.img || ''
       };
       order.push(key);
     }
     if(r.spec && r.spec !== ''){
-      map[key].variants.push({name: r.spec, price: Number(r.price), neko: r.neko, id: r.id, emp: r.emp, friendPct: r.friendPct});
+      map[key].variants.push({name: r.spec, price: Number(r.price), neko: r.neko, id: r.id, emp: r.emp, friendPct: r.friendPct, img: r.img||''});
     } else {
       map[key].price = Number(r.price);
       map[key].emp = r.emp;
       map[key].friendPct = r.friendPct;
+      if(r.img) map[key].img = r.img;
     }
     // ネコポスはどれか1つでもtrueならtrue
     if(r.neko) map[key].neko = true;
