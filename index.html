@@ -1193,7 +1193,8 @@ function openConfirm(){
     '<table class="itbl"><tr><th>商品名</th><th style="text-align:center;">数量</th><th style="text-align:right;">単価</th><th style="text-align:right;">小計</th></tr>'+itemsRows+'</table>'+
     '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等'+(ship.amt!=null?'¥'+ship.amt.toLocaleString():'要確認')+'</div></div><div class="rt-v">'+( ship.amt!=null?'¥'+grand.toLocaleString():'確認中')+'</div></div>'+
     (document.getElementById('i-note').value?'<div style="background:var(--wnl);border:1.5px solid #f59e0b;border-radius:var(--rs);padding:8px 11px;font-size:11px;color:var(--wn);margin-bottom:10px;"><b>📝 備考：</b>'+document.getElementById('i-note').value+'</div>':'')+
-    '<div class="rcpt-ope"><b>📞 受注完了トーク</b><br>「かしこまりました。本日は<b>'+name+'</b>様のご注文、〇〇が承りました。ご注文ありがとうございました！」</div>';
+    '<div class="rcpt-ope"><b>📞 受注完了トーク</b><br>「かしこまりました。本日は<b>'+name+'</b>様のご注文、〇〇が承りました。ご注文ありがとうございました！」</div>'+
+    '<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:8px;">※価格やキャンペーン内容は変更されている場合があります。確定前に最終確認をお願いいたします。</div>';
   document.getElementById('ov-confirm').classList.add('on');
 }
 function closeConfirm(){document.getElementById('ov-confirm').classList.remove('on');}
