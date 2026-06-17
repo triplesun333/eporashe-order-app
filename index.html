@@ -474,8 +474,8 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
             <div id="staff-ship-toggle" style="display:none;margin-top:6px;gap:6px;">
-              <div class="to staff-ship-opt on" id="staff-ship-send" onclick="setStaffShip('send')" style="flex:1;text-align:center;">📦 発送する（送料・手数料あり）</div>
-              <div class="to staff-ship-opt" id="staff-ship-pickup" onclick="setStaffShip('pickup')" style="flex:1;text-align:center;">🤝 持ち帰り（送料・手数料なし）</div>
+              <div class="to staff-ship-opt" id="staff-ship-send" onclick="setStaffShip('send')" style="flex:1;text-align:center;">📦 発送する（送料・手数料あり）</div>
+              <div class="to staff-ship-opt on" id="staff-ship-pickup" onclick="setStaffShip('pickup')" style="flex:1;text-align:center;">🤝 持ち帰り（送料・手数料なし）</div>
             </div>
           </div>
           <!-- 小計〜合計 -->
@@ -505,6 +505,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               <div class="po" onclick="selPay('pre')" data-p="pre"><span class="poi">🏦</span><div class="pol">前振り（振込）</div><div class="pon">振込手数料お客様負担</div></div>
               <div class="po" onclick="selPay('post')" data-p="post"><span class="poi">🧾</span><div class="pol">後払い</div><div class="pon">手数料200円 / 審査あり</div></div>
               <div class="po" onclick="selPay('card')" data-p="card"><span class="poi">💳</span><div class="pol">クレジット</div><div class="pon">VISA/Master/JCB/AMEX</div></div>
+              <div class="po" onclick="selPay('cash')" data-p="cash" id="po-cash" style="display:none;"><span class="poi">💰</span><div class="pol">現金</div><div class="pon">社販・友人割専用</div></div>
             </div>
             <div class="pay-detail" id="card-d">
               <div class="ope-mini">
@@ -680,7 +681,7 @@ let STAFF_NAME = '';
 let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
-let staffShip='send'; // 'send'（発送する）/ 'pickup'（持ち帰り） ※社販・友人割モード中のみ有効
+let staffShip='pickup'; // 'send'（発送する）/ 'pickup'（持ち帰り） ※社販・友人割モード中のみ有効、デフォルトは持ち帰り
 
 // ============================================================
 //  STAFF LOGIN
@@ -856,15 +857,21 @@ function toggleStaffDisc(mode){
   ['emp','f20','f30'].forEach(m=>{
     document.getElementById('staff-'+m).classList.toggle('on', m===staffMode);
   });
-  // 社販・友人割モード中のみ「発送する／持ち帰り」トグルを表示
+  // 社販・友人割モード中のみ「発送する／持ち帰り」トグルと「現金」支払いを表示
   const shipToggle = document.getElementById('staff-ship-toggle');
+  const cashBtn = document.getElementById('po-cash');
   if(staffMode){
     shipToggle.style.display='flex';
+    if(cashBtn) cashBtn.style.display='flex';
   }else{
     shipToggle.style.display='none';
-    staffShip='send'; // モード解除時はデフォルト（発送する）に戻す
-    document.getElementById('staff-ship-send').classList.add('on');
-    document.getElementById('staff-ship-pickup').classList.remove('on');
+    if(cashBtn){
+      cashBtn.style.display='none';
+      if(st.pay==='cash'){ st.pay=''; document.querySelectorAll('.po').forEach(e=>e.classList.remove('on')); }
+    }
+    staffShip='pickup'; // モード解除時はデフォルト（持ち帰り）に戻す
+    document.getElementById('staff-ship-pickup').classList.add('on');
+    document.getElementById('staff-ship-send').classList.remove('on');
   }
   applyStaffDisc();
   renderRight();cpCheck();validate();
@@ -1146,6 +1153,7 @@ function checkDateRestriction(){
 }
 function calcShip(sub,pay,freeOverride){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
+  if(pay==='cash')return{label:'現金（手数料なし）',amt:0};
   if(freeOverride){
     if(pay==='post')return{label:'後払い手数料のみ',amt:200};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
@@ -1369,7 +1377,7 @@ function openConfirm(){
     : calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const grand=sub-disc+shipAmt;
-  const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード'};
+  const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',cash:'現金'};
   const timeN={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし'};
   const now=new Date();
   const name=document.getElementById('i-name').value||'—';
@@ -1439,11 +1447,11 @@ function submitOrder(){
 // NEW ORDER
 function newOrder(){
   cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};activeCpnKey='';
-  staffMode='';staffShip='send';
+  staffMode='';staffShip='pickup';
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
   const shipToggle=document.getElementById('staff-ship-toggle');if(shipToggle)shipToggle.style.display='none';
-  const ss=document.getElementById('staff-ship-send');if(ss)ss.classList.add('on');
-  const sp=document.getElementById('staff-ship-pickup');if(sp)sp.classList.remove('on');
+  const ss=document.getElementById('staff-ship-send');if(ss)ss.classList.remove('on');
+  const sp=document.getElementById('staff-ship-pickup');if(sp)sp.classList.add('on');
   const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
   const dm=document.getElementById('del-month');if(dm)dm.value='';
   const dd=document.getElementById('del-day');if(dd)dd.value='';
@@ -1505,7 +1513,7 @@ let _histOrders=[];
 function printHist(idx){
   const o = _histOrders[idx];
   if(!o) return;
-  const PAY={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード'};
+  const PAY={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',cash:'現金'};
   const TIME={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし',teiki:'定期'};
   const grand=Number(o.grand)||Number(o.subtotal)||0;
   const itemsStr=typeof o.items==='string'?o.items:(Array.isArray(o.items)?o.items.map(i=>i.name+'×'+i.qty).join(' / '):'');
