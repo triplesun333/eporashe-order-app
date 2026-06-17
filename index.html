@@ -1003,6 +1003,7 @@ function cpCheck(){
         ?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+(p?p.price:0);},0)*qty
         :(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
       const disc=origTotal-rule.disc_price;
+      console.log('[CP DEBUG]','cp=',cp.name,'rule=',rule.desc,'kws=',kws,'qty=',qty,'origTotal=',origTotal,'disc_price=',rule.disc_price,'disc=',disc);
       if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
       const _pl=cp.products?'【'+cp.products+'】':'';
       addCpMsg(zone,'✂️ '+cp.name+_pl+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
