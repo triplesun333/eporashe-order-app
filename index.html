@@ -747,16 +747,16 @@ function findActiveSetOptions(productName){
       de.setHours(23,59,59,999);
       if(today > de) return;
     }
+    // 構成商品名はcp.products（カンマ区切り）に入っている
+    const memberNames = (cp.products||'').split(',').map(s=>s.trim()).filter(Boolean);
+    const hit = memberNames.some(n=> productName.indexOf(n) !== -1 || n.indexOf(productName) !== -1 );
+    if(!hit) return;
     (cp.rules||[]).forEach(r=>{
-      const kw = (r.product_keywords||'').split(',').map(s=>s.trim()).filter(Boolean);
-      const hit = kw.some(k=> productName.indexOf(k) !== -1 );
-      if(hit){
-        opts.push({
-          name: '🎁 '+(r.desc || cp.name || 'セット'),
-          price: Number(r.disc_price)||0,
-          isSet: true,
-        });
-      }
+      opts.push({
+        name: '🎁 '+(r.desc || cp.name || 'セット'),
+        price: Number(r.disc_price)||0,
+        isSet: true,
+      });
     });
   });
   return opts;
