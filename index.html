@@ -980,35 +980,68 @@ function cpCheck(){
   campaigns.forEach(cp=>{
     if(!cp.name)return;
     const per=formatPeriod(cp);
-    // 同一キャンペーン内の複数ルール（例：1本/2本/3本）は、
-    // 条件を満たす中で最も数量の多い（お得な）ルール1つだけを適用する
-    let bestRule=null,bestQty=-1,bestTotalQty=0;
-    (cp.rules||[]).forEach(rule=>{
-      if(!rule.desc)return;
-      const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
+    const rules=cp.rules||[];
+    // 1) 単一キーワードのルール群を、キーワード（商品）ごとにグルーピングし、
+    //    各商品で条件を満たす最大qtyのルールを1つだけ選ぶ
+    const singleRules = rules.filter(r=>{
+      const kws=(r.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
+      return kws.length===1 && r.desc;
+    });
+    const multiRules = rules.filter(r=>{
+      const kws=(r.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
+      return kws.length>=2 && r.desc;
+    });
+
+    const byKeyword = {}; // keyword -> {rule, qty}
+    singleRules.forEach(rule=>{
+      const kw=(rule.product_keywords||'').trim();
       const qty=rule.qty||1;
-      let matched=true,totalQty=0;
-      if(kws.length===1){
-        totalQty=cart.filter(c=>c.name.includes(kws[0])).reduce((s,c)=>s+c.qty,0);
-        matched=totalQty>=qty;
-      }else if(kws.length>=2){
-        matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0)>=qty);
-        totalQty=qty;
-      }
-      if(matched&&rule.disc_price>0&&qty>bestQty){
-        bestRule=rule;bestQty=qty;bestTotalQty=totalQty;
-      }else if(!matched&&kws.length===1&&totalQty>0&&totalQty<qty&&bestRule===null){
-        // ヒント表示用（まだ何もマッチしていない場合のみ、最初の未達ルールを案内）
-        addCpMsg(zone,'💡 あと'+(qty-totalQty)+'本で '+cp.name+'（'+rule.pct+'%OFF）が適用されます','hint');
+      const totalQty=cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0);
+      const matched=totalQty>=qty;
+      if(matched){
+        if(!byKeyword[kw] || qty>byKeyword[kw].qty){
+          byKeyword[kw]={rule,qty,totalQty};
+        }
+      }else if(totalQty>0 && (!byKeyword[kw] || !byKeyword[kw].rule)){
+        // ヒント表示用に未達情報も保持（matched無しの場合のみ）
+        if(!byKeyword[kw]) byKeyword[kw]={rule:null,qty:0,totalQty:0,hint:{need:qty-totalQty,pct:rule.pct}};
       }
     });
-    if(bestRule){
-      const rule=bestRule;
+
+    const coveredKeywords = new Set();
+    Object.keys(byKeyword).forEach(kw=>{
+      const info=byKeyword[kw];
+      if(info.rule){
+        coveredKeywords.add(kw);
+        const rule=info.rule;
+        const origTotal=getProductPrice(PRODUCTS.find(p=>p.name.includes(kw)))*info.qty;
+        const disc=origTotal-rule.disc_price;
+        if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
+        const _pl=cp.products?'【'+cp.products+'】':'';
+        addCpMsg(zone,'✂️ '+cp.name+_pl+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
+      }else if(info.hint){
+        addCpMsg(zone,'💡 あと'+info.hint.need+'本で '+cp.name+'（'+info.hint.pct+'%OFF）が適用されます','hint');
+      }
+    });
+
+    // 2) 複数キーワードのルールは、対象キーワードのいずれかが
+    //    まだ単一ルールでカバーされていない場合のみ検討する
+    let bestMulti=null,bestMultiQty=-1;
+    multiRules.forEach(rule=>{
+      const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
+      const anyUncovered = kws.some(kw=>!coveredKeywords.has(kw));
+      if(!anyUncovered) return; // 全部すでに単一ルールでカバー済みならスキップ
+      const qty=rule.qty||1;
+      const matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0)>=qty);
+      if(matched&&rule.disc_price>0&&qty>bestMultiQty){
+        bestMulti=rule;bestMultiQty=qty;
+      }
+    });
+    if(bestMulti){
+      const rule=bestMulti;
       const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
       const qty=rule.qty||1;
-      const origTotal=kws.length>=2
-        ?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+getProductPrice(p);},0)*qty
-        :getProductPrice(PRODUCTS.find(p=>p.name.includes(kws[0])))*qty;
+      const origTotal=kws.reduce((s,kw)=>s+getProductPrice(PRODUCTS.find(p=>p.name.includes(kw))),0)*qty;
       const disc=origTotal-rule.disc_price;
       if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
       const _pl=cp.products?'【'+cp.products+'】':'';
