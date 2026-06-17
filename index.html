@@ -964,6 +964,13 @@ function formatPeriod(cp){
   }
   return '';
 }
+// 商品の定価を取得（規格なし商品はp.price、規格あり商品はvariants[0].priceを使う）
+function getProductPrice(p){
+  if(!p) return 0;
+  if(p.price != null) return p.price;
+  if(p.variants && p.variants.length) return p.variants[0].price;
+  return 0;
+}
 function cpCheck(){
   const zone=document.getElementById('cp-zone');
   zone.innerHTML='';
@@ -1000,10 +1007,9 @@ function cpCheck(){
       const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
       const qty=rule.qty||1;
       const origTotal=kws.length>=2
-        ?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+(p?p.price:0);},0)*qty
-        :(PRODUCTS.find(p=>p.name.includes(kws[0]))||{price:0}).price*qty;
+        ?kws.reduce((s,kw)=>{const p=PRODUCTS.find(p=>p.name.includes(kw));return s+getProductPrice(p);},0)*qty
+        :getProductPrice(PRODUCTS.find(p=>p.name.includes(kws[0])))*qty;
       const disc=origTotal-rule.disc_price;
-      console.log('[CP DEBUG]','cp=',cp.name,'rule=',rule.desc,'kws=',kws,'qty=',qty,'origTotal=',origTotal,'disc_price=',rule.disc_price,'disc=',disc);
       if(disc>0){st.cpDisc+=disc;st.cpLabel+=(st.cpLabel?'＋':'')+rule.desc+'CP';}
       const _pl=cp.products?'【'+cp.products+'】':'';
       addCpMsg(zone,'✂️ '+cp.name+_pl+' 適用：'+rule.desc+' ¥'+rule.disc_price.toLocaleString()+'（'+rule.pct+'%OFF）','ok');
