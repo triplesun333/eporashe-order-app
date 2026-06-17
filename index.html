@@ -1061,13 +1061,13 @@ function calcShip(sub,pay){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
   if(sub>=7700){
     if(pay==='post')return{label:'後払い手数料',amt:200};
-    if(pay==='pre')return{label:'振込手数料（個別）',amt:null};
+    if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
     return{label:'送料無料',amt:0};
   }
   if(pay==='cod')return{label:'送料660+代引440=¥1,100',amt:1100};
   if(pay==='card')return{label:'送料¥660',amt:660};
   if(pay==='post')return{label:'送料660+後払200=¥860',amt:860};
-  if(pay==='pre')return{label:'送料¥660+振込手数料',amt:null};
+  if(pay==='pre')return{label:'送料¥660（振込手数料はお客様負担）',amt:660};
   return{label:'—',amt:null};
 }
 function calcTotals(){
