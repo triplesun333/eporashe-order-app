@@ -774,7 +774,7 @@ function findActiveSetOptions(productName){
   today.setHours(0,0,0,0);
   const opts = [];
   SETTINGS.campaigns.forEach(cp=>{
-    if(cp.type !== 'F') return;
+    if(cp.type !== 'F' && cp.type !== 'A') return;
     // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
     if(cp.date_start){
       const ds = new Date(cp.date_start.replace(/\//g,'-'));
@@ -790,6 +790,7 @@ function findActiveSetOptions(productName){
     const hit = memberNames.some(n=> productName.indexOf(n) !== -1 || n.indexOf(productName) !== -1 );
     if(!hit) return;
     (cp.rules||[]).forEach(r=>{
+      if(!r.disc_price) return;
       opts.push({
         name: '🎁 '+(r.desc || cp.name || 'セット'),
         price: Number(r.disc_price)||0,
