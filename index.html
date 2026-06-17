@@ -1055,6 +1055,8 @@ function addCpMsg(zone,msg,type){
 
 // TOTALS
 function calcSub(){return cart.reduce((s,c)=>s+c.price*c.qty,0);}
+// 社販・友人割適用前の元の小計（送料無料判定はこちらを使う）
+function calcOrigSub(){return cart.reduce((s,c)=>s+c.origPrice*c.qty,0);}
 function calcShip(sub,pay){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
   if(sub>=7700){
@@ -1069,7 +1071,10 @@ function calcShip(sub,pay){
   return{label:'—',amt:null};
 }
 function calcTotals(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
+  const sub=calcSub();
+  // 社販・友人割モード中は送料・代引き手数料の無料ラインを適用しない（常に有料）
+  const shipBasis = staffMode ? 0 : sub;
+  const ship=calcShip(shipBasis,st.pay);
   const disc=st.cpDisc+st.cpnDisc;
   const grand=sub-disc+(ship.amt||0);
   document.getElementById('t-sub').textContent='¥'+sub.toLocaleString();
@@ -1084,16 +1089,23 @@ function calcTotals(){
   const cnr=document.getElementById('t-cpn-row');
   if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
   else cnr.style.display='none';
-  // 送料通知
+  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない）
   const sn=document.getElementById('ship-notice');
-  if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
+  if(staffMode){
+    sn.innerHTML='';
+  }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
   else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
-  // COD script
+  // COD script（社販・友人割モード中は常に有料扱い）
   if(st.pay==='cod'){
     const ct=document.getElementById('cod-txt');
-    if(sub>=7700)ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
-    else ct.innerHTML='合計¥'+sub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-sub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
+    if(staffMode){
+      ct.innerHTML='社販・友人割適用のため、送料代引き手数料（¥1,100）がかかります。';
+    }else if(sub>=7700){
+      ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
+    }else{
+      ct.innerHTML='合計¥'+sub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-sub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
+    }
   }
   // 予告キャンペーン表示
   const _zone = document.getElementById('cp-zone');
