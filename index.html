@@ -188,6 +188,8 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .to{padding:5px 10px;border:2px solid var(--bd);border-radius:14px;cursor:pointer;font-size:10px;font-weight:700;background:#fff;color:var(--tx2);transition:.13s;white-space:nowrap;}
 .to:hover{border-color:var(--nv);background:var(--nvp);color:var(--nv);}
 .to.on{border-color:var(--nv);background:var(--nv);color:#fff;}
+.teiki-toggle{display:inline-block;padding:7px 14px;}
+.teiki-toggle.on{border-color:var(--ok);background:var(--ok);color:#fff;}
 
 /* ツールチップ */
 .tip-wrap{position:relative;display:inline-flex;align-items:center;}
@@ -545,7 +547,35 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               <div class="to" onclick="selTime('19-21')" data-t="19-21">19〜21時</div>
               <div class="to" onclick="selTime('box')" data-t="box">宅配BOX</div>
               <div class="to" onclick="selTime('none')" data-t="none">指定なし</div>
-              <div class="to" onclick="selTime('teiki')" data-t="teiki">定期</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ④-2 定期同梱 -->
+        <div class="r-sec">
+          <div class="r-sec-head">📦 定期同梱</div>
+          <div class="r-sec-body">
+            <div class="to teiki-toggle" id="teiki-toggle" onclick="toggleTeiki()">いつもの定期便に同梱する（送料無料）</div>
+          </div>
+        </div>
+
+        <!-- ④-3 お届け希望日 -->
+        <div class="r-sec">
+          <div class="r-sec-head">📅 お届け希望日（任意）</div>
+          <div class="r-sec-body">
+            <div id="del-date-restrict" style="display:none;font-size:11px;font-weight:700;color:var(--rd);background:var(--rdl);border:1.5px solid var(--rd);border-radius:var(--rs);padding:7px 10px;margin-bottom:8px;"></div>
+            <div id="del-date-inputs" style="display:flex;gap:8px;align-items:center;">
+              <select id="del-month" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
+                <option value="">月</option>
+                <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+                <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+                <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+                <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+              </select>
+              <select id="del-day" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
+                <option value="">日</option>
+              </select>
+              <span style="font-size:10px;color:var(--tx3);">未選択の場合は最短発送</span>
             </div>
           </div>
         </div>
@@ -641,7 +671,7 @@ const GAS='https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkj
 let PRODUCTS = []; // スプレッドシートから動的に読み込み
 let STAFF_NAME = '';
 // STATE
-let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:''};
+let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
 
@@ -1057,8 +1087,48 @@ function addCpMsg(zone,msg,type){
 function calcSub(){return cart.reduce((s,c)=>s+c.price*c.qty,0);}
 // 社販・友人割適用前の元の小計（送料無料判定はこちらを使う）
 function calcOrigSub(){return cart.reduce((s,c)=>s+c.origPrice*c.qty,0);}
-function calcShip(sub,pay){
+// カート内全商品がネコポス対応商品かどうか（1点以上あり、全部neko=trueの場合のみtrue）
+function isAllNeko(){
+  if(!cart.length) return false;
+  return cart.every(c=>c.neko===true);
+}
+// 配送日時指定の制約チェック
+// ・ネコポス対象商品のみの注文：ポスト投函のため日付指定は不可
+// ・前振り（振込）：振込確認後の発送のため日付指定は不可、時間帯のみ指定可
+function checkDateRestriction(){
+  const allNeko = isAllNeko();
+  const isPre = (st.pay === 'pre');
+  const restrictEl = document.getElementById('del-date-restrict');
+  const inputsEl = document.getElementById('del-date-inputs');
+  const monthEl = document.getElementById('del-month');
+  const dayEl = document.getElementById('del-day');
+  if(!restrictEl || !inputsEl || !monthEl || !dayEl) return;
+
+  if(allNeko){
+    restrictEl.style.display='block';
+    restrictEl.textContent='📮 ネコポス対応商品のみのご注文のため、ポスト投函となり日時のご指定はできません。';
+    inputsEl.style.display='none';
+    monthEl.value=''; dayEl.value='';
+    st.delMonth=''; st.delDay='';
+  }else if(isPre){
+    restrictEl.style.display='block';
+    restrictEl.textContent='🏦 前振り（振込）のお客様は、振込確認後の発送となるため日付のご指定はできません。時間帯のみご指定いただけます。';
+    inputsEl.style.display='none';
+    monthEl.value=''; dayEl.value='';
+    st.delMonth=''; st.delDay='';
+  }else{
+    restrictEl.style.display='none';
+    inputsEl.style.display='flex';
+  }
+}
+function calcShip(sub,pay,freeOverride){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
+  if(freeOverride){
+    if(pay==='post')return{label:'後払い手数料のみ',amt:200};
+    if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
+    if(pay==='cod')return{label:'送料無料（代引手数料のみ¥440）',amt:440};
+    return{label:'送料無料',amt:0};
+  }
   if(sub>=7700){
     if(pay==='post')return{label:'後払い手数料',amt:200};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
@@ -1074,11 +1144,15 @@ function calcTotals(){
   const sub=calcSub();
   // 社販・友人割モード中は送料・代引き手数料の無料ラインを適用しない（常に有料）
   const shipBasis = staffMode ? 0 : sub;
-  const ship=calcShip(shipBasis,st.pay);
+  // ネコポス対象商品のみの注文、または定期同梱ONの場合は送料無料（社販・友人割モード中は除く）
+  const allNeko = isAllNeko();
+  const freeOverride = !staffMode && (allNeko || st.teiki);
+  const ship=calcShip(shipBasis,st.pay,freeOverride);
+  checkDateRestriction();
   const disc=st.cpDisc+st.cpnDisc;
   const grand=sub-disc+(ship.amt||0);
   document.getElementById('t-sub').textContent='¥'+sub.toLocaleString();
-  document.getElementById('t-ship-l').textContent=ship.label;
+  document.getElementById('t-ship-l').textContent=ship.label+(freeOverride?(allNeko?'（ネコポスのみ）':'（定期同梱）'):'');
   document.getElementById('t-ship-v').textContent=ship.amt!=null?(ship.amt===0?'無料':'¥'+ship.amt.toLocaleString()):'要確認';
   const gEl=document.getElementById('t-grand');
   if(ship.amt!=null){gEl.textContent='¥'+grand.toLocaleString();gEl.className='tgv';}
@@ -1093,6 +1167,8 @@ function calcTotals(){
   const sn=document.getElementById('ship-notice');
   if(staffMode){
     sn.innerHTML='';
+  }else if(freeOverride && st.pay){
+    sn.innerHTML='<div class="ship-notice sn-ok">🎉 '+(allNeko?'ネコポス対応商品のみのため送料無料です！':'定期同梱のため送料無料です！')+'</div>';
   }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
   else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
@@ -1101,6 +1177,8 @@ function calcTotals(){
     const ct=document.getElementById('cod-txt');
     if(staffMode){
       ct.innerHTML='社販・友人割適用のため、送料代引き手数料（¥1,100）がかかります。';
+    }else if(freeOverride){
+      ct.innerHTML=(allNeko?'ネコポス対応商品のみのご注文のため、送料は無料です（代引き手数料¥440のみ）。':'定期同梱のため送料無料です（代引き手数料¥440のみ）。');
     }else if(sub>=7700){
       ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
     }else{
@@ -1149,8 +1227,17 @@ function selPay(p){
 }
 function selTime(t){
   st.time=t;
-  document.querySelectorAll('.to').forEach(el=>el.classList.toggle('on',el.dataset.t===t));
-  validate();
+  document.querySelectorAll('.time-grid .to').forEach(el=>el.classList.toggle('on',el.dataset.t===t));
+  validate();calcTotals();
+}
+function toggleTeiki(){
+  st.teiki = !st.teiki;
+  document.getElementById('teiki-toggle').classList.toggle('on', st.teiki);
+  calcTotals();
+}
+function updateDelDate(){
+  st.delMonth = document.getElementById('del-month').value;
+  st.delDay   = document.getElementById('del-day').value;
 }
 
 // COUPON
@@ -1242,11 +1329,15 @@ function validate(){
 
 // CONFIRM
 function openConfirm(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
+  const sub=calcSub();
+  const shipBasis = staffMode ? 0 : sub;
+  const allNeko = isAllNeko();
+  const freeOverride = !staffMode && (allNeko || st.teiki);
+  const ship=calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const grand=sub-disc+shipAmt;
   const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード'};
-  const timeN={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし',teiki:'定期'};
+  const timeN={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし'};
   const now=new Date();
   const name=document.getElementById('i-name').value||'—';
   const phone=document.getElementById('i-phone').value||'—';
@@ -1263,7 +1354,8 @@ function openConfirm(){
     '</div></div>'+
     '<div class="rb"><div class="rb-h">📦 配送情報</div><div class="rb-b">'+
     '<div class="rr"><div class="rrl">最短お届け</div><div class="rrv" style="font-weight:800;color:var(--ok);">'+delDate+'</div></div>'+
-    '<div class="rr"><div class="rrl">時間帯</div><div class="rrv">'+(timeN[st.time]||'—')+'</div></div>'+
+    (st.delMonth&&st.delDay?'<div class="rr"><div class="rrl">お届け希望日</div><div class="rrv" style="font-weight:800;">'+st.delMonth+'月'+st.delDay+'日</div></div>':'')+
+    '<div class="rr"><div class="rrl">時間帯</div><div class="rrv">'+(timeN[st.time]||'—')+(st.teiki?'（定期同梱）':'')+'</div></div>'+
     '<div class="rr"><div class="rrl">支払方法</div><div class="rrv">'+(payN[st.pay]||'—')+'</div></div>'+
     '<div class="rr"><div class="rrl">チャネル</div><div class="rrv">'+{tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'}[document.getElementById('i-ch').value]+'</div></div>'+
     '</div></div></div>'+
@@ -1278,7 +1370,11 @@ function closeConfirm(){document.getElementById('ov-confirm').classList.remove('
 
 // SUBMIT
 function submitOrder(){
-  const sub=calcSub(),ship=calcShip(sub,st.pay);
+  const sub=calcSub();
+  const shipBasis = staffMode ? 0 : sub;
+  const allNeko = isAllNeko();
+  const freeOverride = !staffMode && (allNeko || st.teiki);
+  const ship=calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const order={
     id:Date.now(),date:new Date().toLocaleString('ja-JP'),
@@ -1288,7 +1384,8 @@ function submitOrder(){
     zip:document.getElementById('i-zip').value,
     channel:document.getElementById('i-ch').value,
     items:JSON.parse(JSON.stringify(cart)),
-    pay:st.pay,time:st.time,
+    pay:st.pay,time:st.time,teiki:st.teiki,
+    delMonth:st.delMonth||'',delDay:st.delDay||'',
     subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
     coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
     staff:STAFF_NAME,
@@ -1304,9 +1401,12 @@ function submitOrder(){
 
 // NEW ORDER
 function newOrder(){
-  cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:''};activeCpnKey='';
+  cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};activeCpnKey='';
   staffMode='';
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
+  const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
+  const dm=document.getElementById('del-month');if(dm)dm.value='';
+  const dd=document.getElementById('del-day');if(dd)dd.value='';
   ['i-phone','i-name','i-addr','i-bday','i-note','i-zip'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const zs=document.getElementById('zip-status');if(zs)zs.innerHTML='';
   document.getElementById('cpn-hint').innerHTML='';
@@ -1529,6 +1629,15 @@ function applySettings(){
 // INIT
 document.addEventListener('DOMContentLoaded',async()=>{
   checkStaffSession();
+  // お届け希望日「日」の選択肢を動的生成
+  const dayEl=document.getElementById('del-day');
+  if(dayEl){
+    for(let d=1;d<=31;d++){
+      const o=document.createElement('option');
+      o.value=d; o.textContent=d+'日';
+      dayEl.appendChild(o);
+    }
+  }
   // まずGASから設定・商品を取得してからリストを描画
   await loadSettingsFromServer();
   initProds();  // 商品取得後に描画
