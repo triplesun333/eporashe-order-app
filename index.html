@@ -1153,7 +1153,6 @@ function checkDateRestriction(){
 }
 function calcShip(sub,pay,freeOverride){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
-  if(pay==='cash')return{label:'現金（手数料なし）',amt:0};
   if(freeOverride){
     if(pay==='post')return{label:'後払い手数料のみ',amt:200};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
@@ -1169,6 +1168,7 @@ function calcShip(sub,pay,freeOverride){
   if(pay==='card')return{label:'送料¥660',amt:660};
   if(pay==='post')return{label:'送料660+後払200=¥860',amt:860};
   if(pay==='pre')return{label:'送料¥660（振込手数料はお客様負担）',amt:660};
+  if(pay==='cash')return{label:'送料¥660',amt:660};
   return{label:'—',amt:null};
 }
 function calcTotals(){
