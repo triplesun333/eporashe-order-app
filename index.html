@@ -190,6 +190,8 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .to.on{border-color:var(--nv);background:var(--nv);color:#fff;}
 .teiki-toggle{display:inline-block;padding:7px 14px;}
 .teiki-toggle.on{border-color:var(--ok);background:var(--ok);color:#fff;}
+.staff-ship-opt{padding:7px 10px;font-size:10px;}
+.staff-ship-opt.on{border-color:#6d28d9;background:#6d28d9;color:#fff;}
 
 /* ツールチップ */
 .tip-wrap{position:relative;display:inline-flex;align-items:center;}
@@ -471,6 +473,10 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               <button class="staff-tag" id="staff-f30" onclick="toggleStaffDisc('f30')">友人割30%</button>
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
+            <div id="staff-ship-toggle" style="display:none;margin-top:6px;gap:6px;">
+              <div class="to staff-ship-opt on" id="staff-ship-send" onclick="setStaffShip('send')" style="flex:1;text-align:center;">📦 発送する（送料・手数料あり）</div>
+              <div class="to staff-ship-opt" id="staff-ship-pickup" onclick="setStaffShip('pickup')" style="flex:1;text-align:center;">🤝 持ち帰り（送料・手数料なし）</div>
+            </div>
           </div>
           <!-- 小計〜合計 -->
           <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
@@ -674,6 +680,7 @@ let STAFF_NAME = '';
 let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
+let staffShip='send'; // 'send'（発送する）/ 'pickup'（持ち帰り） ※社販・友人割モード中のみ有効
 
 // ============================================================
 //  STAFF LOGIN
@@ -849,8 +856,24 @@ function toggleStaffDisc(mode){
   ['emp','f20','f30'].forEach(m=>{
     document.getElementById('staff-'+m).classList.toggle('on', m===staffMode);
   });
+  // 社販・友人割モード中のみ「発送する／持ち帰り」トグルを表示
+  const shipToggle = document.getElementById('staff-ship-toggle');
+  if(staffMode){
+    shipToggle.style.display='flex';
+  }else{
+    shipToggle.style.display='none';
+    staffShip='send'; // モード解除時はデフォルト（発送する）に戻す
+    document.getElementById('staff-ship-send').classList.add('on');
+    document.getElementById('staff-ship-pickup').classList.remove('on');
+  }
   applyStaffDisc();
   renderRight();cpCheck();validate();
+}
+function setStaffShip(mode){
+  staffShip = mode;
+  document.getElementById('staff-ship-send').classList.toggle('on', mode==='send');
+  document.getElementById('staff-ship-pickup').classList.toggle('on', mode==='pickup');
+  calcTotals();
 }
 function applyStaffDisc(){
   cart.forEach(c=>{
@@ -1147,7 +1170,10 @@ function calcTotals(){
   // ネコポス対象商品のみの注文、または定期同梱ONの場合は送料無料（社販・友人割モード中は除く）
   const allNeko = isAllNeko();
   const freeOverride = !staffMode && (allNeko || st.teiki);
-  const ship=calcShip(shipBasis,st.pay,freeOverride);
+  const isPickup = staffMode && staffShip==='pickup';
+  const ship = isPickup
+    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+    : calcShip(shipBasis,st.pay,freeOverride);
   checkDateRestriction();
   const disc=st.cpDisc+st.cpnDisc;
   const grand=sub-disc+(ship.amt||0);
@@ -1163,19 +1189,23 @@ function calcTotals(){
   const cnr=document.getElementById('t-cpn-row');
   if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
   else cnr.style.display='none';
-  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない）
+  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない、持ち帰り時は別途案内）
   const sn=document.getElementById('ship-notice');
-  if(staffMode){
+  if(isPickup){
+    sn.innerHTML='<div class="ship-notice sn-ok">🤝 持ち帰りのため送料・手数料はかかりません。</div>';
+  }else if(staffMode){
     sn.innerHTML='';
   }else if(freeOverride && st.pay){
     sn.innerHTML='<div class="ship-notice sn-ok">🎉 '+(allNeko?'ネコポス対応商品のみのため送料無料です！':'定期同梱のため送料無料です！')+'</div>';
   }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
   else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
-  // COD script（社販・友人割モード中は常に有料扱い）
+  // COD script（社販・友人割モード中は常に有料扱い、持ち帰り時は手数料なし）
   if(st.pay==='cod'){
     const ct=document.getElementById('cod-txt');
-    if(staffMode){
+    if(isPickup){
+      ct.innerHTML='持ち帰りのため、送料・代引き手数料はかかりません。';
+    }else if(staffMode){
       ct.innerHTML='社販・友人割適用のため、送料代引き手数料（¥1,100）がかかります。';
     }else if(freeOverride){
       ct.innerHTML=(allNeko?'ネコポス対応商品のみのご注文のため、送料は無料です（代引き手数料¥440のみ）。':'定期同梱のため送料無料です（代引き手数料¥440のみ）。');
@@ -1333,7 +1363,10 @@ function openConfirm(){
   const shipBasis = staffMode ? 0 : sub;
   const allNeko = isAllNeko();
   const freeOverride = !staffMode && (allNeko || st.teiki);
-  const ship=calcShip(shipBasis,st.pay,freeOverride);
+  const isPickup = staffMode && staffShip==='pickup';
+  const ship = isPickup
+    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+    : calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const grand=sub-disc+shipAmt;
   const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード'};
@@ -1374,7 +1407,10 @@ function submitOrder(){
   const shipBasis = staffMode ? 0 : sub;
   const allNeko = isAllNeko();
   const freeOverride = !staffMode && (allNeko || st.teiki);
-  const ship=calcShip(shipBasis,st.pay,freeOverride);
+  const isPickup = staffMode && staffShip==='pickup';
+  const ship = isPickup
+    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+    : calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const order={
     id:Date.now(),date:new Date().toLocaleString('ja-JP'),
@@ -1386,6 +1422,7 @@ function submitOrder(){
     items:JSON.parse(JSON.stringify(cart)),
     pay:st.pay,time:st.time,teiki:st.teiki,
     delMonth:st.delMonth||'',delDay:st.delDay||'',
+    staffMode:staffMode||'',pickup:isPickup,
     subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
     coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
     staff:STAFF_NAME,
@@ -1402,8 +1439,11 @@ function submitOrder(){
 // NEW ORDER
 function newOrder(){
   cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};activeCpnKey='';
-  staffMode='';
+  staffMode='';staffShip='send';
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
+  const shipToggle=document.getElementById('staff-ship-toggle');if(shipToggle)shipToggle.style.display='none';
+  const ss=document.getElementById('staff-ship-send');if(ss)ss.classList.add('on');
+  const sp=document.getElementById('staff-ship-pickup');if(sp)sp.classList.remove('on');
   const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
   const dm=document.getElementById('del-month');if(dm)dm.value='';
   const dd=document.getElementById('del-day');if(dd)dd.value='';
