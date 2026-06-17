@@ -255,6 +255,9 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .vb:hover{border-color:var(--nv);background:var(--nvp);}
 .vbn{font-size:12px;font-weight:700;}
 .vbp{font-size:13px;font-weight:800;color:var(--gd);}
+.vb-set{border-color:var(--cp);background:var(--cpl);}
+.vb-set:hover{border-color:#5b21b6;background:#ece4fc;}
+.vb-set .vbp{color:#6d28d9;}
 
 /* 送料表 */
 .stbl{width:100%;border-collapse:collapse;font-size:10px;}
@@ -724,16 +727,68 @@ function renderProds(){
       pl.appendChild(d);
     });
 }
+// 現在有効なタイプFキャンペーンの中から、商品名が構成商品キーワードに
+// マッチするセット情報を探す。マッチした場合、規格選択モーダルに
+// セット商品の選択肢として追加する。
+function findActiveSetOptions(productName){
+  if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)) return [];
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const opts = [];
+  SETTINGS.campaigns.forEach(cp=>{
+    if(cp.type !== 'F') return;
+    // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
+    if(cp.date_start){
+      const ds = new Date(cp.date_start.replace(/\//g,'-'));
+      if(today < ds) return;
+    }
+    if(cp.date_end){
+      const de = new Date(cp.date_end.replace(/\//g,'-'));
+      de.setHours(23,59,59,999);
+      if(today > de) return;
+    }
+    (cp.rules||[]).forEach(r=>{
+      const kw = (r.product_keywords||'').split(',').map(s=>s.trim()).filter(Boolean);
+      const hit = kw.some(k=> productName.indexOf(k) !== -1 );
+      if(hit){
+        opts.push({
+          name: '🎁 '+(r.desc || cp.name || 'セット'),
+          price: Number(r.disc_price)||0,
+          isSet: true,
+        });
+      }
+    });
+  });
+  return opts;
+}
+
 function pickP(p,e){
-  if(!p.variants){addCart(p.name,p.price,p.neko||false,p.emp,p.friendPct);cpCheck();return;}
+  const setOpts = findActiveSetOptions(p.name);
+  if(!p.variants && setOpts.length===0){addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30);cpCheck();return;}
   const mb=document.getElementById('mod-b');
   document.getElementById('mod-t').textContent=p.name+' — 規格選択';
   mb.innerHTML='';
-  p.variants.forEach(v=>{
+  if(!p.variants){
+    // 単一規格商品でもセットがある場合は「通常購入」+セットの2択にする
     const b=document.createElement('button');
     b.className='vb';
-    b.innerHTML='<span class="vbn">'+v.name+'</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
-    b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko||p.neko||false,v.emp,v.friendPct);closeMod();cpCheck();};
+    b.innerHTML='<span class="vbn">'+p.name+'（通常）</span><span class="vbp">¥'+p.price.toLocaleString()+'</span>';
+    b.onclick=()=>{addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30);closeMod();cpCheck();};
+    mb.appendChild(b);
+  }else{
+    p.variants.forEach(v=>{
+      const b=document.createElement('button');
+      b.className='vb';
+      b.innerHTML='<span class="vbn">'+v.name+'</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
+      b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko||p.neko||false,v.emp||p.emp,v.f20||p.f20,v.f30||p.f30);closeMod();cpCheck();};
+      mb.appendChild(b);
+    });
+  }
+  setOpts.forEach(opt=>{
+    const b=document.createElement('button');
+    b.className='vb vb-set';
+    b.innerHTML='<span class="vbn">'+opt.name+'</span><span class="vbp">¥'+opt.price.toLocaleString()+'</span>';
+    b.onclick=()=>{addCart(opt.name,opt.price,false,null,null,null);closeMod();cpCheck();};
     mb.appendChild(b);
   });
   document.getElementById('mod-ov').classList.add('on');
@@ -744,9 +799,14 @@ function closeMod(e){
 }
 
 // CART
-function addCart(name,price,neko,emp,friendPct){
+function addCart(name,price,neko,emp,f20,f30){
   const ex=cart.find(c=>c.name===name);
-  if(ex)ex.qty++;else cart.push({name,price,origPrice:price,neko,qty:1,emp:(emp!=null?emp:null),friendPct:(friendPct!=null?friendPct:null)});
+  if(ex){ex.qty++;}
+  else{cart.push({name,price,origPrice:price,neko,qty:1,
+    emp:  (emp  != null ? emp  : null),
+    f20:  (f20  != null ? f20  : null),
+    f30:  (f30  != null ? f30  : null),
+  });}
   applyStaffDisc();
   renderRight();validate();
 }
@@ -765,13 +825,15 @@ function toggleStaffDisc(mode){
 function applyStaffDisc(){
   cart.forEach(c=>{
     if(staffMode==='emp'){
-      // 社販価格が設定されている商品のみ変更、無いものは通常価格
-      c.price = (c.emp!=null) ? c.emp : c.origPrice;
+      // 社販価格が設定されている商品のみ変更、ない商品は通常価格のまま
+      c.price = (c.emp != null) ? c.emp : c.origPrice;
     }else if(staffMode==='f20'){
-      c.price = Math.round(c.origPrice*0.8);
+      // 商品マスタのL列（友人割20%価格）をそのまま使用、なければ通常価格
+      c.price = (c.f20 != null) ? c.f20 : c.origPrice;
     }else if(staffMode==='f30'){
-      const pct = (c.friendPct!=null) ? c.friendPct : 30;
-      c.price = Math.round(c.origPrice*(1-pct/100));
+      // 商品マスタのM列（友人割30%価格）をそのまま使用、なければ通常価格
+      // ※マルティーヌ等イレギュラーも商品マスタに反映済みなので自動で正しい価格になる
+      c.price = (c.f30 != null) ? c.f30 : c.origPrice;
     }else{
       c.price = c.origPrice;
     }
@@ -1388,11 +1450,14 @@ function convertProducts(raw){
       order.push(key);
     }
     if(r.spec && r.spec !== ''){
-      map[key].variants.push({name: r.spec, price: Number(r.price), neko: r.neko, id: r.id, emp: r.emp, friendPct: r.friendPct, img: r.img||''});
+      map[key].variants.push({name: r.spec, price: Number(r.price), neko: r.neko, id: r.id, emp: r.emp, f20: r.f20, f30: r.f30, img: r.img||''});
     } else {
       map[key].price = Number(r.price);
       map[key].emp = r.emp;
-      map[key].friendPct = r.friendPct;
+      map[key].f20 = r.f20;
+      map[key].f30 = r.f30;
+      if(r.img) map[key].img = r.img;
+    }
       if(r.img) map[key].img = r.img;
     }
     // ネコポスはどれか1つでもtrueならtrue
