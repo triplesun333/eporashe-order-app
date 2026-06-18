@@ -1217,17 +1217,23 @@ function calcShip(sub,pay,freeOverride){
   if(pay==='cash')return{label:'送料¥660',amt:660};
   return{label:'—',amt:null};
 }
+// 送料・代引き手数料の最終判定（calcTotals・openConfirm・submitOrderで共通利用）
+// 優先順位: 1) shipAddボタンON→強制有料  2) 社販・友人割モード→持ち帰り想定で無料
+//          3) 通常モード→ネコポスのみ/定期同梱なら無料、それ以外は通常ルール
+function resolveShip(sub,pay){
+  const allNeko = isAllNeko();
+  if(shipAdd){
+    return {ship: calcShip(0,pay,false), allNeko, freeOverride:false};
+  }
+  if(staffMode){
+    return {ship: pay ? {label:'持ち帰り（送料・手数料なし）',amt:0} : {label:'支払方法を選択してください',amt:null}, allNeko, freeOverride:false};
+  }
+  const freeOverride = allNeko || st.teiki;
+  return {ship: calcShip(sub,pay,freeOverride), allNeko, freeOverride};
+}
 function calcTotals(){
   const sub=calcSub();
-  // 社販・友人割モード中は送料・代引き手数料の無料ラインを適用しない（常に有料）
-  const shipBasis = staffMode ? 0 : sub;
-  // ネコポス対象商品のみの注文、または定期同梱ONの場合は送料無料（社販・友人割モード中・送料追加ON中は除く）
-  const allNeko = isAllNeko();
-  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
-  // 送料・代引き手数料を追加するボタンがONの場合、無料判定を無視して強制的に送料を加算する
-  const ship = shipAdd
-    ? calcShip(0,st.pay,false)
-    : calcShip(shipBasis,st.pay,freeOverride);
+  const {ship,allNeko,freeOverride}=resolveShip(sub,st.pay);
   checkDateRestriction();
   const disc=st.cpDisc+st.cpnDisc;
   const grand=sub-disc+(ship.amt||0);
@@ -1243,24 +1249,24 @@ function calcTotals(){
   const cnr=document.getElementById('t-cpn-row');
   if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
   else cnr.style.display='none';
-  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない、送料追加ON時は別途案内）
+  // 送料通知
   const sn=document.getElementById('ship-notice');
   if(shipAdd){
     sn.innerHTML='<div class="ship-notice sn-warn">🚚 送料・代引き手数料を追加しています。</div>';
   }else if(staffMode){
-    sn.innerHTML='';
+    sn.innerHTML='<div class="ship-notice sn-ok">🤝 持ち帰りのため送料・手数料はかかりません。</div>';
   }else if(freeOverride && st.pay){
     sn.innerHTML='<div class="ship-notice sn-ok">🎉 '+(allNeko?'ネコポス対応商品のみのため送料無料です！':'定期同梱のため送料無料です！')+'</div>';
   }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
   else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
-  // COD script（社販・友人割モード中は常に有料扱い、送料追加ON時は別途案内）
+  // COD script
   if(st.pay==='cod'){
     const ct=document.getElementById('cod-txt');
     if(shipAdd){
       ct.innerHTML='送料・代引き手数料を追加するため、¥1,100がかかります。';
     }else if(staffMode){
-      ct.innerHTML='社販・友人割適用のため、送料代引き手数料（¥1,100）がかかります。';
+      ct.innerHTML='持ち帰りのため、送料・代引き手数料はかかりません。';
     }else if(freeOverride){
       ct.innerHTML=(allNeko?'ネコポス対応商品のみのご注文のため、送料は無料です（代引き手数料¥440のみ）。':'定期同梱のため送料無料です（代引き手数料¥440のみ）。');
     }else if(sub>=7700){
@@ -1423,12 +1429,7 @@ function validate(){
 // CONFIRM
 function openConfirm(){
   const sub=calcSub();
-  const shipBasis = staffMode ? 0 : sub;
-  const allNeko = isAllNeko();
-  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
-  const ship = shipAdd
-    ? calcShip(0,st.pay,false)
-    : calcShip(shipBasis,st.pay,freeOverride);
+  const {ship}=resolveShip(sub,st.pay);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const grand=sub-disc+shipAmt;
   const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',cash:'現金'};
@@ -1466,12 +1467,7 @@ function closeConfirm(){document.getElementById('ov-confirm').classList.remove('
 // SUBMIT
 function submitOrder(){
   const sub=calcSub();
-  const shipBasis = staffMode ? 0 : sub;
-  const allNeko = isAllNeko();
-  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
-  const ship = shipAdd
-    ? calcShip(0,st.pay,false)
-    : calcShip(shipBasis,st.pay,freeOverride);
+  const {ship}=resolveShip(sub,st.pay);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const order={
     id:Date.now(),date:new Date().toLocaleString('ja-JP'),
