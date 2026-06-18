@@ -190,6 +190,8 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .to.on{border-color:var(--nv);background:var(--nv);color:#fff;}
 .teiki-toggle{display:inline-block;padding:7px 14px;}
 .teiki-toggle.on{border-color:var(--ok);background:var(--ok);color:#fff;}
+.ship-add-toggle{display:inline-block;padding:7px 14px;}
+.ship-add-toggle.on{border-color:var(--wn);background:var(--wn);color:#fff;}
 .staff-ship-opt{padding:7px 10px;font-size:10px;}
 .staff-ship-opt.on{border-color:#6d28d9;background:#6d28d9;color:#fff;}
 
@@ -419,9 +421,9 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           </div>
           <div style="display:none;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;font-size:11px;line-height:1.9;color:var(--tx2);margin-bottom:6px;">
             <div style="background:var(--rdl);padding:4px 8px;border-radius:4px;color:var(--rd);font-size:10px;font-weight:700;margin-bottom:6px;">📌 締切16時。以降は翌日発送。</div>
-            <b>翌々日：</b>北海道・九州・沖縄<br>
-            <b>翌々日：</b>青森・秋田・和歌山・鳥取・岡山・島根・広島・山口・香川・徳島・愛媛・高知<br>
-            <span style="color:var(--tx3);font-size:10px;">※高知の一部は18時以降</span>
+            <b>翌日14時以降：</b>青森・秋田／和歌山<br>
+            <b>翌々日：</b>北海道／岡山・広島・山口・鳥取・島根／四国／九州／沖縄<br>
+            <span style="color:var(--tx3);font-size:10px;">※一部離島（小笠原諸島・伊豆諸島・奄美大島など）は最短3日後以降（船便のため確約不可）</span>
           </div>
         </div>
 
@@ -473,10 +475,6 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               <button class="staff-tag" id="staff-f30" onclick="toggleStaffDisc('f30')">友人割30%</button>
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
-            <div id="staff-ship-toggle" style="display:none;margin-top:6px;gap:6px;">
-              <div class="to staff-ship-opt" id="staff-ship-send" onclick="setStaffShip('send')" style="flex:1;text-align:center;">📦 発送する（送料・手数料あり）</div>
-              <div class="to staff-ship-opt on" id="staff-ship-pickup" onclick="setStaffShip('pickup')" style="flex:1;text-align:center;">🤝 持ち帰り（送料・手数料なし）</div>
-            </div>
           </div>
           <!-- 小計〜合計 -->
           <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
@@ -563,6 +561,14 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="r-sec-head">📦 定期同梱</div>
           <div class="r-sec-body">
             <div class="to teiki-toggle" id="teiki-toggle" onclick="toggleTeiki()">いつもの定期便に同梱する（送料無料）</div>
+          </div>
+        </div>
+
+        <!-- ④-2b 送料・代引き手数料を追加 -->
+        <div class="r-sec">
+          <div class="r-sec-head">🚚 送料・代引き手数料</div>
+          <div class="r-sec-body">
+            <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">送料・代引き手数料を追加する（ネコポス→宅配便への変更など）</div>
           </div>
         </div>
 
@@ -681,7 +687,7 @@ let STAFF_NAME = '';
 let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
-let staffShip='pickup'; // 'send'（発送する）/ 'pickup'（持ち帰り） ※社販・友人割モード中のみ有効、デフォルトは持ち帰り
+let shipAdd=false; // 送料・代引き手数料を強制追加するフラグ（ネコポス→宅配便への変更時など）
 
 // ============================================================
 //  STAFF LOGIN
@@ -858,29 +864,22 @@ function toggleStaffDisc(mode){
   ['emp','f20','f30'].forEach(m=>{
     document.getElementById('staff-'+m).classList.toggle('on', m===staffMode);
   });
-  // 社販・友人割モード中のみ「発送する／持ち帰り」トグルと「現金」支払いを表示
-  const shipToggle = document.getElementById('staff-ship-toggle');
+  // 社販・友人割モード中のみ「現金」支払いを表示
   const cashBtn = document.getElementById('po-cash');
   if(staffMode){
-    shipToggle.style.display='flex';
     if(cashBtn) cashBtn.style.display='flex';
   }else{
-    shipToggle.style.display='none';
     if(cashBtn){
       cashBtn.style.display='none';
       if(st.pay==='cash'){ st.pay=''; document.querySelectorAll('.po').forEach(e=>e.classList.remove('on')); }
     }
-    staffShip='pickup'; // モード解除時はデフォルト（持ち帰り）に戻す
-    document.getElementById('staff-ship-pickup').classList.add('on');
-    document.getElementById('staff-ship-send').classList.remove('on');
   }
   applyStaffDisc();
   renderRight();cpCheck();validate();
 }
-function setStaffShip(mode){
-  staffShip = mode;
-  document.getElementById('staff-ship-send').classList.toggle('on', mode==='send');
-  document.getElementById('staff-ship-pickup').classList.toggle('on', mode==='pickup');
+function toggleShipAdd(){
+  shipAdd = !shipAdd;
+  document.getElementById('ship-add-toggle').classList.toggle('on', shipAdd);
   calcTotals();
 }
 function applyStaffDisc(){
@@ -1206,13 +1205,13 @@ function checkDateRestriction(){
 function calcShip(sub,pay,freeOverride){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
   if(freeOverride){
-    if(pay==='post')return{label:'後払い手数料のみ',amt:200};
+    if(pay==='post')return{label:'送料無料・後払い手数料無料',amt:0};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
     if(pay==='cod')return{label:'送料無料（代引手数料のみ¥440）',amt:440};
     return{label:'送料無料',amt:0};
   }
   if(sub>=7700){
-    if(pay==='post')return{label:'後払い手数料',amt:200};
+    if(pay==='post')return{label:'送料無料・後払い手数料無料',amt:0};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
     return{label:'送料無料',amt:0};
   }
@@ -1227,18 +1226,18 @@ function calcTotals(){
   const sub=calcSub();
   // 社販・友人割モード中は送料・代引き手数料の無料ラインを適用しない（常に有料）
   const shipBasis = staffMode ? 0 : sub;
-  // ネコポス対象商品のみの注文、または定期同梱ONの場合は送料無料（社販・友人割モード中は除く）
+  // ネコポス対象商品のみの注文、または定期同梱ONの場合は送料無料（社販・友人割モード中・送料追加ON中は除く）
   const allNeko = isAllNeko();
-  const freeOverride = !staffMode && (allNeko || st.teiki);
-  const isPickup = staffMode && staffShip==='pickup';
-  const ship = isPickup
-    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
+  // 送料・代引き手数料を追加するボタンがONの場合、無料判定を無視して強制的に送料を加算する
+  const ship = shipAdd
+    ? calcShip(0,st.pay,false)
     : calcShip(shipBasis,st.pay,freeOverride);
   checkDateRestriction();
   const disc=st.cpDisc+st.cpnDisc;
   const grand=sub-disc+(ship.amt||0);
   document.getElementById('t-sub').textContent='¥'+sub.toLocaleString();
-  document.getElementById('t-ship-l').textContent=ship.label+(freeOverride?(allNeko?'（ネコポスのみ）':'（定期同梱）'):'');
+  document.getElementById('t-ship-l').textContent=ship.label+(shipAdd?'（送料追加）':(freeOverride?(allNeko?'（ネコポスのみ）':'（定期同梱）'):''));
   document.getElementById('t-ship-v').textContent=ship.amt!=null?(ship.amt===0?'無料':'¥'+ship.amt.toLocaleString()):'要確認';
   const gEl=document.getElementById('t-grand');
   if(ship.amt!=null){gEl.textContent='¥'+grand.toLocaleString();gEl.className='tgv';}
@@ -1249,10 +1248,10 @@ function calcTotals(){
   const cnr=document.getElementById('t-cpn-row');
   if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
   else cnr.style.display='none';
-  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない、持ち帰り時は別途案内）
+  // 送料通知（社販・友人割モード中は常に有料なので案内文を出さない、送料追加ON時は別途案内）
   const sn=document.getElementById('ship-notice');
-  if(isPickup){
-    sn.innerHTML='<div class="ship-notice sn-ok">🤝 持ち帰りのため送料・手数料はかかりません。</div>';
+  if(shipAdd){
+    sn.innerHTML='<div class="ship-notice sn-warn">🚚 送料・代引き手数料を追加しています。</div>';
   }else if(staffMode){
     sn.innerHTML='';
   }else if(freeOverride && st.pay){
@@ -1260,11 +1259,11 @@ function calcTotals(){
   }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
   else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
-  // COD script（社販・友人割モード中は常に有料扱い、持ち帰り時は手数料なし）
+  // COD script（社販・友人割モード中は常に有料扱い、送料追加ON時は別途案内）
   if(st.pay==='cod'){
     const ct=document.getElementById('cod-txt');
-    if(isPickup){
-      ct.innerHTML='持ち帰りのため、送料・代引き手数料はかかりません。';
+    if(shipAdd){
+      ct.innerHTML='送料・代引き手数料を追加するため、¥1,100がかかります。';
     }else if(staffMode){
       ct.innerHTML='社販・友人割適用のため、送料代引き手数料（¥1,100）がかかります。';
     }else if(freeOverride){
@@ -1392,16 +1391,25 @@ async function fetchZip(){
 function onAddr(){
   const addr=document.getElementById('i-addr').value;
   if(addr.length<3){document.getElementById('del-card').style.display='none';return;}
-  const far=['北海道','青森','秋田','岩手','九州','福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄','和歌山','鳥取','岡山','島根','広島','山口','香川','徳島','愛媛','高知'];
-  const isFar=far.some(p=>addr.includes(p));
+  // 翌日14時以降：青森・秋田／和歌山
+  const nextDayLate=['青森','秋田','和歌山'];
+  // 翌々日：北海道／岡山・広島・山口・鳥取・島根／四国／九州／沖縄
+  const dayAfterNext=['北海道','岡山','広島','山口','鳥取','島根','徳島','香川','愛媛','高知','福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄'];
+  const isNextDayLate=nextDayLate.some(p=>addr.includes(p));
+  const isDayAfterNext=dayAfterNext.some(p=>addr.includes(p));
   const now=new Date(),h=now.getHours();
-  let add=(h>=16?2:1)+(isFar?1:0);
+  let add=(h>=16?2:1);
+  if(isDayAfterNext) add+=1;
   const d=new Date(now);d.setDate(d.getDate()+add);
   const days=['日','月','火','水','木','金','土'];
-  document.getElementById('del-date').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日（'+days[d.getDay()]+'）午前中';
+  let timeLabel='午前中';
+  if(isNextDayLate && !isDayAfterNext) timeLabel='14時以降';
+  document.getElementById('del-date').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日（'+days[d.getDay()]+'）'+timeLabel;
   let note='';
   if(h>=16)note+='16時以降受付→翌日発送。';
-  if(isFar)note+=' 遠方地域→翌々日以降。';
+  if(isNextDayLate && !isDayAfterNext)note+=' この地域は翌日14時以降のお届けです。';
+  if(isDayAfterNext)note+=' この地域は翌々日以降のお届けです。';
+  note+=' ※一部離島は最短3日後以降（船便のため確約不可）。';
   document.getElementById('del-note').textContent=note;
   document.getElementById('del-card').style.display='block';
 }
@@ -1422,10 +1430,9 @@ function openConfirm(){
   const sub=calcSub();
   const shipBasis = staffMode ? 0 : sub;
   const allNeko = isAllNeko();
-  const freeOverride = !staffMode && (allNeko || st.teiki);
-  const isPickup = staffMode && staffShip==='pickup';
-  const ship = isPickup
-    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
+  const ship = shipAdd
+    ? calcShip(0,st.pay,false)
     : calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const grand=sub-disc+shipAmt;
@@ -1466,10 +1473,9 @@ function submitOrder(){
   const sub=calcSub();
   const shipBasis = staffMode ? 0 : sub;
   const allNeko = isAllNeko();
-  const freeOverride = !staffMode && (allNeko || st.teiki);
-  const isPickup = staffMode && staffShip==='pickup';
-  const ship = isPickup
-    ? {label:'持ち帰り（送料・手数料なし）',amt:0}
+  const freeOverride = !staffMode && !shipAdd && (allNeko || st.teiki);
+  const ship = shipAdd
+    ? calcShip(0,st.pay,false)
     : calcShip(shipBasis,st.pay,freeOverride);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
   const order={
@@ -1482,7 +1488,7 @@ function submitOrder(){
     items:JSON.parse(JSON.stringify(cart)),
     pay:st.pay,time:st.time,teiki:st.teiki,
     delMonth:st.delMonth||'',delDay:st.delDay||'',
-    staffMode:staffMode||'',pickup:isPickup,
+    staffMode:staffMode||'',shipAdd:shipAdd,
     subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
     coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
     staff:STAFF_NAME,
@@ -1499,11 +1505,9 @@ function submitOrder(){
 // NEW ORDER
 function newOrder(){
   cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};activeCpnKey='';
-  staffMode='';staffShip='pickup';
+  staffMode='';shipAdd=false;
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
-  const shipToggle=document.getElementById('staff-ship-toggle');if(shipToggle)shipToggle.style.display='none';
-  const ss=document.getElementById('staff-ship-send');if(ss)ss.classList.remove('on');
-  const sp=document.getElementById('staff-ship-pickup');if(sp)sp.classList.add('on');
+  const shipAddEl=document.getElementById('ship-add-toggle');if(shipAddEl)shipAddEl.classList.remove('on');
   const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
   const dm=document.getElementById('del-month');if(dm)dm.value='';
   const dd=document.getElementById('del-day');if(dd)dd.value='';
