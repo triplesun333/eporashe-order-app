@@ -1202,7 +1202,7 @@ function calcShip(sub,pay,freeOverride){
   if(freeOverride){
     if(pay==='post')return{label:'送料無料・後払い手数料無料',amt:0};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
-    if(pay==='cod')return{label:'送料無料（代引手数料のみ¥440）',amt:440};
+    if(pay==='cod')return{label:'宅急便扱い：送料660+代引440=¥1,100',amt:1100};
     return{label:'送料無料',amt:0};
   }
   if(sub>=7700){
@@ -1255,6 +1255,8 @@ function calcTotals(){
     sn.innerHTML='<div class="ship-notice sn-warn">🚚 送料・代引き手数料を追加しています。</div>';
   }else if(staffMode){
     sn.innerHTML='<div class="ship-notice sn-ok">🤝 持ち帰りのため送料・手数料はかかりません。</div>';
+  }else if(freeOverride && allNeko && st.pay==='cod'){
+    sn.innerHTML='<div class="ship-notice sn-warn">📦 ネコポスは代引きができないため宅急便扱いとなります。送料660円＋代引き手数料440円＝¥1,100がかかります。</div>';
   }else if(freeOverride && st.pay){
     sn.innerHTML='<div class="ship-notice sn-ok">🎉 '+(allNeko?'ネコポス対応商品のみのため送料無料です！':'定期同梱のため送料無料です！')+'</div>';
   }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
@@ -1267,8 +1269,10 @@ function calcTotals(){
       ct.innerHTML='送料・代引き手数料を追加するため、¥1,100がかかります。';
     }else if(staffMode){
       ct.innerHTML='持ち帰りのため、送料・代引き手数料はかかりません。';
+    }else if(freeOverride && allNeko){
+      ct.innerHTML='ネコポス対応商品のみのご注文ですが、代引きはネコポスに対応していないため宅急便扱いとなります。送料660円＋代引き手数料440円＝<b>¥1,100</b>がかかります。';
     }else if(freeOverride){
-      ct.innerHTML=(allNeko?'ネコポス対応商品のみのご注文のため、送料は無料です（代引き手数料¥440のみ）。':'定期同梱のため送料無料です（代引き手数料¥440のみ）。');
+      ct.innerHTML='定期同梱のため送料無料です（代引き手数料¥440のみ）。';
     }else if(sub>=7700){
       ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
     }else{
