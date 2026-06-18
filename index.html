@@ -475,6 +475,9 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               <button class="staff-tag" id="staff-f30" onclick="toggleStaffDisc('f30')">友人割30%</button>
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
+            <div style="margin-top:8px;">
+              <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">🚚 送料・代引き手数料を追加する</div>
+            </div>
           </div>
           <!-- 小計〜合計 -->
           <div class="trow"><span>小計</span><span id="t-sub">¥0</span></div>
@@ -485,10 +488,6 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="tdiv"></div>
           <div class="tgrand"><span class="tgl">お支払い合計</span><span class="tgv checking" id="t-grand">—</span></div>
         </div>
-
-        <!-- 送料通知 / CP提案 -->
-        <div id="ship-notice"></div>
-        <div id="cp-zone"></div>
 
         <!-- ③ 支払方法 -->
         <div class="r-sec">
@@ -536,6 +535,10 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           </div>
         </div>
 
+        <!-- 送料通知 / CP提案 -->
+        <div id="ship-notice"></div>
+        <div id="cp-zone"></div>
+
         <!-- ④ お届け時間帯 -->
         <div class="r-sec">
           <div class="r-sec-head">
@@ -561,14 +564,6 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="r-sec-head">📦 定期同梱</div>
           <div class="r-sec-body">
             <div class="to teiki-toggle" id="teiki-toggle" onclick="toggleTeiki()">いつもの定期便に同梱する（送料無料）</div>
-          </div>
-        </div>
-
-        <!-- ④-2b 送料・代引き手数料を追加 -->
-        <div class="r-sec">
-          <div class="r-sec-head">🚚 送料・代引き手数料</div>
-          <div class="r-sec-body">
-            <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">送料・代引き手数料を追加する（ネコポス→宅配便への変更など）</div>
           </div>
         </div>
 
@@ -825,7 +820,7 @@ function pickP(p,e){
       const b=document.createElement('button');
       b.className='vb';
       b.innerHTML='<span class="vbn">'+v.name+'</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
-      b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko||p.neko||false,v.emp||p.emp,v.f20||p.f20,v.f30||p.f30);closeMod();cpCheck();};
+      b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko===true,v.emp||p.emp,v.f20||p.f20,v.f30||p.f30);closeMod();cpCheck();};
       mb.appendChild(b);
     });
   }
