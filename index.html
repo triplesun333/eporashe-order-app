@@ -480,6 +480,13 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
             <div class="cpn-hint" id="cpn-dynamic-hint"></div>
+            <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+              <span style="font-size:10px;font-weight:800;color:rgba(255,255,255,.7);white-space:nowrap;">💎 ポイント利用</span>
+              <input type="number" id="i-points" min="0" step="1" placeholder="0" value="0"
+                style="width:90px;padding:5px 8px;border:1.5px solid rgba(255,255,255,.3);border-radius:6px;font-family:inherit;font-size:12px;background:rgba(255,255,255,.95);color:var(--tx);outline:none;"
+                oninput="onPointsInput(this.value)">
+              <span style="font-size:10px;color:rgba(255,255,255,.6);">pt（1pt=1円）</span>
+            </div>
             <div style="margin-top:8px;">
               <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">🚚 送料・代引き手数料を追加する</div>
             </div>
@@ -489,6 +496,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="trow disc" id="staff-disc-row" style="display:none;"><span id="staff-disc-label">社販割引</span><span id="staff-disc-val">-¥0</span></div>
           <div class="trow disc" id="t-cp-row" style="display:none;"><span id="t-cp-l">CPキャンペーン割引</span><span id="t-cp-v">-¥0</span></div>
           <div class="trow disc" id="t-cpn-row" style="display:none;"><span id="t-cpn-l">クーポン</span><span id="t-cpn-v">-¥0</span></div>
+          <div class="trow disc" id="t-pt-row" style="display:none;"><span>ポイント利用</span><span id="t-pt-v">-¥0</span></div>
           <div class="trow" id="t-ship-row"><span id="t-ship-l">送料・手数料</span><span id="t-ship-v">—</span></div>
           <div class="tdiv"></div>
           <div class="tgrand"><span class="tgl">お支払い合計</span><span class="tgv checking" id="t-grand">—</span></div>
@@ -521,7 +529,7 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
               </div>
               <div style="display:flex;gap:6px;">
                 <div class="fg"><label>セキュリティ</label><input id="i-csec" type="text" placeholder="裏面3桁"></div>
-                <div class="fg"><label>支払回数</label><select id="i-cins"><option>1回払い</option><option>3回払い</option><option>6回払い</option><option>10回払い</option><option>12回払い</option><option>24回払い</option></select></div>
+                <div class="fg"><label>支払回数</label><select id="i-cins"><option>1回払い</option><option>2回払い</option><option>3回払い</option><option>6回払い</option><option>10回払い</option><option>12回払い</option><option>24回払い</option></select></div>
               </div>
               <div style="background:var(--rdl);border-left:3px solid var(--rd);padding:5px 8px;font-size:10px;color:var(--rd);margin-top:6px;border-radius:0 4px 4px 0;">⚠ 決済エラー時: カード番号・有効期限を再確認し再度決済</div>
             </div>
@@ -543,6 +551,27 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
         <!-- 送料通知 / CP提案 -->
         <div id="ship-notice"></div>
         <div id="cp-zone"></div>
+
+        <!-- ④-3 お届け希望日 -->
+        <div class="r-sec">
+          <div class="r-sec-head">📅 お届け希望日（任意）</div>
+          <div class="r-sec-body">
+            <div id="del-date-restrict" style="display:none;font-size:11px;font-weight:700;color:var(--rd);background:var(--rdl);border:1.5px solid var(--rd);border-radius:var(--rs);padding:7px 10px;margin-bottom:8px;"></div>
+            <div id="del-date-inputs" style="display:flex;gap:8px;align-items:center;">
+              <select id="del-month" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
+                <option value="">月</option>
+                <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
+                <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+                <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
+                <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+              </select>
+              <select id="del-day" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
+                <option value="">日</option>
+              </select>
+              <span style="font-size:10px;color:var(--tx3);">未選択の場合は最短発送</span>
+            </div>
+          </div>
+        </div>
 
         <!-- ④ お届け時間帯 -->
         <div class="r-sec">
@@ -569,27 +598,6 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
           <div class="r-sec-head">📦 定期同梱</div>
           <div class="r-sec-body">
             <div class="to teiki-toggle" id="teiki-toggle" onclick="toggleTeiki()">いつもの定期便に同梱する（送料無料）</div>
-          </div>
-        </div>
-
-        <!-- ④-3 お届け希望日 -->
-        <div class="r-sec">
-          <div class="r-sec-head">📅 お届け希望日（任意）</div>
-          <div class="r-sec-body">
-            <div id="del-date-restrict" style="display:none;font-size:11px;font-weight:700;color:var(--rd);background:var(--rdl);border:1.5px solid var(--rd);border-radius:var(--rs);padding:7px 10px;margin-bottom:8px;"></div>
-            <div id="del-date-inputs" style="display:flex;gap:8px;align-items:center;">
-              <select id="del-month" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
-                <option value="">月</option>
-                <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option>
-                <option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
-                <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option>
-                <option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
-              </select>
-              <select id="del-day" onchange="updateDelDate()" style="padding:6px 8px;border:1.5px solid var(--bd2);border-radius:var(--rs);font-family:inherit;font-size:12px;">
-                <option value="">日</option>
-              </select>
-              <span style="font-size:10px;color:var(--tx3);">未選択の場合は最短発送</span>
-            </div>
           </div>
         </div>
 
@@ -686,7 +694,7 @@ const GAS='https://script.google.com/macros/s/AKfycbyYVgsHNp6bjciWkA5GZwGe3qDKkj
 let PRODUCTS = []; // スプレッドシートから動的に読み込み
 let STAFF_NAME = '';
 // STATE
-let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};
+let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:'',points:0};
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
 let shipAdd=false; // 送料・代引き手数料を強制追加するフラグ（ネコポス→宅配便への変更時など）
@@ -885,6 +893,11 @@ function toggleStaffDisc(mode){
 function toggleShipAdd(){
   shipAdd = !shipAdd;
   document.getElementById('ship-add-toggle').classList.toggle('on', shipAdd);
+  calcTotals();
+}
+function onPointsInput(val){
+  const n = Number(val);
+  st.points = (!isNaN(n) && n > 0) ? Math.floor(n) : 0;
   calcTotals();
 }
 function applyStaffDisc(){
@@ -1329,10 +1342,13 @@ function resolveShip(sub,pay){
 }
 function calcTotals(){
   const sub=calcSub();
-  const {ship,allNeko,freeOverride}=resolveShip(sub,st.pay);
+  // 送料無料ライン判定・表示用の金額：CP割引・クーポン割引を引いた後（ポイントは含めない）
+  const netSub=Math.max(0, sub-st.cpDisc-st.cpnDisc);
+  const {ship,allNeko,freeOverride}=resolveShip(netSub,st.pay);
   checkDateRestriction();
   const disc=st.cpDisc+st.cpnDisc;
-  const grand=sub-disc+(ship.amt||0);
+  const pts=Math.min(st.points||0, Math.max(0, sub-disc+(ship.amt||0)));
+  const grand=sub-disc+(ship.amt||0)-pts;
   document.getElementById('t-sub').textContent='¥'+sub.toLocaleString();
   document.getElementById('t-ship-l').textContent=ship.label+(shipAdd?'（送料追加）':(freeOverride?(allNeko?'（ネコポスのみ）':'（定期同梱）'):''));
   document.getElementById('t-ship-v').textContent=ship.amt!=null?(ship.amt===0?'無料':'¥'+ship.amt.toLocaleString()):'要確認';
@@ -1345,6 +1361,9 @@ function calcTotals(){
   const cnr=document.getElementById('t-cpn-row');
   if(st.cpnDisc>0){cnr.style.display='flex';document.getElementById('t-cpn-l').textContent=st.cpnLabel;document.getElementById('t-cpn-v').textContent='-¥'+st.cpnDisc.toLocaleString();}
   else cnr.style.display='none';
+  const ptr=document.getElementById('t-pt-row');
+  if(pts>0){ptr.style.display='flex';document.getElementById('t-pt-v').textContent='-¥'+pts.toLocaleString();}
+  else ptr.style.display='none';
   // 送料通知
   const sn=document.getElementById('ship-notice');
   if(shipAdd){
@@ -1355,8 +1374,8 @@ function calcTotals(){
     sn.innerHTML='<div class="ship-notice sn-warn">📦 ネコポスは代引きができないため宅急便扱いとなります。送料660円＋代引き手数料440円＝¥1,100がかかります。</div>';
   }else if(freeOverride && st.pay){
     sn.innerHTML='<div class="ship-notice sn-ok">🎉 '+(allNeko?'ネコポス対応商品のみのため送料無料です！':'定期同梱のため送料無料です！')+'</div>';
-  }else if(sub>0&&sub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-sub).toLocaleString()+'で送料無料になります！</div>';}
-  else if(sub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
+  }else if(netSub>0&&netSub<7700&&st.pay){sn.innerHTML='<div class="ship-notice sn-warn">あと¥'+(7700-netSub).toLocaleString()+'で送料無料になります！</div>';}
+  else if(netSub>=7700&&st.pay&&(st.pay==='card'||st.pay==='cod')){sn.innerHTML='<div class="ship-notice sn-ok">🎉 送料無料です！</div>';}
   else sn.innerHTML='';
   // COD script
   if(st.pay==='cod'){
@@ -1366,13 +1385,13 @@ function calcTotals(){
     }else if(staffMode){
       ct.innerHTML='持ち帰りのため、送料・代引き手数料はかかりません。';
     }else if(freeOverride && allNeko){
-      ct.innerHTML='ネコポス対応商品のみのご注文ですが、代引きはネコポスに対応していないため宅急便扱いとなります。送料660円＋代引き手数料440円＝<b>¥1,100</b>がかかります。';
+      ct.innerHTML='ネコポス対応商品のご注文ですが、代引きはネコポスに対応していないため宅急便扱いとなります。送料660円＋代引き手数料440円＝<b>¥1,100</b>がかかります。';
     }else if(freeOverride){
       ct.innerHTML='定期同梱のため送料無料です（代引き手数料¥440のみ）。';
-    }else if(sub>=7700){
-      ct.textContent='合計¥'+sub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
+    }else if(netSub>=7700){
+      ct.textContent='合計¥'+netSub.toLocaleString()+'のため、送料・代引き手数料は無料でございます。';
     }else{
-      ct.innerHTML='合計¥'+sub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-sub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
+      ct.innerHTML='合計¥'+netSub.toLocaleString()+'のため、送料代引き手数料（¥1,100）がかかります。<br><b>「あと¥'+(7700-netSub).toLocaleString()+'追加で無料になりますがいかがでしょうか？」</b>';
     }
   }
   // 予告キャンペーン表示
@@ -1534,9 +1553,11 @@ function validate(){
 // CONFIRM
 function openConfirm(){
   const sub=calcSub();
-  const {ship}=resolveShip(sub,st.pay);
+  const netSub=Math.max(0, sub-st.cpDisc-st.cpnDisc);
+  const {ship}=resolveShip(netSub,st.pay);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
-  const grand=sub-disc+shipAmt;
+  const pts=Math.min(st.points||0, Math.max(0, sub-disc+shipAmt));
+  const grand=sub-disc+shipAmt-pts;
   const payN={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',cash:'現金'};
   const timeN={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし'};
   const now=new Date();
@@ -1561,7 +1582,7 @@ function openConfirm(){
     '<div class="rr"><div class="rrl">チャネル</div><div class="rrv">'+{tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'}[document.getElementById('i-ch').value]+'</div></div>'+
     '</div></div></div>'+
     '<table class="itbl"><tr><th>商品名</th><th style="text-align:center;">数量</th><th style="text-align:right;">単価</th><th style="text-align:right;">小計</th></tr>'+itemsRows+'</table>'+
-    '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等'+(ship.amt!=null?'¥'+ship.amt.toLocaleString():'要確認')+'</div></div><div class="rt-v">'+( ship.amt!=null?'¥'+grand.toLocaleString():'確認中')+'</div></div>'+
+    '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等'+(ship.amt!=null?'¥'+ship.amt.toLocaleString():'要確認')+(pts>0?' - ポイント¥'+pts.toLocaleString():'')+'</div></div><div class="rt-v">'+( ship.amt!=null?'¥'+grand.toLocaleString():'確認中')+'</div></div>'+
     (document.getElementById('i-note').value?'<div style="background:var(--wnl);border:1.5px solid #f59e0b;border-radius:var(--rs);padding:8px 11px;font-size:11px;color:var(--wn);margin-bottom:10px;"><b>📝 備考：</b>'+document.getElementById('i-note').value+'</div>':'')+
     '<div class="rcpt-ope"><b>📞 受注完了トーク</b><br>「かしこまりました。本日は<b>'+name+'</b>様のご注文、〇〇が承りました。ご注文ありがとうございました！」</div>'+
     '<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:8px;">※価格やキャンペーン内容は変更されている場合があります。確定前に最終確認をお願いいたします。</div>';
@@ -1572,8 +1593,10 @@ function closeConfirm(){document.getElementById('ov-confirm').classList.remove('
 // SUBMIT
 function submitOrder(){
   const sub=calcSub();
-  const {ship}=resolveShip(sub,st.pay);
+  const netSub=Math.max(0, sub-st.cpDisc-st.cpnDisc);
+  const {ship}=resolveShip(netSub,st.pay);
   const disc=st.cpDisc+st.cpnDisc,shipAmt=ship.amt||0;
+  const pts=Math.min(st.points||0, Math.max(0, sub-disc+shipAmt));
   const order={
     id:Date.now(),date:new Date().toLocaleString('ja-JP'),
     phone:document.getElementById('i-phone').value,
@@ -1585,7 +1608,8 @@ function submitOrder(){
     pay:st.pay,time:st.time,teiki:st.teiki,
     delMonth:st.delMonth||'',delDay:st.delDay||'',
     staffMode:staffMode||'',shipAdd:shipAdd,
-    subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt,
+    points:pts,
+    subtotal:sub,disc,shipping:shipAmt,grand:sub-disc+shipAmt-pts,
     coupon:activeCpnKey||'',note:document.getElementById('i-note').value,
     staff:STAFF_NAME,
   };
@@ -1600,13 +1624,14 @@ function submitOrder(){
 
 // NEW ORDER
 function newOrder(){
-  cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:''};activeCpnKey='';
+  cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:'',points:0};activeCpnKey='';
   staffMode='';shipAdd=false;
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
   const shipAddEl=document.getElementById('ship-add-toggle');if(shipAddEl)shipAddEl.classList.remove('on');
   const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
   const dm=document.getElementById('del-month');if(dm)dm.value='';
   const dd=document.getElementById('del-day');if(dd)dd.value='';
+  const ptEl=document.getElementById('i-points');if(ptEl)ptEl.value='0';
   ['i-phone','i-name','i-addr','i-bday','i-note','i-zip'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   const zs=document.getElementById('zip-status');if(zs)zs.innerHTML='';
   document.getElementById('cpn-hint').innerHTML='';
