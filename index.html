@@ -1079,6 +1079,10 @@ function cpCheck(){
     singleRules.forEach(rule=>{
       const kw=(rule.product_keywords||'').trim();
       const qty=rule.qty||1;
+      // 「定価」を明示的に選んでカートに入れたアイテムがある場合は、
+      // そのお客様の選択を尊重し、自動割引の対象から完全に除外する
+      const hasFixedPrice = cart.some(c=>c.name.includes(kw) && !c.isCampaignFixed);
+      if(hasFixedPrice) return;
       // isCampaignFixed=trueのアイテムはキャンペーン自動計算の対象外（既にキャンペーン価格で入っているため）
       const totalQty=cart.filter(c=>c.name.includes(kw) && !c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
       const matched=totalQty>=qty;
@@ -1114,6 +1118,10 @@ function cpCheck(){
       const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
       const anyUncovered = kws.some(kw=>!coveredKeywords.has(kw));
       if(!anyUncovered) return;
+      // 対象キーワードのいずれかが「定価」で明示的に選ばれている場合は、
+      // セット提案の自動割引から除外する（お客様の定価選択を尊重）
+      const anyFixedPrice = kws.some(kw=>cart.some(c=>c.name.includes(kw) && !c.isCampaignFixed));
+      if(anyFixedPrice) return;
       const qty=rule.qty||1;
       const matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw) && !c.isCampaignFixed).reduce((s,c)=>s+c.qty,0)>=qty);
       if(matched&&rule.disc_price>0&&qty>bestMultiQty){
