@@ -1224,10 +1224,10 @@ function getUpcomingCampaigns() {
 
 function cpCheckDefault(){
   const zone=document.getElementById('cp-zone');
-  const sapl=cart.filter(c=>c.name.includes('サプルプラス')).reduce((s,c)=>s+c.qty,0);
-  const nobl=cart.filter(c=>c.name.includes('ノーブルプラス')).reduce((s,c)=>s+c.qty,0);
-  const del=cart.filter(c=>c.name.includes('デルリズム')).reduce((s,c)=>s+c.qty,0);
-  const sclp=cart.filter(c=>c.name.includes('スカルプガードEX')).reduce((s,c)=>s+c.qty,0);
+  const sapl=cart.filter(c=>c.name.includes('サプルプラス')&&!c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
+  const nobl=cart.filter(c=>c.name.includes('ノーブルプラス')&&!c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
+  const del=cart.filter(c=>c.name.includes('デルリズム')&&!c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
+  const sclp=cart.filter(c=>c.name.includes('スカルプガードEX')&&!c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
   st.cpDisc=0;st.cpLabel='';
   if(sapl>=2){st.cpDisc+=4169*2-6800;st.cpLabel+='サプル×2CP';addCpMsg(zone,'✂️ 美髪CP：サプル×2本 ¥6,800（18%OFF）','ok');}
   else if(nobl>=2){st.cpDisc+=4169*2-6800;st.cpLabel+='ノーブル×2CP';addCpMsg(zone,'✂️ 美髪CP：ノーブル×2本 ¥6,800（18%OFF）','ok');}
