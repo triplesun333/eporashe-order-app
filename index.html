@@ -763,6 +763,14 @@ function initProds(){
     b.onclick=()=>{catFilter=c;cw.querySelectorAll('.cb').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderProds();};
     cw.appendChild(b);
   });
+  // アウトレット対象商品が1件でもあれば、カテゴリに関係なく横断する専用タブを追加
+  if(PRODUCTS.some(p=>p.outlet)){
+    const b=document.createElement('button');
+    b.className='cb';
+    b.textContent='🏷️ アウトレット';
+    b.onclick=()=>{catFilter='__OUTLET__';cw.querySelectorAll('.cb').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderProds();};
+    cw.appendChild(b);
+  }
   renderProds();
 }
 function filterP(){renderProds();}
@@ -770,13 +778,16 @@ function renderProds(){
   const q=document.getElementById('p-srch').value.toLowerCase();
   const pl=document.getElementById('prod-list');
   pl.innerHTML='';
-  PRODUCTS.filter(p=>(catFilter==='すべて'||p.cat===catFilter)&&(!q||p.name.toLowerCase().includes(q)))
+  PRODUCTS.filter(p=>{
+    const catMatch = catFilter==='すべて' || (catFilter==='__OUTLET__' ? !!p.outlet : p.cat===catFilter);
+    return catMatch && (!q||p.name.toLowerCase().includes(q));
+  })
     .forEach(p=>{
       const d=document.createElement('div');
       d.className='pi'+(p.cp?' cp':'');
       const pr=p.price?'¥'+p.price.toLocaleString():'¥'+p.variants[0].price.toLocaleString()+'〜';
       const thumb=p.img?'<img src="'+p.img+'" class="pi-thumb" loading="lazy" onerror="this.style.display=\'none\'">':'<span class="pi-thumb pi-thumb-ph"></span>';
-      d.innerHTML=thumb+'<span class="pi-name">'+p.name+'<span class="pi-code">['+p.id+']</span></span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
+      d.innerHTML=thumb+'<span class="pi-name">'+p.name+'<span class="pi-code">['+p.id+']</span></span>'+(p.neko?'<span class="tag tn">★ネコポス</span>':'')+(p.outlet?'<span class="tag" style="background:#fde4e1;color:#b91c1c;">🏷️アウトレット</span>':'')+(p.cp?'<span class="tag tc">CP</span>':'')+'<span class="pi-p">'+pr+'</span>';
       d.onclick=e=>pickP(p,e);
       pl.appendChild(d);
     });
@@ -1780,6 +1791,7 @@ function convertProducts(raw){
         name: r.name,
         neko: r.neko,
         cp:   r.cp,
+        outlet: !!r.outlet,
         variants: [],
         price: null,
         img: r.img || ''
@@ -1799,6 +1811,8 @@ function convertProducts(raw){
     if(r.neko) map[key].neko = true;
     // CPも同様
     if(r.cp) map[key].cp = true;
+    // アウトレットも同様（規格のどれか1つでもtrueならtrue）
+    if(r.outlet) map[key].outlet = true;
   });
   return order.map(key => {
     const p = map[key];
