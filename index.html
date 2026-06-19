@@ -264,6 +264,9 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
 .vb-set{border-color:var(--cp);background:var(--cpl);}
 .vb-set:hover{border-color:#5b21b6;background:#ece4fc;}
 .vb-set .vbp{color:#6d28d9;}
+.vb-campaign{border-color:var(--gd);background:var(--gdl);}
+.vb-campaign:hover{border-color:#a16207;background:#fef3c7;}
+.vb-campaign .vbp{color:#a16207;}
 
 /* 送料表 */
 .stbl{width:100%;border-collapse:collapse;font-size:10px;}
@@ -470,11 +473,13 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
                 <span class="cpn-tag-code" id="bd-code">HB6767</span>
                 <span class="cpn-tag-disc">🎁 ミニコスメプレゼント</span>
               </button>
+              <span id="cpn-dynamic-area"></span>
               <button class="staff-tag" id="staff-emp" onclick="toggleStaffDisc('emp')">社販</button>
               <button class="staff-tag" id="staff-f20" onclick="toggleStaffDisc('f20')">友人割20%</button>
               <button class="staff-tag" id="staff-f30" onclick="toggleStaffDisc('f30')">友人割30%</button>
             </div>
             <div class="cpn-hint" id="cpn-hint"></div>
+            <div class="cpn-hint" id="cpn-dynamic-hint"></div>
             <div style="margin-top:8px;">
               <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">🚚 送料・代引き手数料を追加する</div>
             </div>
@@ -777,7 +782,7 @@ function findActiveSetOptions(productName){
   today.setHours(0,0,0,0);
   const opts = [];
   SETTINGS.campaigns.forEach(cp=>{
-    if(cp.type !== 'F' && cp.type !== 'A') return;
+    if(cp.type !== 'F' && cp.type !== 'A' && cp.type !== 'B') return;
     // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
     if(cp.date_start){
       const ds = new Date(cp.date_start.replace(/\//g,'-'));
@@ -794,11 +799,14 @@ function findActiveSetOptions(productName){
     if(!hit) return;
     (cp.rules||[]).forEach(r=>{
       if(!r.disc_price) return;
-      opts.push({
-        name: '🎁 '+(r.desc || cp.name || 'セット'),
-        price: Number(r.disc_price)||0,
-        isSet: true,
-      });
+      const kws=(r.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
+      // セット（複数商品キーワード）はそのままセット選択肢として表示
+      if(kws.length>=2){
+        opts.push({ name: '🎁 '+(r.desc || cp.name || 'セット'), price: Number(r.disc_price)||0, isSet:true, isCampaignFixed:true });
+      }else{
+        // 単一商品のキャンペーン価格は「キャンペーン価格」の選択肢として表示
+        opts.push({ name: '🏷️ '+(r.desc || cp.name)+'（キャンペーン価格）', price: Number(r.disc_price)||0, isSet:false, isCampaignFixed:true });
+      }
     });
   });
   return opts;
@@ -806,31 +814,31 @@ function findActiveSetOptions(productName){
 
 function pickP(p,e){
   const setOpts = findActiveSetOptions(p.name);
-  if(!p.variants && setOpts.length===0){addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30);cpCheck();return;}
+  if(!p.variants && setOpts.length===0){addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30,p.id,false);cpCheck();return;}
   const mb=document.getElementById('mod-b');
   document.getElementById('mod-t').textContent=p.name+' — 規格選択';
   mb.innerHTML='';
   if(!p.variants){
-    // 単一規格商品でもセットがある場合は「通常購入」+セットの2択にする
+    // 単一規格商品でもキャンペーン対象の場合は「定価」+「キャンペーン価格」の選択式にする
     const b=document.createElement('button');
     b.className='vb';
-    b.innerHTML='<span class="vbn">'+p.name+'（通常）</span><span class="vbp">¥'+p.price.toLocaleString()+'</span>';
-    b.onclick=()=>{addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30);closeMod();cpCheck();};
+    b.innerHTML='<span class="vbn">'+p.name+'（定価）</span><span class="vbp">¥'+p.price.toLocaleString()+'</span>';
+    b.onclick=()=>{addCart(p.name,p.price,p.neko||false,p.emp,p.f20,p.f30,p.id,false);closeMod();cpCheck();};
     mb.appendChild(b);
   }else{
     p.variants.forEach(v=>{
       const b=document.createElement('button');
       b.className='vb';
-      b.innerHTML='<span class="vbn">'+v.name+'</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
-      b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko===true,v.emp||p.emp,v.f20||p.f20,v.f30||p.f30);closeMod();cpCheck();};
+      b.innerHTML='<span class="vbn">'+v.name+'（定価）</span><span class="vbp">¥'+v.price.toLocaleString()+'</span>';
+      b.onclick=()=>{addCart(p.name+'（'+v.name+'）',v.price,v.neko===true,v.emp||p.emp,v.f20||p.f20,v.f30||p.f30,v.id,false);closeMod();cpCheck();};
       mb.appendChild(b);
     });
   }
   setOpts.forEach(opt=>{
     const b=document.createElement('button');
-    b.className='vb vb-set';
+    b.className='vb '+(opt.isSet?'vb-set':'vb-campaign');
     b.innerHTML='<span class="vbn">'+opt.name+'</span><span class="vbp">¥'+opt.price.toLocaleString()+'</span>';
-    b.onclick=()=>{addCart(opt.name,opt.price,false,null,null,null);closeMod();cpCheck();};
+    b.onclick=()=>{addCart(opt.name,opt.price,false,null,null,null,opt.code||'',opt.isCampaignFixed===true);closeMod();cpCheck();};
     mb.appendChild(b);
   });
   document.getElementById('mod-ov').classList.add('on');
@@ -841,10 +849,10 @@ function closeMod(e){
 }
 
 // CART
-function addCart(name,price,neko,emp,f20,f30){
+function addCart(name,price,neko,emp,f20,f30,code,isCampaignFixed){
   const ex=cart.find(c=>c.name===name);
   if(ex){ex.qty++;}
-  else{cart.push({name,price,origPrice:price,neko,qty:1,
+  else{cart.push({name,price,origPrice:price,neko,qty:1,code:code||'',isCampaignFixed:!!isCampaignFixed,
     emp:  (emp  != null ? emp  : null),
     f20:  (f20  != null ? f20  : null),
     f30:  (f30  != null ? f30  : null),
@@ -881,15 +889,16 @@ function toggleShipAdd(){
 }
 function applyStaffDisc(){
   cart.forEach(c=>{
+    // キャンペーン価格を選んだアイテムは社販・友人割の適用対象外（二重値引き防止）
+    if(c.isCampaignFixed){
+      c.price = c.origPrice; // origPriceはキャンペーン価格のまま
+      return;
+    }
     if(staffMode==='emp'){
-      // 社販価格が設定されている商品のみ変更、ない商品は通常価格のまま
       c.price = (c.emp != null) ? c.emp : c.origPrice;
     }else if(staffMode==='f20'){
-      // 商品マスタのL列（友人割20%価格）をそのまま使用、なければ通常価格
       c.price = (c.f20 != null) ? c.f20 : c.origPrice;
     }else if(staffMode==='f30'){
-      // 商品マスタのM列（友人割30%価格）をそのまま使用、なければ通常価格
-      // ※マルティーヌ等イレギュラーも商品マスタに反映済みなので自動で正しい価格になる
       c.price = (c.f30 != null) ? c.f30 : c.origPrice;
     }else{
       c.price = c.origPrice;
@@ -944,6 +953,83 @@ function renderRight(){
     }
   }
   cpCheck();
+  renderDynamicCoupons();
+}
+
+// タイプC（コードクーポン）を動的にボタン表示する
+function renderDynamicCoupons(){
+  const area = document.getElementById('cpn-dynamic-area');
+  if(!area) return;
+  if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)){ area.innerHTML=''; return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const typeC = SETTINGS.campaigns.filter(cp=>{
+    if(cp.type !== 'C') return false;
+    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
+    if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
+    return true;
+  });
+  if(!typeC.length){ area.innerHTML=''; return; }
+  area.innerHTML = typeC.map((cp,i)=>{
+    const active = activeCpnKey === ('c_'+i);
+    return `<button class="cpn-tag" id="cpntag-c${i}" onclick="toggleCpnC(${i})">
+      <span class="cpn-tag-name">${cp.name||'クーポン'}</span>
+      <span class="cpn-tag-code">${cp.coupon_code||''}</span>
+      <span class="cpn-tag-disc">${cp.discount_pct?cp.discount_pct+'%OFF':''}</span>
+    </button>`;
+  }).join('');
+  typeC.forEach((cp,i)=>{
+    const btn=document.getElementById('cpntag-c'+i);
+    if(btn) btn.classList.toggle('on', activeCpnKey===('c_'+i));
+  });
+}
+
+// 商品コード対象指定タイプCクーポンの選択
+function toggleCpnC(idx){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const typeC = (SETTINGS.campaigns||[]).filter(cp=>{
+    if(cp.type !== 'C') return false;
+    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
+    if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
+    return true;
+  });
+  const cp = typeC[idx];
+  if(!cp) return;
+  const key = 'c_'+idx;
+  const hint = document.getElementById('cpn-dynamic-hint');
+  const btnMc=document.getElementById('cpntag-mc'), btnBd=document.getElementById('cpntag-bd');
+  if(activeCpnKey === key){
+    activeCpnKey=''; st.cpnDisc=0; st.cpnLabel=''; st.cpnKey='';
+    hint.innerHTML='';
+    renderDynamicCoupons();
+    calcTotals();
+    return;
+  }
+  // 他のクーポン（毎月・別のタイプC）は解除（BD・バースデークーポンのみ併用可）
+  activeCpnKey = key; st.cpnKey = key;
+  if(btnMc) btnMc.classList.remove('on');
+  const mcHint=document.getElementById('cpn-hint'); if(mcHint && !btnBd.classList.contains('on')) mcHint.innerHTML='';
+  // 対象商品コードのチェック（商品コード指定がある場合のみ）
+  const targetCodes = (cp.target_codes||cp.target_keywords||'').split(',').map(s=>s.trim()).filter(Boolean);
+  const sub = calcSub();
+  const minAmt = Number(cp.min_amount)||0;
+  const hasTargetProduct = targetCodes.length===0 || cart.some(c=>targetCodes.includes(c.code));
+  if(!hasTargetProduct){
+    hint.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ 対象商品がカートに入っていません</span>';
+    activeCpnKey=''; st.cpnKey='';
+    renderDynamicCoupons();
+    return;
+  }
+  if(sub < minAmt){
+    hint.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ ¥'+minAmt.toLocaleString()+'以上で利用可能です（あと¥'+(minAmt-sub).toLocaleString()+'）</span>';
+    activeCpnKey=''; st.cpnKey='';
+    renderDynamicCoupons();
+    return;
+  }
+  st.cpnDisc = Number(cp.discount_pct)||0; // discount_pctフィールドに割引額（円）を入れて運用
+  st.cpnLabel = cp.name||'クーポン';
+  hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+st.cpnDisc.toLocaleString()+' 適用中</span>';
+  renderDynamicCoupons();
+  calcTotals();
 }
 
 // CP CHECK
@@ -993,14 +1079,14 @@ function cpCheck(){
     singleRules.forEach(rule=>{
       const kw=(rule.product_keywords||'').trim();
       const qty=rule.qty||1;
-      const totalQty=cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0);
+      // isCampaignFixed=trueのアイテムはキャンペーン自動計算の対象外（既にキャンペーン価格で入っているため）
+      const totalQty=cart.filter(c=>c.name.includes(kw) && !c.isCampaignFixed).reduce((s,c)=>s+c.qty,0);
       const matched=totalQty>=qty;
       if(matched){
         if(!byKeyword[kw] || qty>byKeyword[kw].qty){
           byKeyword[kw]={rule,qty,totalQty};
         }
       }else if(totalQty>0 && (!byKeyword[kw] || !byKeyword[kw].rule)){
-        // ヒント表示用に未達情報も保持（matched無しの場合のみ）
         if(!byKeyword[kw]) byKeyword[kw]={rule:null,qty:0,totalQty:0,hint:{need:qty-totalQty,pct:rule.pct}};
       }
     });
@@ -1027,9 +1113,9 @@ function cpCheck(){
     multiRules.forEach(rule=>{
       const kws=(rule.product_keywords||'').split(',').map(k=>k.trim()).filter(Boolean);
       const anyUncovered = kws.some(kw=>!coveredKeywords.has(kw));
-      if(!anyUncovered) return; // 全部すでに単一ルールでカバー済みならスキップ
+      if(!anyUncovered) return;
       const qty=rule.qty||1;
-      const matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw)).reduce((s,c)=>s+c.qty,0)>=qty);
+      const matched=kws.every(kw=>cart.filter(c=>c.name.includes(kw) && !c.isCampaignFixed).reduce((s,c)=>s+c.qty,0)>=qty);
       if(matched&&rule.disc_price>0&&qty>bestMultiQty){
         bestMulti=rule;bestMultiQty=qty;
       }
@@ -1347,6 +1433,10 @@ function toggleCpn(key){
     hint.innerHTML='';
   }else{
     btnMc.classList.remove('on');btnBd.classList.remove('on');
+    // 毎月クーポンとサマークーポン等（タイプC）は併用不可。BDクーポンのみ例外的に併用可
+    if(key==='mc' && String(activeCpnKey).startsWith('c_')){
+      const dh=document.getElementById('cpn-dynamic-hint'); if(dh) dh.innerHTML='';
+    }
     activeCpnKey=key;st.cpnKey=key;
     if(key==='mc'){
       const mc=SETTINGS&&SETTINGS.monthly_coupon||{};
@@ -1368,6 +1458,7 @@ function toggleCpn(key){
       hint.innerHTML=bdHtml;
     }
   }
+  renderDynamicCoupons();
   calcTotals();
 }
 
