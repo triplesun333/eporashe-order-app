@@ -1724,9 +1724,14 @@ function printHist(idx){
   const ship  = Number(o.shipping)||0;
   const grand = Number(o.grand)||(sub-disc+ship-pts)||0;
 
+  // 商品データ：新形式（itemsParsed）→ 旧配列（items） → 旧文字列の順で優先
+  const itemsData = Array.isArray(o.itemsParsed) ? o.itemsParsed
+    : Array.isArray(o.items) ? o.items
+    : null;
+
   // 商品行
-  const itemsRows = Array.isArray(o.items)
-    ? o.items.map((i,idx)=>`
+  const itemsRows = itemsData
+    ? itemsData.map((i,idx)=>`
         <tr style="background:${idx%2===0?'#fff':'#f7f4ef'};">
           <td style="padding:10px 10px 10px 12px;border-left:3px solid ${i.isCampaignFixed?'#b8832a':i.neko?'#0e7490':'#ddd8d0'};">
             <div style="font-size:13px;font-weight:800;color:#1a1410;margin-bottom:3px;">${i.name}</div>
@@ -1740,9 +1745,11 @@ function printHist(idx){
           <td style="padding:10px 12px 10px 8px;text-align:right;white-space:nowrap;">
             <div style="font-size:15px;font-weight:800;color:#1a3a5c;">¥${((Number(i.price)||0)*i.qty).toLocaleString()}</div>
           </td>
-        </tr>`)
-      .join('')
-    : `<tr><td colspan="3" style="padding:10px;">${typeof o.items==='string'?o.items:''}</td></tr>`;
+        </tr>`).join('')
+    : (typeof o.items==='string' ? o.items : '').split(' / ').map((line,idx)=>`
+        <tr style="background:${idx%2===0?'#fff':'#f7f4ef'};">
+          <td colspan="3" style="padding:10px 12px;font-size:13px;font-weight:700;color:#1a1410;border-left:3px solid #ddd8d0;">${line}</td>
+        </tr>`).join('');
 
   // 金額内訳
   const discRow  = disc>0  ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#1e6b45;margin-bottom:3px;"><span>割引合計</span><span>−¥${disc.toLocaleString()}</span></div>` : '';
