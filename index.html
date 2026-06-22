@@ -1701,47 +1701,90 @@ let _histOrders=[];
 function printHist(idx){
   const o = _histOrders[idx];
   if(!o) return;
-  const PAY={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',cash:'現金'};
+  const PAY={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',card2:'クレジットカード（2回払い）',cash:'現金'};
   const TIME={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし',teiki:'定期'};
-  const grand=Number(o.grand)||Number(o.subtotal)||0;
-  const itemsStr=typeof o.items==='string'?o.items:(Array.isArray(o.items)?o.items.map(i=>i.name+'×'+i.qty).join(' / '):'');
-  const itemsRows=Array.isArray(o.items)?o.items.map(i=>'<tr><td>'+i.name+'</td><td style="text-align:center;">×'+i.qty+'</td><td style="text-align:right;">¥'+i.price.toLocaleString()+'</td><td style="text-align:right;font-weight:800;">¥'+(i.price*i.qty).toLocaleString()+'</td></tr>').join(''):'<tr><td colspan="4">'+itemsStr+'</td></tr>';
-  const html=`<div style="font-family:'M PLUS 1p',sans-serif;max-width:700px;margin:0 auto;padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:2px solid #1a3a5c;padding-bottom:10px;">
+  const CHN={tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'};
+  const sub   = Number(o.subtotal)||0;
+  const disc  = Number(o.disc)||0;
+  const pts   = Number(o.points)||0;
+  const ship  = Number(o.shipping)||0;
+  const grand = Number(o.grand)||(sub-disc+ship-pts)||0;
+
+  // 商品行
+  const itemsRows = Array.isArray(o.items)
+    ? o.items.map(i=>`
+        <tr>
+          <td style="padding:6px 10px;">${i.name}${i.neko?'<span style="background:#0e7490;color:#fff;font-size:9px;border-radius:3px;padding:1px 4px;margin-left:4px;">★ネコポス</span>':''}</td>
+          <td style="padding:6px 8px;text-align:center;">×${i.qty}</td>
+          <td style="padding:6px 8px;text-align:right;">¥${(Number(i.price)||0).toLocaleString()}</td>
+          <td style="padding:6px 8px;text-align:right;font-weight:800;">¥${((Number(i.price)||0)*i.qty).toLocaleString()}</td>
+        </tr>`).join('')
+    : `<tr><td colspan="4" style="padding:8px;">${typeof o.items==='string'?o.items:''}</td></tr>`;
+
+  // 金額内訳
+  const discRow  = disc>0  ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#1e6b45;margin-bottom:3px;"><span>割引合計</span><span>−¥${disc.toLocaleString()}</span></div>` : '';
+  const ptsRow   = pts>0   ? `<div style="display:flex;justify-content:space-between;font-size:12px;color:#1e6b45;margin-bottom:3px;"><span>ポイント利用</span><span>−¥${pts.toLocaleString()}</span></div>` : '';
+  const shipRow  = `<div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>送料・手数料</span><span>${ship===0?'無料':'¥'+ship.toLocaleString()}</span></div>`;
+
+  // お届け希望日
+  const delWish = o.delMonth && o.delDay ? `<div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">お届け希望日</span><span style="font-weight:800;">${o.delMonth}月${o.delDay}日</span></div>` : '';
+
+  const html=`<div style="font-family:'M PLUS 1p',sans-serif;max-width:720px;margin:0 auto;padding:20px;font-size:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;border-bottom:2px solid #1a3a5c;padding-bottom:10px;">
       <div style="font-size:20px;font-weight:800;letter-spacing:.1em;color:#1a3a5c;">受　注　票</div>
-      <div style="font-size:11px;color:#888;">${fmtDate(o.date)}</div>
+      <div style="font-size:11px;color:#888;">${fmtDate(o.date)}　担当：${o.staff||'—'}</div>
     </div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
       <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
         <div style="background:#1a3a5c;color:#fff;padding:5px 10px;font-size:10px;font-weight:800;">👤 お客様情報</div>
-        <div style="padding:8px 10px;font-size:12px;">
-          <div style="margin-bottom:4px;"><span style="color:#888;font-size:10px;">お名前</span><br><b style="font-size:15px;">${o.name||'—'} 様</b></div>
-          <div style="margin-bottom:4px;"><span style="color:#888;font-size:10px;">電話番号</span><br>${o.phone||'—'}</div>
-          <div><span style="color:#888;font-size:10px;">住所</span><br>${o.addr||'（スマイル参照）'}</div>
+        <div style="padding:8px 10px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">電話番号</span><span>${o.phone||'—'}</span></div>
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">お名前</span><span style="font-size:14px;font-weight:800;">${o.name||'—'} 様</span></div>
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">住所</span><span>${o.addr||'（スマイル参照）'}</span></div>
         </div>
       </div>
       <div style="border:1px solid #ddd;border-radius:6px;overflow:hidden;">
-        <div style="background:#1a3a5c;color:#fff;padding:5px 10px;font-size:10px;font-weight:800;">📦 配送情報</div>
-        <div style="padding:8px 10px;font-size:12px;">
-          <div style="margin-bottom:4px;"><span style="color:#888;font-size:10px;">支払方法</span><br><b>${PAY[o.pay]||o.pay||'—'}</b></div>
-          <div style="margin-bottom:4px;"><span style="color:#888;font-size:10px;">時間帯</span><br>${TIME[o.time]||o.time||'—'}</div>
-          <div><span style="color:#888;font-size:10px;">チャネル</span><br>${{tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'}[o.channel]||o.channel||'—'}</div>
+        <div style="background:#1a3a5c;color:#fff;padding:5px 10px;font-size:10px;font-weight:800;">📦 配送・支払情報</div>
+        <div style="padding:8px 10px;">
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">支払方法</span><span style="font-weight:800;">${PAY[o.pay]||o.pay||'—'}</span></div>
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">お届け時間</span><span>${TIME[o.time]||o.time||'—'}${o.teiki?'（定期同梱）':''}</span></div>
+          ${delWish}
+          <div style="display:flex;gap:6px;margin-bottom:4px;"><span style="font-size:10px;color:#888;min-width:72px;">チャネル</span><span>${CHN[o.channel]||o.channel||'—'}</span></div>
         </div>
       </div>
     </div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px;">
-      <tr style="background:#1a3a5c;color:#fff;"><th style="padding:6px 8px;text-align:left;">商品名</th><th style="padding:6px 8px;text-align:center;">数量</th><th style="padding:6px 8px;text-align:right;">単価</th><th style="padding:6px 8px;text-align:right;">小計</th></tr>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px;">
+      <tr style="background:#1a3a5c;color:#fff;">
+        <th style="padding:6px 10px;text-align:left;font-size:11px;">商品名</th>
+        <th style="padding:6px 8px;text-align:center;font-size:11px;">数量</th>
+        <th style="padding:6px 8px;text-align:right;font-size:11px;">単価</th>
+        <th style="padding:6px 8px;text-align:right;font-size:11px;">小計</th>
+      </tr>
       ${itemsRows}
     </table>
-    <div style="background:#1a3a5c;color:#fff;border-radius:6px;padding:12px 16px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-      <span style="font-size:13px;opacity:.8;">お支払い合計</span>
-      <span style="font-size:28px;font-weight:800;">¥${grand.toLocaleString()}</span>
+
+    <div style="background:#f7f4ef;border:1px solid #ddd;border-radius:6px;padding:10px 14px;margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;"><span>小計</span><span>¥${sub.toLocaleString()}</span></div>
+      ${discRow}${ptsRow}${shipRow}
+      <div style="border-top:2px solid #1a3a5c;margin-top:6px;padding-top:6px;display:flex;justify-content:space-between;align-items:baseline;">
+        <span style="font-size:13px;font-weight:800;color:#1a3a5c;">お支払い合計</span>
+        <span style="font-size:28px;font-weight:800;color:#1a3a5c;">¥${grand.toLocaleString()}</span>
+      </div>
     </div>
-    ${o.note?'<div style="background:#fef4e4;border:1.5px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:11px;color:#92500a;margin-bottom:12px;"><b>📝 備考：</b>'+o.note+'</div>':''}
+
+    ${o.coupon?`<div style="background:#e8f0f8;border:1.5px solid #1a3a5c;border-radius:6px;padding:7px 12px;font-size:11px;color:#1a3a5c;margin-bottom:10px;">🏷️ クーポン：${o.coupon}</div>`:''}
+    ${o.note?`<div style="background:#fef4e4;border:1.5px solid #f59e0b;border-radius:6px;padding:8px 12px;font-size:11px;color:#92500a;margin-bottom:10px;"><b>📝 備考：</b>${o.note}</div>`:''}
+
+    <div style="background:#e8f0f8;border-left:4px solid #1a3a5c;border-radius:0 6px 6px 0;padding:10px 14px;font-size:12px;color:#1a3a5c;">
+      <b>📞 受注完了トーク</b><br>
+      「かしこまりました。本日は<b>${o.name||''}様</b>のご注文、〇〇が承りました。ご注文ありがとうございました！」
+    </div>
   </div>`;
 
-  const w=window.open('','_blank','width=800,height:600');
-  w.document.write('<html><head><title>受注票</title><link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700;800&display=swap" rel="stylesheet"></head><body>'+html+'<script>window.onload=function(){window.print();}<\/script></body></html>');
+  const w=window.open('','_blank','width=800,height=700');
+  w.document.write('<html><head><title>受注票</title><link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;700;800&display=swap" rel="stylesheet"><style>body{margin:0;}tr:nth-child(even){background:#f7f4ef;}td{font-family:"M PLUS 1p",sans-serif;}</style></head><body>'+html+'<script>window.onload=function(){window.print();}<\/script></body></html>');
   w.document.close();
 }
 
