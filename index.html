@@ -998,7 +998,7 @@ function renderDynamicCoupons(){
     return `<button class="cpn-tag" id="cpntag-c${i}" onclick="toggleCpnC(${i})">
       <span class="cpn-tag-name">${cp.name||'クーポン'}</span>
       <span class="cpn-tag-code">${cp.coupon_code||''}</span>
-      <span class="cpn-tag-disc">${cp.discount_pct?cp.discount_pct+'%OFF':''}</span>
+      <span class="cpn-tag-disc">${cp.disc_amount?'¥'+Number(cp.disc_amount).toLocaleString()+'OFF':cp.discount_pct?cp.discount_pct+'%OFF':''}</span>
     </button>`;
   }).join('');
   typeC.forEach((cp,i)=>{
@@ -1049,7 +1049,7 @@ function toggleCpnC(idx){
     renderDynamicCoupons();
     return;
   }
-  st.cpnDisc = Number(cp.discount_pct)||0; // discount_pctフィールドに割引額（円）を入れて運用
+  st.cpnDisc = Number(cp.disc_amount)||Number(cp.discount_pct)||0; // disc_amount（固定金額）優先、なければdiscount_pct
   st.cpnLabel = cp.name||'クーポン';
   hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+st.cpnDisc.toLocaleString()+' 適用中</span>';
   renderDynamicCoupons();
