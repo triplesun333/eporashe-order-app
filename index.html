@@ -323,6 +323,14 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
   <button class="hd-btn" id="btn-history" onclick="showPg('history')">📋 履歴</button>
   <button class="hd-btn" id="btn-scripts" onclick="showPg('scripts')">💬 スクリプト</button>
   <button class="hd-btn hd-new" onclick="newOrder()">＋ 新規</button>
+  <div style="display:flex;align-items:center;gap:4px;margin-left:4px;" title="テスト用：この日付基準でキャンペーン判定します。空欄=今日">
+    <span style="font-size:9px;color:rgba(255,255,255,.6);white-space:nowrap;">🧪 テスト日</span>
+    <input type="date" id="test-date-inp"
+      style="padding:2px 6px;border:1.5px solid rgba(255,255,255,.35);border-radius:6px;background:rgba(255,255,255,.12);color:#fff;font-family:inherit;font-size:10px;width:116px;outline:none;"
+      onchange="onTestDateChange()"
+      title="テスト日付（空欄=今日）">
+    <button onclick="clearTestDate()" style="padding:1px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.7);font-size:9px;cursor:pointer;" title="クリア">✕</button>
+  </div>
   <div class="hd-staff" id="hd-staff" style="display:none;">
     <span id="hd-staff-name"></span>
     <button class="hd-logout" onclick="staffLogout()">ログアウト</button>
@@ -695,6 +703,30 @@ let PRODUCTS = []; // スプレッドシートから動的に読み込み
 let STAFF_NAME = '';
 // STATE
 let cart=[],st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:'',points:0};
+
+function getNow(){
+  const inp = document.getElementById('test-date-inp');
+  if(inp && inp.value){
+    const d = new Date(inp.value);
+    if(!isNaN(d)) return d;
+  }
+  return new Date();
+}
+function onTestDateChange(){
+  const inp = document.getElementById('test-date-inp');
+  const isTest = inp && inp.value;
+  // ヘッダーの入力欄を赤枠で強調してテスト中であることを示す
+  if(inp) inp.style.borderColor = isTest ? '#f0c87a' : 'rgba(255,255,255,.35)';
+  // キャンペーン表示・クーポンボタンを再描画
+  if(typeof renderCpZone === 'function') renderCpZone();
+  if(typeof renderRight === 'function') renderRight();
+  cpCheck();
+}
+function clearTestDate(){
+  const inp = document.getElementById('test-date-inp');
+  if(inp){ inp.value=''; inp.style.borderColor='rgba(255,255,255,.35)'; }
+  onTestDateChange();
+}
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
 let shipAdd=false; // 送料・代引き手数料を強制追加するフラグ（ネコポス→宅配便への変更時など）
@@ -797,11 +829,8 @@ function renderProds(){
 // セット商品の選択肢として追加する。
 function findActiveSetOptions(productName){
   if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)) return [];
-  const today = new Date();
+  const today = getNow();
   today.setHours(0,0,0,0);
-  const opts = [];
-  SETTINGS.campaigns.forEach(cp=>{
-    if(cp.type !== 'F' && cp.type !== 'A' && cp.type !== 'B') return;
     // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
     if(cp.date_start){
       const ds = new Date(cp.date_start.replace(/\//g,'-'));
@@ -985,8 +1014,7 @@ function renderDynamicCoupons(){
   const area = document.getElementById('cpn-dynamic-area');
   if(!area) return;
   if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)){ area.innerHTML=''; return; }
-  const today = new Date(); today.setHours(0,0,0,0);
-  const typeC = SETTINGS.campaigns.filter(cp=>{
+  const today = getNow(); today.setHours(0,0,0,0);
     if(cp.type !== 'C') return false;
     if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
     if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
@@ -1009,7 +1037,7 @@ function renderDynamicCoupons(){
 
 // 商品コード対象指定タイプCクーポンの選択
 function toggleCpnC(idx){
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today = getNow(); today.setHours(0,0,0,0);
   const typeC = (SETTINGS.campaigns||[]).filter(cp=>{
     if(cp.type !== 'C') return false;
     if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
@@ -1208,7 +1236,7 @@ function cpCheck(){
 // ── キャンペーン期間チェック ──
 function parsePeriodDate(str, isEnd) {
   if (!str) return null;
-  const now = new Date();
+  const now = getNow();
   const year = now.getFullYear();
   const parts = str.split(/[〜～]/);
   const target = isEnd ? (parts[1]||parts[0]) : parts[0];
@@ -1223,7 +1251,7 @@ function parsePeriodDate(str, isEnd) {
 }
 
 function getCampaignStatus(cp) {
-  const today = new Date();
+  const today = getNow();
   today.setHours(0,0,0,0);
 
   // date_start/date_endがあればそれを使用、なければperiodから解析
