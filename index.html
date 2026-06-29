@@ -831,6 +831,9 @@ function findActiveSetOptions(productName){
   if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)) return [];
   const today = getNow();
   today.setHours(0,0,0,0);
+  const opts = [];
+  SETTINGS.campaigns.forEach(cp=>{
+    if(cp.type !== 'F' && cp.type !== 'A' && cp.type !== 'B') return;
     // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
     if(cp.date_start){
       const ds = new Date(cp.date_start.replace(/\//g,'-'));
@@ -1015,6 +1018,7 @@ function renderDynamicCoupons(){
   if(!area) return;
   if(!SETTINGS || !Array.isArray(SETTINGS.campaigns)){ area.innerHTML=''; return; }
   const today = getNow(); today.setHours(0,0,0,0);
+  const typeC = SETTINGS.campaigns.filter(cp=>{
     if(cp.type !== 'C') return false;
     if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
     if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
