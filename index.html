@@ -837,6 +837,7 @@ function findActiveSetOptions(productName){
     // 期間チェック（開始日・終了日どちらか欠けていれば常時有効扱い）
     if(cp.date_start){
       const ds = new Date(cp.date_start.replace(/\//g,'-'));
+      ds.setHours(0,0,0,0);
       if(today < ds) return;
     }
     if(cp.date_end){
@@ -1020,7 +1021,7 @@ function renderDynamicCoupons(){
   const today = getNow(); today.setHours(0,0,0,0);
   const typeC = SETTINGS.campaigns.filter(cp=>{
     if(cp.type !== 'C') return false;
-    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
+    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); ds.setHours(0,0,0,0); if(today<ds) return false; }
     if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
     return true;
   });
@@ -1044,7 +1045,7 @@ function toggleCpnC(idx){
   const today = getNow(); today.setHours(0,0,0,0);
   const typeC = (SETTINGS.campaigns||[]).filter(cp=>{
     if(cp.type !== 'C') return false;
-    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); if(today<ds) return false; }
+    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); ds.setHours(0,0,0,0); if(today<ds) return false; }
     if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
     return true;
   });
@@ -1259,8 +1260,10 @@ function getCampaignStatus(cp) {
   today.setHours(0,0,0,0);
 
   // date_start/date_endがあればそれを使用、なければperiodから解析
-  let start = cp.date_start ? new Date(cp.date_start) : parsePeriodDate(cp.period, false);
-  let end   = cp.date_end   ? new Date(cp.date_end)   : parsePeriodDate(cp.period, true);
+  let start = cp.date_start ? new Date(cp.date_start.replace(/\//g,'-')) : parsePeriodDate(cp.period, false);
+  let end   = cp.date_end   ? new Date(cp.date_end.replace(/\//g,'-'))   : parsePeriodDate(cp.period, true);
+  if(start) start.setHours(0,0,0,0);
+  if(end)   end.setHours(23,59,59,999);
 
   if (!start && !end) return 'active'; // 解析不可は常時表示
 
