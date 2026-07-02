@@ -532,12 +532,10 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
                 <span class="note">AMEX: 4-6-5桁(15桁)・セキュリティコードは表面4桁</span>
               </div>
               <div style="display:flex;gap:6px;margin-bottom:6px;">
-                <div class="fg"><label>カード番号</label><input id="i-cno" type="text" placeholder="0000-0000-0000-0000" oninput="validate()"></div>
-                <div class="fg"><label>有効期限</label><input id="i-cexp" type="text" placeholder="MM/YY" oninput="validate()"></div>
+                <div class="fg" style="flex:1;"><label>支払回数</label><select id="i-cins"><option>1回払い</option><option>2回払い</option><option>3回払い</option><option>6回払い</option><option>10回払い</option><option>12回払い</option><option>24回払い</option></select></div>
               </div>
               <div style="display:flex;gap:6px;">
-                <div class="fg"><label>セキュリティ</label><input id="i-csec" type="text" placeholder="裏面3桁"></div>
-                <div class="fg"><label>支払回数</label><select id="i-cins"><option>1回払い</option><option>2回払い</option><option>3回払い</option><option>6回払い</option><option>10回払い</option><option>12回払い</option><option>24回払い</option></select></div>
+                <div class="fg" style="flex:1;"><label>備考（クレジット）</label><input id="i-card-note" type="text" placeholder="例：決済エラー・分割回数変更 等"></div>
               </div>
               <div style="background:var(--rdl);border-left:3px solid var(--rd);padding:5px 8px;font-size:10px;color:var(--rd);margin-top:6px;border-radius:0 4px 4px 0;">⚠ 決済エラー時: カード番号・有効期限を再確認し再度決済</div>
             </div>
