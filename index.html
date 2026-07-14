@@ -1213,10 +1213,15 @@ function cpCheck(){
         }
       }else if(type==='E'&&cp.prog_start){
         const start=cp.prog_start,step=cp.prog_step||10000;
-        if(sub>0&&sub<start){
-          addCpMsg(zone,'🎁 '+cp.name+per+'：あと¥'+(start-sub).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
-        }else if(sub>=start){
-          const cnt=Math.floor((sub-start)/step)+1;
+        // ロイヤルブラン等：ポイント値引き後のお支払い金額で判定
+        const subE=calcSub();
+        const discE=st.cpDisc+st.cpnDisc;
+        const ptsE=Math.min(st.points||0, Math.max(0, subE-discE));
+        const grandE=Math.max(0, subE-discE-ptsE);
+        if(grandE>0&&grandE<start){
+          addCpMsg(zone,'🎁 '+cp.name+per+'：あと¥'+(start-grandE).toLocaleString()+'で【'+cp.prog_gift_name+'】1個プレゼント！','hint');
+        }else if(grandE>=start){
+          const cnt=Math.floor((grandE-start)/step)+1;
           addCpMsg(zone,'🎁 ✅ '+cp.name+'：【'+cp.prog_gift_name+'】'+cnt+'個プレゼント対象！（¥'+(start+step*cnt).toLocaleString()+'以上で'+(cnt+1)+'個）','ok');
         }else{
           addCpMsg(zone,'🎁 '+cp.name+per+'：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
