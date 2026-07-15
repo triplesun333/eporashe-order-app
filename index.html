@@ -495,8 +495,9 @@ body{font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--tx);fon
                 oninput="onPointsInput(this.value)">
               <span style="font-size:10px;color:rgba(255,255,255,.6);">pt（1pt=1円）</span>
             </div>
-            <div style="margin-top:8px;">
+            <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;">
               <div class="to ship-add-toggle" id="ship-add-toggle" onclick="toggleShipAdd()">🚚 送料・代引き手数料を追加する</div>
+              <div class="to ship-add-toggle" id="post-add-toggle" onclick="togglePostAdd()" style="background:var(--sf);border-color:var(--bd2);color:var(--tx2);">🧾 後払い手数料（¥200）を追加する</div>
             </div>
           </div>
           <!-- 小計〜合計 -->
@@ -728,6 +729,7 @@ function clearTestDate(){
 let catFilter='すべて',SETTINGS=null,activeCpnKey='';
 let staffMode=''; // '', 'emp', 'f20', 'f30'
 let shipAdd=false; // 送料・代引き手数料を強制追加するフラグ（ネコポス→宅配便への変更時など）
+let postAdd=false; // 後払い手数料¥200を手動追加するフラグ
 
 // ============================================================
 //  STAFF LOGIN
@@ -934,7 +936,18 @@ function toggleStaffDisc(mode){
 }
 function toggleShipAdd(){
   shipAdd = !shipAdd;
+  if(shipAdd) postAdd = false; // 排他制御
   document.getElementById('ship-add-toggle').classList.toggle('on', shipAdd);
+  const postEl = document.getElementById('post-add-toggle');
+  if(postEl) postEl.classList.remove('on');
+  calcTotals();
+}
+function togglePostAdd(){
+  postAdd = !postAdd;
+  if(postAdd) shipAdd = false; // 排他制御
+  document.getElementById('post-add-toggle').classList.toggle('on', postAdd);
+  const shipEl = document.getElementById('ship-add-toggle');
+  if(shipEl) shipEl.classList.remove('on');
   calcTotals();
 }
 function onPointsInput(val){
@@ -1355,8 +1368,13 @@ function checkDateRestriction(){
     inputsEl.style.display='flex';
   }
 }
-function calcShip(sub,pay,freeOverride){
+function calcShip(sub,pay,freeOverride,allNeko){
   if(!pay)return{label:'支払方法を選択してください',amt:null};
+  // ネコポスのみ＋後払い：¥7,700以上は無料、未満は後払い手数料¥200のみ
+  if(freeOverride && allNeko && pay==='post'){
+    if(sub>=7700) return{label:'送料無料・後払い手数料無料',amt:0};
+    return{label:'ネコポス送料無料・後払い手数料¥200',amt:200};
+  }
   if(freeOverride){
     if(pay==='post')return{label:'送料無料・後払い手数料無料',amt:0};
     if(pay==='pre')return{label:'送料無料（振込手数料はお客様負担）',amt:0};
@@ -1381,13 +1399,17 @@ function calcShip(sub,pay,freeOverride){
 function resolveShip(sub,pay){
   const allNeko = isAllNeko();
   if(shipAdd){
-    return {ship: calcShip(0,pay,false), allNeko, freeOverride:false};
+    return {ship: calcShip(0,pay,false,false), allNeko, freeOverride:false};
+  }
+  if(postAdd){
+    // 後払い手数料手動追加：ネコポスのみでも¥200を強制加算
+    return {ship: {label:'後払い手数料¥200（手動追加）',amt:200}, allNeko, freeOverride:allNeko||st.teiki};
   }
   if(staffMode){
     return {ship: pay ? {label:'持ち帰り（送料・手数料なし）',amt:0} : {label:'支払方法を選択してください',amt:null}, allNeko, freeOverride:false};
   }
   const freeOverride = allNeko || st.teiki;
-  return {ship: calcShip(sub,pay,freeOverride), allNeko, freeOverride};
+  return {ship: calcShip(sub,pay,freeOverride,allNeko), allNeko, freeOverride};
 }
 function calcTotals(){
   const sub=calcSub();
@@ -1417,6 +1439,8 @@ function calcTotals(){
   const sn=document.getElementById('ship-notice');
   if(shipAdd){
     sn.innerHTML='<div class="ship-notice sn-warn">🚚 送料・代引き手数料を追加しています。</div>';
+  }else if(postAdd){
+    sn.innerHTML='<div class="ship-notice sn-warn">🧾 後払い手数料（¥200）を手動追加しています。</div>';
   }else if(staffMode){
     sn.innerHTML='<div class="ship-notice sn-ok">🤝 持ち帰りのため送料・手数料はかかりません。</div>';
   }else if(freeOverride && allNeko && st.pay==='cod'){
@@ -1688,9 +1712,10 @@ function submitOrder(){
 // NEW ORDER
 function newOrder(){
   cart=[];st={pay:'',time:'',cpnKey:'',cpnDisc:0,cpnLabel:'',cpDisc:0,cpLabel:'',teiki:false,delMonth:'',delDay:'',points:0};activeCpnKey='';
-  staffMode='';shipAdd=false;
+  staffMode='';shipAdd=false;postAdd=false;
   ['emp','f20','f30'].forEach(m=>document.getElementById('staff-'+m).classList.remove('on'));
   const shipAddEl=document.getElementById('ship-add-toggle');if(shipAddEl)shipAddEl.classList.remove('on');
+  const postAddEl=document.getElementById('post-add-toggle');if(postAddEl)postAddEl.classList.remove('on');
   const teikiEl=document.getElementById('teiki-toggle');if(teikiEl)teikiEl.classList.remove('on');
   const dm=document.getElementById('del-month');if(dm)dm.value='';
   const dd=document.getElementById('del-day');if(dd)dd.value='';
