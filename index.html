@@ -1242,6 +1242,11 @@ function cpCheck(){
       }else if(type==='C'){
         const detail=cp.name+per+'：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
         addCpMsg(zone,detail,'info');
+      }else if(type==='G'){
+        // タイプG：告知専用（割引なし・バナー表示のみ）
+        const _pd=cp.products?'【'+cp.products+'】':'';
+        const _note=cp.note?'<br><span style="font-size:10px;">'+cp.note+'</span>':'';
+        addCpMsg(zone,'📣 '+cp.name+per+_pd+_note,'info');
       }else if(cp.rules&&cp.rules.length){
         const _pp=cp.products?'【'+cp.products+'】':'';
         const detail=cp.name+per+_pp+'：'+(cp.rules||[]).map(r=>r.desc+'→¥'+r.disc_price.toLocaleString()+'('+r.pct+'%OFF)').join(' / ');
