@@ -58,7 +58,7 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
 .cp-block-body{padding:12px;}
 .cp-type-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;color:#fff;}
 .badge-A{background:#2d6a4f;} .badge-B{background:#92500a;} .badge-C{background:#6d28d9;}
-.badge-D{background:#b8832a;} .badge-E{background:#b91c1c;} .badge-F{background:#1a3a5c;}
+.badge-D{background:#b8832a;} .badge-E{background:#b91c1c;} .badge-F{background:#1a3a5c;} .badge-G{background:#0e7490;}
 .rule-block{background:var(--wh);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;margin-bottom:6px;}
 .rule-block-title{font-size:10px;font-weight:800;color:var(--tx3);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;}
 .rule-del{font-size:11px;color:var(--rd);cursor:pointer;border:none;background:none;font-family:inherit;font-weight:700;}
@@ -170,6 +170,8 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
           <span class="cp-type-badge badge-E">E: 累進プレゼント</span>
           <span style="color:var(--bd2);">｜</span>
           <span class="cp-type-badge badge-F">F: セット価格</span>
+          <span style="color:var(--bd2);">｜</span>
+          <span class="cp-type-badge badge-G">G: 告知のみ</span>
         </div>
         <div id="cp-list"></div>
       </div>
@@ -192,7 +194,7 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-9"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">9月</span><div class="fg" style="flex:1;"><input type="text" id="cosme_9" placeholder="例: サプルノーブルパウチ 2包"></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-10"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">10月</span><div class="fg" style="flex:1;"><input type="text" id="cosme_10" placeholder="例: サプルノーブルパウチ 2包"></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-11"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">11月</span><div class="fg" style="flex:1;"><input type="text" id="cosme_11" placeholder="例: サプルノーブルパウチ 2包"></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;" id="cosme-row-12"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span><div class="fg" style="flex:1;"><input type="text" id="cosme_12" placeholder="例: サプルノーブルパウチ 2包"></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="cosme-row-12"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span><div class="fg" style="flex:1;"><input type="text" id="cosme_12" placeholder="例: サプルノーブルパウチ 2包"></div></div>
         </div>
       </div>
     </div>
@@ -216,7 +218,7 @@ body{font-family:"M PLUS 1p",sans-serif;background:var(--bg);color:var(--tx);fon
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-9"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">9月</span><div class="fg" style="flex:1;"><input type="text" id="bd_code_9" placeholder="例: HB7788"></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-10"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">10月</span><div class="fg" style="flex:1;"><input type="text" id="bd_code_10" placeholder="例: HB7788"></div></div>
           <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-11"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">11月</span><div class="fg" style="flex:1;"><input type="text" id="bd_code_11" placeholder="例: HB7788"></div></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;" id="bd-row-12"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span><div class="fg" style="flex:1;"><input type="text" id="bd_code_12" placeholder="例: HB7788"></div></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px solid var(--bd);" id="bd-row-12"><span style="font-size:12px;font-weight:800;color:var(--nv);min-width:36px;">12月</span><div class="fg" style="flex:1;"><input type="text" id="bd_code_12" placeholder="例: HB7788"></div></div>
         </div>
       </div>
     </div>
@@ -335,7 +337,6 @@ function settingsToCampaign(cp) {
     period: cp.period || '',
     date_start: toInputDate(cp.date_start || ''),
     date_end:   toInputDate(cp.date_end   || ''),
-    announce_date: cp.announce_date || '',
     products: cp.products || '',
     rules: cp.rules || [],
     coupon_code: cp.coupon_code || '',
@@ -374,8 +375,8 @@ function renderCampaigns() {
 }
 
 function buildCampaignHTML(cp, i) {
-  const typeOpts = ['A','B','C','D','E','F'].map(t =>
-    `<option value="${t}" ${cp.type===t?'selected':''}>${t}: ${{'A':'数量割引','B':'段階割引','C':'コードクーポン','D':'金額プレゼント','E':'累進プレゼント','F':'セット価格'}[t]}</option>`
+  const typeOpts = ['A','B','C','D','E','F','G'].map(t =>
+    `<option value="${t}" ${cp.type===t?'selected':''}>${t}: ${{'A':'数量割引','B':'段階割引','C':'コードクーポン','D':'金額プレゼント','E':'累進プレゼント','F':'セット価格','G':'告知のみ'}[t]}</option>`
   ).join('');
   let typeSpecific = '';
   const type = cp.type || 'A';
@@ -414,11 +415,16 @@ function buildCampaignHTML(cp, i) {
       <div class="fg"><label>増加金額（円）</label><input type="number" value="${cp.prog_step||''}" onchange="updateCp(${i},'prog_step',this.value)"></div>
       <div class="fg fgrid-full"><label>備考（受注処理案内）</label><input type="text" value="${cp.note||''}" onchange="updateCp(${i},'note',this.value)"></div>
     </div>`;
+  } else if (type === 'G') {
+    typeSpecific = `<div class="fgrid">
+      <div class="fg fgrid-full"><label>告知内容（アプリバナーに表示）</label><input type="text" value="${cp.note||''}" onchange="updateCp(${i},'note',this.value)" placeholder="例: シャイニーブラン100mL ¥18,700 / リンプル100mL ¥24,200"></div>
+    </div>
+    <div style="font-size:10px;color:#0e7490;margin-top:4px;">💡 告知バナーとして表示されます。割引計算は行いません。</div>`;
   }
   return `
     <div class="cp-block-head" onclick="toggleBlock(this)">
       <span class="cp-type-badge badge-${type}">${type}</span>
-      <span class="cp-block-title">${cp.name||'（未入力）'} <span style="font-size:10px;font-weight:400;color:var(--tx3);">${cp.date_start||''} 〜 ${cp.date_end||''}${cp.announce_date?'（告知 '+cp.announce_date+'〜）':''}</span></span>
+      <span class="cp-block-title">${cp.name||'（未入力）'} <span style="font-size:10px;font-weight:400;color:var(--tx3);">${cp.date_start||''} 〜 ${cp.date_end||''}</span></span>
       <button class="cp-del-btn" onclick="event.stopPropagation();delCampaign(${i})">✕</button>
     </div>
     <div class="cp-block-body">
@@ -542,13 +548,12 @@ function openExport() {
   });
   const allCps = s.campaigns||[];
 
-  const typeLabel={A:'数量割引',B:'段階割引',C:'コードクーポン',D:'金額プレゼント',E:'累進プレゼント',F:'セット価格'};
+  const typeLabel={A:'数量割引',B:'段階割引',C:'コードクーポン',D:'金額プレゼント',E:'累進プレゼント',F:'セット価格',G:'告知のみ'};
   const typeBadge={A:'#2d6a4f',B:'#92500a',C:'#6d28d9',D:'#b8832a',E:'#b91c1c',F:'#1a3a5c'};
 
   function cpDetail(cp) {
     let lines = [];
     lines.push(`期間：${cp.date_start||'?'} 〜 ${cp.date_end||'?'}`);
-    if(cp.announce_date) lines.push(`告知開始日：${cp.announce_date}`);
     if(cp.products) lines.push(`対象商品：${cp.products}`);
     if(cp.type==='C'){
       lines.push(`コード：${cp.coupon_code||''}`);
@@ -682,11 +687,12 @@ async function saveSettings() {
   const btn = document.getElementById('save-btn');
   btn.disabled = true; btn.textContent = '保存中…';
   const apiCampaigns = campaigns.map(cp => {
-    const base = {type:cp.type, name:cp.name, date_start:toStorageDate(cp.date_start||''), date_end:toStorageDate(cp.date_end||''), period:cp.period||'', products:cp.products, note:cp.note||'', announce_date:cp.announce_date||''};
+    const base = {type:cp.type, name:cp.name, date_start:toStorageDate(cp.date_start||''), date_end:toStorageDate(cp.date_end||''), period:cp.period||'', products:cp.products, note:cp.note||''};
     if(cp.type==='A'||cp.type==='B'||cp.type==='F') base.rules=cp.rules;
     else if(cp.type==='C'){base.coupon_code=cp.coupon_code;base.discount_pct=Number(cp.discount_pct);base.disc_amount=Number(cp.disc_amount||0);base.min_amount=Number(cp.min_amount);base.target_keywords=cp.target_keywords;}
     else if(cp.type==='D'){base.gift_name=cp.gift_name;base.gift_min=Number(cp.gift_min);}
     else if(cp.type==='E'){base.prog_gift_name=cp.prog_gift_name;base.prog_start=Number(cp.prog_start);base.prog_step=Number(cp.prog_step);}
+    else if(cp.type==='G'){/* noteのみ、baseに含まれている */}
     return base;
   });
   const cosmeTalk = Array.from({length:12}, (_,i) => ({month:i+1,this_month:get('cosme_'+(i+1))}));
