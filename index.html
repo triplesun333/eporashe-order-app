@@ -1677,6 +1677,12 @@ function openConfirm(){
     '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等'+(ship.amt!=null?'¥'+ship.amt.toLocaleString():'要確認')+(pts>0?' - ポイント¥'+pts.toLocaleString():'')+'</div></div><div class="rt-v">'+( ship.amt!=null?'¥'+grand.toLocaleString():'確認中')+'</div></div>'+
     (document.getElementById('i-note').value?'<div style="background:var(--wnl);border:1.5px solid #f59e0b;border-radius:var(--rs);padding:8px 11px;font-size:11px;color:var(--wn);margin-bottom:10px;"><b>📝 備考：</b>'+document.getElementById('i-note').value+'</div>':'')+
     '<div style="font-size:10px;color:var(--tx3);text-align:center;margin-top:8px;">※価格やキャンペーン内容は変更されている場合があります。確定前に最終確認をお願いいたします。</div>';
+  // アクションボタンを通常の受注確定モードに戻す（履歴詳細から遷移してきた場合の対策）
+  const actions = document.querySelector('#ov-confirm .ov-actions');
+  actions.innerHTML =
+    '<button class="btn btn-bk" onclick="closeConfirm()">← 戻る</button>'+
+    '<button class="btn btn-pr" onclick="printAndSave()">🖨 印刷して保存</button>'+
+    '<button class="btn btn-ok" onclick="submitOrder()">✅ 受注確定・保存</button>';
   document.getElementById('ov-confirm').classList.add('on');
 }
 function closeConfirm(){document.getElementById('ov-confirm').classList.remove('on');}
@@ -1762,9 +1768,75 @@ async function renderHist(){  _histOrders=[];
     const grand=Number(o.grand)||Number(o.subtotal)||0;
     const histIdx=_histOrders.length;
     _histOrders.push(o);
-    d.innerHTML='<div class="hi-top"><div><div class="hi-date">'+fmtDate(o.date)+'</div><div class="hi-name">'+(o.name||'（名前なし）')+'様</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="hi-amt">¥'+grand.toLocaleString()+'</div><button onclick="printHist('+histIdx+')" style="padding:4px 10px;border:1.5px solid var(--nv);border-radius:10px;background:#fff;color:var(--nv);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;">🖨 印刷</button></div></div><div class="hi-prd">'+itemsStr+'</div><div class="hi-info">📞 '+(o.phone||'—')+'　💳 '+(pN[o.pay]||o.pay||'—')+'　🕐 '+(o.time||'—')+(o.addr?' 📍 '+o.addr:'')+'</div>';
+    d.style.cursor='pointer';
+    d.onclick=()=>showHistDetail(histIdx);
+    d.innerHTML='<div class="hi-top"><div><div class="hi-date">'+fmtDate(o.date)+'</div><div class="hi-name">'+(o.name||'（名前なし）')+'様</div></div><div style="display:flex;align-items:center;gap:8px;"><div class="hi-amt">¥'+grand.toLocaleString()+'</div><button onclick="event.stopPropagation();printHist('+histIdx+')" style="padding:4px 10px;border:1.5px solid var(--nv);border-radius:10px;background:#fff;color:var(--nv);font-size:10px;font-weight:800;cursor:pointer;white-space:nowrap;">🖨 印刷</button></div></div><div class="hi-prd">'+itemsStr+'</div><div class="hi-info">📞 '+(o.phone||'—')+'　💳 '+(pN[o.pay]||o.pay||'—')+'　🕐 '+(o.time||'—')+(o.addr?' 📍 '+o.addr:'')+'</div><div style="font-size:9px;color:var(--tx4);margin-top:4px;">タップで詳細を表示 →</div>';
     el.appendChild(d);
   });
+}
+
+// 履歴詳細モーダル表示（受注票確認画面を流用）
+function showHistDetail(idx){
+  const o = _histOrders[idx];
+  if(!o) return;
+  const PAY={cod:'代金引換',pre:'前振り（振込）',post:'コンビニ後払い',card:'クレジットカード',card2:'クレジットカード（2回払い）',cash:'現金'};
+  const TIME={am:'午前中','14-16':'14〜16時','16-18':'16〜18時','18-20':'18〜20時','19-21':'19〜21時',box:'宅配BOX',none:'指定なし',teiki:'定期'};
+  const CHN={tel:'電話',fc:'フリーコール',ec:'EC',shop:'店舗'};
+  const sub   = Number(o.subtotal)||0;
+  const disc  = Number(o.disc)||0;
+  const pts   = Number(o.points)||0;
+  const ship  = Number(o.shipping)||0;
+  const grand = Number(o.grand)||(sub-disc+ship-pts)||0;
+
+  const itemsData = Array.isArray(o.itemsParsed) ? o.itemsParsed
+    : Array.isArray(o.items) ? o.items
+    : null;
+
+  const itemsRows = itemsData
+    ? itemsData.map((c,i)=>`
+    <tr style="background:${i%2===0?'#fff':'#f7f4ef'};">
+      <td style="padding:10px 10px 10px 12px;border-left:3px solid ${c.isCampaignFixed?'#b8832a':c.neko?'#0e7490':'#ddd8d0'};">
+        <div style="font-size:13px;font-weight:800;color:#1a1410;margin-bottom:3px;">${c.name}<span style="font-size:10px;font-weight:400;color:#8a7d72;margin-left:6px;">[${c.code||c.id||''}]</span></div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${c.neko?'<span style="background:#0e7490;color:#fff;font-size:9px;border-radius:3px;padding:1px 5px;font-weight:700;">★ネコポス</span>':''}
+          ${c.isCampaignFixed?'<span style="background:#b8832a;color:#fff;font-size:9px;border-radius:3px;padding:1px 5px;font-weight:700;">🏷️ CP価格</span>':''}
+          <span style="font-size:10px;color:#8a7d72;">単価 ¥${(Number(c.price)||0).toLocaleString()}</span>
+        </div>
+      </td>
+      <td style="padding:10px 8px;text-align:center;font-size:14px;font-weight:800;color:#4a3f35;white-space:nowrap;">× ${c.qty}</td>
+      <td style="padding:10px 12px 10px 8px;text-align:right;white-space:nowrap;">
+        <div style="font-size:15px;font-weight:800;color:#1a3a5c;">¥${((Number(c.price)||0)*c.qty).toLocaleString()}</div>
+      </td>
+    </tr>`).join('')
+    : `<tr><td colspan="3" style="padding:10px 12px;font-size:13px;">${(typeof o.items==='string'?o.items:'').split(' / ').join('<br>')}</td></tr>`;
+
+  const delWish = o.delMonth && o.delDay ? '<div class="rr"><div class="rrl">お届け希望日</div><div class="rrv" style="font-weight:800;">'+o.delMonth+'月'+o.delDay+'日</div></div>' : '';
+
+  document.getElementById('ov-body').innerHTML=
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;"><div style="font-size:18px;letter-spacing:.1em;color:var(--nv);">受　注　票（履歴）</div><div style="font-size:10px;color:var(--tx3);">'+fmtDate(o.date)+'　担当：'+(o.staff||'—')+'</div></div>'+
+    '<div class="rcpt-grid"><div class="rb"><div class="rb-h">👤 お客様情報</div><div class="rb-b">'+
+    '<div class="rr"><div class="rrl">電話番号</div><div class="rrv">'+(o.phone||'—')+'</div></div>'+
+    '<div class="rr"><div class="rrl">お名前</div><div class="rrv" style="font-size:14px;font-weight:800;">'+(o.name||'—')+' 様</div></div>'+
+    '<div class="rr"><div class="rrl">住所</div><div class="rrv">'+(o.addr||'（スマイル参照）')+'</div></div>'+
+    '</div></div>'+
+    '<div class="rb"><div class="rb-h">📦 配送・支払情報</div><div class="rb-b">'+
+    '<div class="rr"><div class="rrl">支払方法</div><div class="rrv" style="font-weight:800;">'+(PAY[o.pay]||o.pay||'—')+'</div></div>'+
+    '<div class="rr"><div class="rrl">時間帯</div><div class="rrv">'+(TIME[o.time]||o.time||'—')+(o.teiki?'（定期同梱）':'')+'</div></div>'+
+    delWish+
+    '<div class="rr"><div class="rrl">チャネル</div><div class="rrv">'+(CHN[o.channel]||o.channel||'—')+'</div></div>'+
+    '</div></div></div>'+
+    '<table class="itbl"><tr><th style="width:60%;">商品名</th><th style="text-align:center;width:15%;">数量</th><th style="text-align:right;width:25%;">金額</th></tr>'+itemsRows+'</table>'+
+    '<div class="r-total"><div><div class="rt-l">お支払い合計</div><div style="font-size:10px;opacity:.7;">小計¥'+sub.toLocaleString()+(disc>0?' - 割引¥'+disc.toLocaleString():'')+' + 送料等¥'+ship.toLocaleString()+(pts>0?' - ポイント¥'+pts.toLocaleString():'')+'</div></div><div class="rt-v">¥'+grand.toLocaleString()+'</div></div>'+
+    (o.coupon?'<div style="background:var(--nvp);border:1.5px solid var(--nv);border-radius:var(--rs);padding:7px 12px;font-size:11px;color:var(--nv);margin-bottom:10px;">🏷️ クーポン：'+o.coupon+'</div>':'')+
+    (o.note?'<div style="background:var(--wnl);border:1.5px solid #f59e0b;border-radius:var(--rs);padding:8px 11px;font-size:11px;color:var(--wn);margin-bottom:10px;"><b>📝 備考：</b>'+o.note+'</div>':'');
+
+  // アクションボタンを履歴詳細用に差し替え
+  const actions = document.querySelector('#ov-confirm .ov-actions');
+  actions.innerHTML =
+    '<button class="btn btn-bk" onclick="closeConfirm()">← 閉じる</button>'+
+    '<button class="btn btn-pr" onclick="printHist('+idx+')">🖨 印刷</button>';
+
+  document.getElementById('ov-confirm').classList.add('on');
 }
 function clearHist(){if(confirm('受注履歴をすべて削除しますか？')){localStorage.removeItem('epro_orders');renderHist();}}
 
@@ -1807,7 +1879,7 @@ function printHist(idx){
     ? itemsData.map((i,idx)=>`
         <tr style="background:${idx%2===0?'#fff':'#f7f4ef'};">
           <td style="padding:10px 10px 10px 12px;border-left:3px solid ${i.isCampaignFixed?'#b8832a':i.neko?'#0e7490':'#ddd8d0'};">
-            <div style="font-size:13px;font-weight:800;color:#1a1410;margin-bottom:3px;">${i.name}</div>
+            <div style="font-size:13px;font-weight:800;color:#1a1410;margin-bottom:3px;">${i.name}<span style="font-size:10px;font-weight:400;color:#8a7d72;margin-left:6px;">[${i.code||i.id||''}]</span></div>
             <div style="display:flex;gap:6px;align-items:center;">
               ${i.neko?'<span style="background:#0e7490;color:#fff;font-size:9px;border-radius:3px;padding:1px 5px;font-weight:700;">★ネコポス</span>':''}
               ${i.isCampaignFixed?'<span style="background:#b8832a;color:#fff;font-size:9px;border-radius:3px;padding:1px 5px;font-weight:700;">🏷️ CP価格</span>':''}
