@@ -1024,6 +1024,53 @@ function renderRight(){
   renderDynamicCoupons();
 }
 
+// ── %OFFコード（歳末大感謝祭など）：対象商品コードのみ割引・他割引と併用不可 ──
+function getActiveTypeC(){
+  const today=getNow(); today.setHours(0,0,0,0);
+  return (SETTINGS&&SETTINGS.campaigns||[]).filter(cp=>{
+    if(cp.type!=='C') return false;
+    if(cp.date_start){ const ds=new Date(cp.date_start.replace(/\//g,'-')); ds.setHours(0,0,0,0); if(today<ds) return false; }
+    if(cp.date_end){ const de=new Date(cp.date_end.replace(/\//g,'-')); de.setHours(23,59,59,999); if(today>de) return false; }
+    return true;
+  });
+}
+function isPctCpn(cp){ return !!cp && !Number(cp.disc_amount) && Number(cp.discount_pct)>0 && !!(cp.target_codes||'').trim(); }
+function pctCpnCalc(cp){
+  if(st.teiki) return {err:'定期同梱には使用できません'};
+  if(st.cpDisc>0) return {err:'キャンペーン割引とは併用できません'};
+  if(typeof staffMode!=='undefined' && staffMode) return {err:'社販・友人割とは併用できません'};
+  const sub=calcSub(), minAmt=Number(cp.min_amount)||0;
+  if(sub<minAmt) return {err:'¥'+minAmt.toLocaleString()+'以上で利用可能です（あと¥'+(minAmt-sub).toLocaleString()+'）'};
+  const split=v=>(v||'').split(',').map(x=>x.trim()).filter(Boolean);
+  const codes=split(cp.target_codes), early=split(cp.early_codes);
+  let eEnd=null;
+  if(cp.early_end){ eEnd=new Date(cp.early_end.replace(/\//g,'-')); eEnd.setHours(23,59,59,999); }
+  const now=getNow();
+  let base=0;
+  cart.forEach(c=>{
+    if(c.isCampaignFixed) return; // キャンペーン価格・セット価格の商品は対象外
+    const code=String(c.code||'');
+    if(codes.includes(code) || (early.includes(code) && (!eEnd || now<=eEnd))) base+=c.price*c.qty;
+  });
+  if(!base) return {err:'対象商品がカートに入っていません'};
+  return {disc:Math.floor(base*Number(cp.discount_pct)/100), base};
+}
+function recheckPctCpn(){
+  if(!st.cpnKey || st.cpnKey.indexOf('c_')!==0) return;
+  const cp=getActiveTypeC()[Number(st.cpnKey.slice(2))];
+  if(!isPctCpn(cp)) return;
+  const r=pctCpnCalc(cp);
+  const hint=document.getElementById('cpn-dynamic-hint');
+  if(r.err){
+    activeCpnKey=''; st.cpnDisc=0; st.cpnLabel=''; st.cpnKey='';
+    if(hint) hint.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ '+(cp.name||'クーポン')+'：'+r.err+'（クーポンを解除しました）</span>';
+    renderDynamicCoupons();
+  }else{
+    st.cpnDisc=r.disc;
+    if(hint) hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+r.disc.toLocaleString()+'（対象商品¥'+r.base.toLocaleString()+'の'+cp.discount_pct+'%）適用中</span>';
+  }
+}
+
 // タイプC（コードクーポン）を動的にボタン表示する
 function renderDynamicCoupons(){
   const area = document.getElementById('cpn-dynamic-area');
@@ -1076,6 +1123,20 @@ function toggleCpnC(idx){
   activeCpnKey = key; st.cpnKey = key;
   if(btnMc) btnMc.classList.remove('on');
   const mcHint=document.getElementById('cpn-hint'); if(mcHint && !btnBd.classList.contains('on')) mcHint.innerHTML='';
+  // %OFFコード（対象商品コード指定・併用不可タイプ）
+  if(isPctCpn(cp)){
+    const r=pctCpnCalc(cp);
+    if(r.err){
+      hint.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ '+r.err+'</span>';
+      activeCpnKey=''; st.cpnKey=''; st.cpnDisc=0; st.cpnLabel='';
+      renderDynamicCoupons(); calcTotals();
+      return;
+    }
+    st.cpnDisc=r.disc; st.cpnLabel=cp.name||'クーポン';
+    hint.innerHTML='<span style="color:var(--ok);font-weight:700;">✅ '+st.cpnLabel+' -¥'+r.disc.toLocaleString()+'（対象商品¥'+r.base.toLocaleString()+'の'+cp.discount_pct+'%）適用中</span>';
+    renderDynamicCoupons(); calcTotals();
+    return;
+  }
   // 対象商品コードのチェック（商品コード指定がある場合のみ）
   const targetCodes = (cp.target_codes||cp.target_keywords||'').split(',').map(s=>s.trim()).filter(Boolean);
   const sub = calcSub();
@@ -1240,7 +1301,7 @@ function cpCheck(){
           addCpMsg(zone,'🎁 '+cp.name+per+'：¥'+start.toLocaleString()+'→1個、¥'+(start+step).toLocaleString()+'→2個…【'+cp.prog_gift_name+'】累進プレゼント','info');
         }
       }else if(type==='C'){
-        const detail=cp.name+per+'：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'');
+        const detail=cp.name+per+'：クーポン【'+(cp.coupon_code||'')+'】で'+(cp.discount_pct||0)+'%OFF'+(cp.min_amount?'（¥'+cp.min_amount.toLocaleString()+'以上）':'')+(cp.note?'<br><span style="font-size:10px;">'+cp.note+'</span>':'');
         addCpMsg(zone,detail,'info');
       }else if(type==='G'){
         // タイプG：告知専用（割引なし・バナー表示のみ）
@@ -1417,6 +1478,7 @@ function resolveShip(sub,pay){
   return {ship: calcShip(sub,pay,freeOverride,allNeko), allNeko, freeOverride};
 }
 function calcTotals(){
+  recheckPctCpn();
   const sub=calcSub();
   // 送料無料ライン判定・表示用の金額：CP割引・クーポン割引を引いた後（ポイントは含めない）
   const netSub=Math.max(0, sub-st.cpDisc-st.cpnDisc);
