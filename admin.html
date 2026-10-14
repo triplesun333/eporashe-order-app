@@ -344,6 +344,9 @@ function settingsToCampaign(cp) {
     discount_pct: cp.discount_pct || 0,
     disc_amount: cp.disc_amount || 0,
     target_keywords: cp.target_keywords || '',
+    target_codes: cp.target_codes || '',
+    early_codes: cp.early_codes || '',
+    early_end: cp.early_end || '',
     gift_name: cp.gift_name || '',
     gift_min: cp.gift_min || 0,
     prog_gift_name: cp.prog_gift_name || '',
@@ -401,6 +404,9 @@ function buildCampaignHTML(cp, i) {
       <div class="fg"><label>割引率（%）※%OFFの場合</label><input type="number" value="${cp.discount_pct||''}" onchange="updateCp(${i},'discount_pct',this.value)"></div>
       <div class="fg"><label>最低購入金額（円）</label><input type="number" value="${cp.min_amount||''}" onchange="updateCp(${i},'min_amount',this.value)"></div>
       <div class="fg fgrid-full"><label>対象商品キーワード（空欄=全商品）</label><input type="text" value="${cp.target_keywords||''}" onchange="updateCp(${i},'target_keywords',this.value)"></div>
+      <div class="fg fgrid-full"><label>対象商品コード（%OFF用・カンマ区切り。指定すると対象商品のみ割引・他割引と併用不可）</label><input type="text" value="${cp.target_codes||''}" onchange="updateCp(${i},'target_codes',this.value)" placeholder="例: 551,548,105"></div>
+      <div class="fg fgrid-full"><label>早期終了の対象商品コード（カンマ区切り・任意）</label><input type="text" value="${cp.early_codes||''}" onchange="updateCp(${i},'early_codes',this.value)"></div>
+      <div class="fg"><label>早期終了日（例: 2026/12/28）</label><input type="text" value="${cp.early_end||''}" onchange="updateCp(${i},'early_end',this.value)" placeholder="2026/12/28"></div>
     </div>`;
   } else if (type === 'D') {
     typeSpecific = `<div class="fgrid">
@@ -689,7 +695,7 @@ async function saveSettings() {
   const apiCampaigns = campaigns.map(cp => {
     const base = {type:cp.type, name:cp.name, date_start:toStorageDate(cp.date_start||''), date_end:toStorageDate(cp.date_end||''), period:cp.period||'', products:cp.products, note:cp.note||''};
     if(cp.type==='A'||cp.type==='B'||cp.type==='F') base.rules=cp.rules;
-    else if(cp.type==='C'){base.coupon_code=cp.coupon_code;base.discount_pct=Number(cp.discount_pct);base.disc_amount=Number(cp.disc_amount||0);base.min_amount=Number(cp.min_amount);base.target_keywords=cp.target_keywords;}
+    else if(cp.type==='C'){base.coupon_code=cp.coupon_code;base.discount_pct=Number(cp.discount_pct);base.disc_amount=Number(cp.disc_amount||0);base.min_amount=Number(cp.min_amount);base.target_keywords=cp.target_keywords;base.target_codes=cp.target_codes||'';base.early_codes=cp.early_codes||'';base.early_end=cp.early_end||'';}
     else if(cp.type==='D'){base.gift_name=cp.gift_name;base.gift_min=Number(cp.gift_min);}
     else if(cp.type==='E'){base.prog_gift_name=cp.prog_gift_name;base.prog_start=Number(cp.prog_start);base.prog_step=Number(cp.prog_step);}
     else if(cp.type==='G'){/* noteのみ、baseに含まれている */}
