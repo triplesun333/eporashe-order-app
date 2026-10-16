@@ -1123,6 +1123,13 @@ function toggleCpnC(idx){
   activeCpnKey = key; st.cpnKey = key;
   if(btnMc) btnMc.classList.remove('on');
   const mcHint=document.getElementById('cpn-hint'); if(mcHint && !btnBd.classList.contains('on')) mcHint.innerHTML='';
+  // %OFF指定なのに対象商品コードが未設定の場合は、円として誤適用しないよう止める
+  if(!Number(cp.disc_amount) && Number(cp.discount_pct)>0 && !(cp.target_codes||'').trim()){
+    hint.innerHTML='<span style="color:var(--rd);font-weight:700;">⚠ このクーポンは対象商品コードが未設定です（管理画面で設定してください）</span>';
+    activeCpnKey=''; st.cpnKey=''; st.cpnDisc=0; st.cpnLabel='';
+    renderDynamicCoupons(); calcTotals();
+    return;
+  }
   // %OFFコード（対象商品コード指定・併用不可タイプ）
   if(isPctCpn(cp)){
     const r=pctCpnCalc(cp);
@@ -1166,7 +1173,7 @@ function toggleCpnC(idx){
 // 期間文字列生成ヘルパー
 function formatPeriod(cp){
   if(cp.period) return '（'+cp.period+'）';
-  if(cp.date_start&&cp.date_end){
+  if(cp.date_start&&cp.date_end&&!cp._auto_end){
     const s=cp.date_start.replace(/^\d{4}\//,'');
     const e=cp.date_end.replace(/^\d{4}\//,'');
     return '（'+s+'〜'+e+'）';
@@ -2038,6 +2045,18 @@ async function loadSettingsFromServer(){
   try{
     const res = await fetch(GAS+'?action=settings&t='+Date.now());
     SETTINGS = await res.json();
+    // 終了日なし（新発売など）は開始日の1か月後で自動的に消す（表示は「〜」のまま）
+    try{
+      (SETTINGS.campaigns||[]).forEach(cp=>{
+        if(cp.date_start && !cp.date_end && !cp.period){
+          const m=String(cp.date_start).match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+          if(!m) return;
+          const d=new Date(Number(m[1]),Number(m[2]),Number(m[3])); // 月は0始まりなので+1か月ぶん
+          cp.date_end=d.getFullYear()+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+('0'+d.getDate()).slice(-2);
+          cp._auto_end=true;
+        }
+      });
+    }catch(e){}
   }catch(e){
     console.warn('設定読み込みエラー:', e);
     SETTINGS = null;
