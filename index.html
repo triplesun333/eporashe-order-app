@@ -1049,6 +1049,7 @@ function pctCpnCalc(cp){
   let base=0;
   cart.forEach(c=>{
     if(c.isCampaignFixed) return; // キャンペーン価格・セット価格の商品は対象外
+    if(String(c.name||'').indexOf('アウトレット')!==-1) return; // アウトレット商品は対象外
     const code=String(c.code||'');
     if(codes.includes(code) || (early.includes(code) && (!eEnd || now<=eEnd))) base+=c.price*c.qty;
   });
